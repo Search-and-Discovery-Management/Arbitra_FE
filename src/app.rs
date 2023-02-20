@@ -93,28 +93,28 @@ impl Component for App {
 
     fn view(&self) -> Html {
 
-        let is_logged_in = self.username.is_some();
+        // let is_logged_in = self.username.is_some();
 
-        if is_logged_in {
-            html!{
-                <div>
-                    <RenderMember/>
-                </div>
-            }
-        }else {
-            html! {
-                <div>
-                    <RenderGuest/>
-                </div>
-            }
-        }
-
-        // html! {
-        //     <div>
-        //         // <Router<AppRoute,()> render=render/>
-        //         <Render/>
-
-        //     </div>
+        // if is_logged_in {
+        //     html!{
+        //         <div>
+        //             <RenderMember/>
+        //         </div>
+        //     }
+        // }else {
+        //     html! {
+        //         <div>
+        //             <RenderGuest/>
+        //         </div>
+        //     }
         // }
+
+        html! {
+            <div>
+                // <Router<AppRoute,()> render=render/>
+                <Render/>
+
+            </div>
+        }
     }
 }

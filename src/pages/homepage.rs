@@ -36,38 +36,21 @@ impl Component for HomePage {
     fn view(&self) -> Html {
         html! {
             <div>
-                <h1 style="background-color: #f2f5f7; padding-left: 12%;">{ "arbitra" }</h1>
-                
-                <div class="leftbox">
-                    <div class="redborderbox">
-                        <div class="yellowborderbox">
-                            <p class="arbitraPlatform">{ "Arbitra's Platform" }</p>
-                            <p class="arbitraPlatformDesc">{ "Create reliable search solutions" }<br/>{ "for your needs" }</p>
-                        </div>
-
-                        <div style="display: block; border: 1px solid #9eadba; margin-bottom: 10px; margin-left: 20px; margin-right: 20px"></div>
-
-                        <div style="margin-left: 20px; padding-bottom: 20%">
-                            <p style="color: #293845; font-size: 140%; font-weight: bold;">{ "Additional Resources" }</p>
-                            <p style="color: #293845; font-size: 110%;">{ "(image) Free trial and downloads" }</p>
-                            <p style="color: #293845; font-size: 110%;">{ "(image) Pricing" }</p>
-                        </div>
-                    </div>
+                <div class="nav-red">
+                    <a href="">{ "About Us" }</a>
+                    <a href="">{ "Partners" }</a>
+                    <a href="">{ "Support" }</a>
+                    <a href="/loginpage">{ "Login" }</a>
                 </div>
-                
-                <div class="middlebox">
-                    <a class="industryHeader" href="/index" >{ "OPEN INDEX PAGE (TEMP)" }</a>
-                    <ul>
-                        <li class="industryDesc">{ "Lorem Ipsum" }</li>
-                        <li class="industryDesc">{ "Lorem Ipsum" }</li>
-                        <li class="industryDesc">{ "Lorem Ipsum" }</li>
-                        <li class="industryDesc">{ "Lorem Ipsum" }</li>
-                        <li class="industryDesc">{ "Lorem Ipsum" }</li>
-                    </ul>
-                </div>
-                
-                <div class="rightbox">
-                    <h2 style="text-align: left">{ "Integrations" }</h2>
+
+                <div class="nav-grey">
+                    <img class="nav-logo" src="images/Arbitra_Horizontal1.png"/>
+                    <a href="/loginpage">{ "Platform" }</a>
+                    <a href="/loginpage">{ "Pricing" }</a>
+                    <a href="/loginpage">{ "Customers" }</a>
+                    <a href="/loginpage">{ "Developers" }</a>
+
+                    <input class="search-bar-navgrey" type="text" placeholder="Search.." />
                 </div>
             </div>
         }

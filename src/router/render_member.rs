@@ -82,7 +82,7 @@ impl Component for RenderMember {
                 _ => {
                     route_service.set_route("/index", ());
                     html!{
-                        <IndexPage/>
+                        <SignupPage/>
                     }
                 }
                 // AppRoute::LoginPage => {
