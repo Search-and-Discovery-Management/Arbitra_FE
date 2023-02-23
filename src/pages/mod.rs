@@ -5,3 +5,4 @@ pub mod dashboardpage;
 pub mod indexpage;
 //TEMPORARY
 // pub mod indexpage_window_createapp;
+pub mod card;

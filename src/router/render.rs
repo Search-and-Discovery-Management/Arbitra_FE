@@ -8,8 +8,9 @@ use crate::pages::{
     loginpage::LoginPage,
     signuppage::SignupPage,
     indexpage::IndexPage,
+    
     //TEMPORARY
-
+    card::CardTemp,
 
 
 
@@ -87,6 +88,12 @@ impl Component for Render {
                 AppRoute::IndexPage => {
                     html! {
                         <IndexPage/>
+                    }
+                }
+                //TEMP
+                AppRoute::CardTemp => {
+                    html! {
+                        <CardTemp/>
                     }
                 }
 

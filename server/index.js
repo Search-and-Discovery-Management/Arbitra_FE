@@ -64,3 +64,67 @@ app.get('/index_stat_data', (req,res) => {
   }
 
 })
+
+//GET DATA UNTUK CARDS (TEMPORARY!!!)
+app.get('/index_card_data', (req,res) => {
+  var data = [
+    {
+      name : "Kamisato Ayaka",
+      element: "Cryo",
+      level: 90,
+      attack: 2035,
+      defense: 874,
+      em : 123,
+      nation: "Inazuma"    
+    },
+    {
+      weapon: "Amenoma Kageuchi",
+      base_attack : 454,
+      level : 90,
+      substat: "ATK%",
+      substat_number: 55.1,
+      refinement: 5,
+    },
+    {
+      artifact: "Broken Rime's Echo",
+      set_name : "Blizzard Strayer",
+      level : 20,
+      mainstat: "Crit rate"
+    },
+    {
+      name : "Xingqiu",
+      element: "Hydro",
+      level: 80,
+      attack: 1345,
+      defense: 763,
+      em : 255,
+      nation: "Liyue"    
+    },
+    {
+      name : "Dan Heng",
+      element: "Wind",
+      path : "The Hunt",
+      faction: "Astral Express",
+      weapon: "Cloud Piercer"
+    },
+  ]
+  
+  let condition = "server error not";
+
+  if (condition == "server error") {
+    let error = {
+      error_description: "server currently error"
+    }
+    res.status(500).send(error)
+  } else if (condition == "authentication failed") {
+    let error = {
+      error_description: "auth failed"
+    }
+    res.status(400).send(error)
+  } else {
+    res.status(200).send(data)
+  }
+
+
+  
+})
