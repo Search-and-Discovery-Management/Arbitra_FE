@@ -7,7 +7,7 @@ use yew::{
     },
 };
 
-use serde_json::{from_str, Value};
+use serde_json::{from_str, Value, from_value};
 
 
 use crate::types::var::{
@@ -17,7 +17,7 @@ use crate::types::var::{
 
 pub enum Msg {
     RequestData,
-    GetCardData(Option<Value>),
+    GetCardData(Option<Vec<Value>>),
     ResponseError(String),
 }
 
@@ -26,7 +26,7 @@ pub struct CardTemp {
     // It can be used to send messages to the component
     fetch_task: Option<FetchTask>,
     link: ComponentLink<Self>,
-    card_data: Option<Value>,
+    card_data: Option<Vec<Value>>,
     error: Option<String>,
 }
 
@@ -38,7 +38,7 @@ impl Component for CardTemp {
         Self {
             fetch_task: None,
             link,
-            card_data: None,
+            card_data: Some(vec![]),
             error: None,
         }
     }
@@ -52,7 +52,7 @@ impl Component for CardTemp {
                     .body(Nothing)
                     .expect("Could not build request.");
                 let callback = 
-                    self.link.callback(|response: Response<Json<Result<serde_json::Value, anyhow::Error>>>| {
+                    self.link.callback(|response: Response<Json<Result<Vec<Value>, anyhow::Error>>>| {
                         let (meta, Json(data)) = response.into_parts();
                         // let status_number = meta.status.as_u16();
         
@@ -111,20 +111,31 @@ impl Component for CardTemp {
     }
 }
 
-// impl fmt::Display for CardTemp {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         write!(f, "({:?})", self.card_data)
-//     }
-// }
 
 impl CardTemp {
-    fn view_data(&self) -> Html{
-        let card_display= serde_json::to_string(&self.card_data).unwrap();
-            html!{
+    // fn view_data(&self) -> Html {
+    //     let json_str = serde_json::to_string(&self.card_data).unwrap();
+    //     ConsoleService::info(&format!("DEBUG json_str is {:?}", json_str));
+
+    //     let cards:Vec<serde_json::Value> =Some(serde_json::from_str(&json_str));
+    //     cards.iter().map(|card_display|{
+    //         html!{
+    //             <div class="index-card">
+    //                 { card_display }
+    //             </div>
+    //         }
+    //     }).collect()
+    // }
+    fn view_data(&self) -> Vec<Html> {
+        self.card_data.iter().map(|card|{
+                card.iter().map(|card_parse|{
+                    html!{
+                        <div class="index-card">
+                            { serde_json::to_string(card_parse).unwrap() }
+                        </div>
+                    }
+                }).collect()
                 
-                <div class="index-card">
-                    { card_display }
-                </div>
-            }
+            }).collect()
         }
 }

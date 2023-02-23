@@ -75,7 +75,7 @@ app.get('/index_card_data', (req,res) => {
       attack: 2035,
       defense: 874,
       em : 123,
-      nation: "Inazuma"    
+      nation: "Inazuma",
     },
     {
       weapon: "Amenoma Kageuchi",
@@ -89,7 +89,7 @@ app.get('/index_card_data', (req,res) => {
       artifact: "Broken Rime's Echo",
       set_name : "Blizzard Strayer",
       level : 20,
-      mainstat: "Crit rate"
+      mainstat: "Crit rate",
     },
     {
       name : "Xingqiu",
@@ -98,16 +98,16 @@ app.get('/index_card_data', (req,res) => {
       attack: 1345,
       defense: 763,
       em : 255,
-      nation: "Liyue"    
+      nation: "Liyue",  
     },
     {
       name : "Dan Heng",
       element: "Wind",
       path : "The Hunt",
       faction: "Astral Express",
-      weapon: "Cloud Piercer"
+      weapon: "Cloud Piercer",
     },
-  ]
+  ];
   
   let condition = "server error not";
 

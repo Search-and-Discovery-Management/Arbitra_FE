@@ -26,13 +26,16 @@ pub struct IndexList {
     pub app_name: String,
     pub index_name: String,
 }
+
 #[derive(Deserialize, Serialize, Debug, Clone)]
+// pub let mut Record:Option<Value>;
 pub struct Record { 
     // pub app_name: String,
     // pub index_name: String,
     // pub record_id: String,
     pub record_data: Option<Value>,
 }
+
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct RecordData{ 
     pub list: Option<Vec<Record>>,
