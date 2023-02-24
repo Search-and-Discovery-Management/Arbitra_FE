@@ -1,12 +1,20 @@
-use yew::{prelude::*, services::ConsoleService};
-
-use crate::components::{
-    indexpage_window_createapp::AppCreate,
-    indexpage_window_createindex::IndexCreate,
-    indexpage_window_deleterecord::DeleteRecord,
-    indexpage_window_editrecord::EditRecord,
-    indexpage_window_insertrecord::InsertRecord,
+use yew::{
+    format::{ Json, Nothing },
+    prelude::*,
+    services::{
+        fetch::{FetchService, FetchTask, Request, Response},
+        ConsoleService,
+    },
 };
+use serde_json::{from_str, Value, from_value};
+
+// use crate::components::{
+//     indexpage_window_createapp::AppCreate,
+//     indexpage_window_createindex::IndexCreate,
+//     indexpage_window_deleterecord::DeleteRecord,
+//     indexpage_window_editrecord::EditRecord,
+//     indexpage_window_insertrecord::InsertRecord,
+// };
 
 pub enum Msg {
     //EVENT TOGGLE (MERGE CLOSE DAN OPEN)
@@ -15,6 +23,10 @@ pub enum Msg {
     ToggleInsertRecord,
     ToggleEditRecord,
     ToggleDeleteRecord,
+
+    RequestData,
+    GetCardData(Option<Vec<Value>>),
+    ResponseError(String),
 
     Ignore,
 }
@@ -58,6 +70,10 @@ pub struct IndexPageComp {
     callback_toggle_insertrecord: Callback<Msg>,
     callback_toggle_editrecord: Callback<Msg>,
     callback_toggle_deleterecord: Callback<Msg>,
+
+    fetch_task: Option<FetchTask>,
+    card_data: Option<Vec<Value>>,
+    error: Option<String>,
 }
 
 impl Component for IndexPageComp {
@@ -74,6 +90,10 @@ impl Component for IndexPageComp {
             callback_toggle_deleterecord: props.on_toggle_deleterecord.clone(),
             props,
             // DISPLAY WINDOWS / MODAL (STATE)
+            fetch_task: None,
+            card_data: Some(vec![]),
+            error: None,
+            
 
         }
     }
@@ -111,6 +131,50 @@ impl Component for IndexPageComp {
                 true
             }
             
+            Msg::RequestData => {
+                //FETCHING...
+                let request = Request::get("http://localhost:3000/index_card_data")
+                    // .header("access_token", get_access_token{}.unwrap_or_default())
+                    .body(Nothing)
+                    .expect("Could not build request.");
+                let callback = 
+                    self.link.callback(|response: Response<Json<Result<Vec<Value>, anyhow::Error>>>| {
+                        let (meta, Json(data)) = response.into_parts();
+                        // let status_number = meta.status.as_u16();
+        
+                        match data { 
+                            Ok(dataok) => {
+                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                Msg:: GetCardData(Some(dataok))
+                            }
+                            Err(error) => {
+                                Msg::ResponseError(error.to_string())
+                            }
+                        }
+                    });
+        
+                let task = FetchService::fetch(request, callback).expect("failed to start request");
+                
+                self.fetch_task = Some(task);
+                true
+            }
+
+            Msg::GetCardData(data) => {
+                ConsoleService::info(&format!("data is {:?}", data));
+                self.card_data = data;
+                true
+            }
+
+            Msg::ResponseError(text) => {
+                ConsoleService::info(&format!("error is {:?}", text));
+                true
+            }
+        }
+    }
+
+    fn rendered(&mut self, first_render: bool) {
+        if first_render {
+			self.link.send_message(Msg::RequestData);
         }
     }
 
@@ -229,7 +293,32 @@ impl Component for IndexPageComp {
                                 <div class="search-bar">
                                     <input class="search" type="text" placeholder="Search..." />
                                 </div>
+
+                                <div>
+                                    { self.view_data() }
+
+                                    {
+                                        if self.card_data.clone().unwrap().is_empty() {
+                                            html!{
+                                                <div class="alert alert-danger m-4" role="alert">
+                                                    { "No Record in this Index...  " }
+                                                    
+                                                    <a href="#" onclick=self.link.callback(|_| Msg::ToggleInsertRecord)>
+                                                        { "Insert New Record" }
+                                                    </a>
+
+                                                </div>
+                                            }
+                                        } else {
+                                            html! {
+                                                //NOTHING YET
+                                            }
+                                        }
+                                    }
+                                </div>
                             </div>
+
+                            
                         </div>
 
                     </div>
@@ -238,3 +327,18 @@ impl Component for IndexPageComp {
             //BODY END
         }
     }
+
+impl IndexPageComp {
+    fn view_data(&self) -> Vec<Html> {
+        self.card_data.iter().map(|card|{
+                card.iter().map(|card_parse|{
+                    html!{
+                        <div class="index-card">
+                            { serde_json::to_string(card_parse).unwrap() }
+                        </div>
+                    }
+                }).collect()
+                
+            }).collect()
+        }
+}

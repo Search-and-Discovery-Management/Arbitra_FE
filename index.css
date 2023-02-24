@@ -409,7 +409,7 @@ input[type=password]:focus {
 .index-sidebar-small {
     background-color : #E5C8C9;
     width: 72px;
-    position: relative;
+    position: sticky;
     height:100vh;
     overflow: auto;
 
@@ -424,6 +424,7 @@ input[type=password]:focus {
 }
 
 .rightSideBar{
+    position: sticky;
     float:left;
     padding-left: 1%;
     width: 15%;
@@ -635,13 +636,15 @@ input[type=password]:focus {
 
 .card {
     border-top: solid 1px black;
-    height: 50vh;
+    height: 72vh;
     background-color: #e3e8ed;
+    overflow: scroll;
 }
 
 .search-bar {
     margin-top: 2%;
     margin-left: 1%;
+
 }
 
 .search {
@@ -793,17 +796,18 @@ input[type=password]:focus {
 
 /* STYLING UNTUK CARDS DI INDEX PAGE */
 .index-card {
-    box-shadow: 0 6px 10px 0 rgba(0,0,0,0.3);
+    box-shadow: 0 3px 6px 0 rgba(0,0,0,0.3);
     transition: 0.3s;
 
     padding: 16px;
-    margin: 2vh 2vw 2vh 2vw;
-    border-radius: 16px;
+    margin: 2vh 4vw 2vh 1vw;
+    border-radius: 8px;
 
-    width : 100vw;
+    width : 100%;
+    background-color: white;
 }
 
 .index-card:hover { 
-    box-shadow: 0 10px 18px 0 rgba(0,0,0,0.3);
+    box-shadow: 0 6px 10px 0 rgba(0,0,0,0.3);
 }
 

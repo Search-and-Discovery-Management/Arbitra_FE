@@ -107,6 +107,44 @@ app.get('/index_card_data', (req,res) => {
       faction: "Astral Express",
       weapon: "Cloud Piercer",
     },
+    {
+      name : "Yelan",
+      element: "Hydro",
+      level: 90,
+      attack: 2042,
+      defense: 980,
+      em : 203,
+      nation: "Liyue",  
+    },
+    {
+      name : "Nahida",
+      element: "Dendro",
+      level: 80,
+      attack: 1603,
+      defense: 587,
+      em : 954,
+      nation: "Sumeru",  
+    },
+    {
+      unit : "Panzer IV",
+      type: "Medium Tank",
+      armor_front: 247,
+      armor_rear: 90,
+      damage: 160,
+      cost: "340 Manpower, 125 fuel",
+    },
+    {
+      name: "Nobara",
+      lastname: "Kugisaki",
+      age: 16,
+      ability: [
+        {
+        skill:["Straw Doll","Resonance","Hairpin"],
+        weapon:["Hammer","Nails","Rubber Mallet","Straw Doll"],
+      },
+      ]
+    }
+    
   ];
   
   let condition = "server error not";

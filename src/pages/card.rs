@@ -105,6 +105,21 @@ impl Component for CardTemp {
         html! {
             <div>
                 { self.view_data() }
+
+                {
+                    if self.card_data.clone().unwrap().is_empty() {
+                        html!{
+                            <div class="alert alert-danger m-4" role="alert">
+                                { "No Record in this Index" }
+                                
+                            </div>
+                        }
+                    } else {
+                        html! {
+                            //NOTHING YET
+                        }
+                    }
+                }
             </div>
             //BODY END
         }
@@ -113,19 +128,7 @@ impl Component for CardTemp {
 
 
 impl CardTemp {
-    // fn view_data(&self) -> Html {
-    //     let json_str = serde_json::to_string(&self.card_data).unwrap();
-    //     ConsoleService::info(&format!("DEBUG json_str is {:?}", json_str));
 
-    //     let cards:Vec<serde_json::Value> =Some(serde_json::from_str(&json_str));
-    //     cards.iter().map(|card_display|{
-    //         html!{
-    //             <div class="index-card">
-    //                 { card_display }
-    //             </div>
-    //         }
-    //     }).collect()
-    // }
     fn view_data(&self) -> Vec<Html> {
         self.card_data.iter().map(|card|{
                 card.iter().map(|card_parse|{
