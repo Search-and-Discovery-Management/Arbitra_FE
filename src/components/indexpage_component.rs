@@ -214,7 +214,24 @@ impl Component for IndexPageComp {
 
                             </div>
                         </div>
-                                        
+
+                        <div class="bottom-index-dashboard">
+                            <div class="flex-container">
+                                <button class="subtab-p">{ "Browse" }</button>
+                                <button class="subtab-p">{ "Configuration" }</button>
+                                <button class="subtab-p">{ "Replicas" }</button>
+                                <button class="subtab-p">{ "Search API Records" }</button>
+                                <button class="subtab-p">{ "Stats" }</button>
+                                <button class="subtab-p">{ "UI Demos" }</button>
+                            </div>
+
+                            <div class="card">
+                                <div class="search-bar">
+                                    <input class="search" type="text" placeholder="Search..." />
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                
         }
