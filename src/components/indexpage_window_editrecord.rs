@@ -1,7 +1,8 @@
-use yew::prelude::*;
+use yew::{prelude::*, services::ConsoleService};
 
 pub enum Msg {
     ToggleEditRecord,
+    ValidateInputJson(String)
 }
 
 #[derive(Properties, Clone, Debug, PartialEq)]
@@ -9,7 +10,10 @@ pub struct WindowEditRecordProps {
     // #[prop_or(String::from("this is value"))]
     #[prop_or(false)]
     pub display_edit_record: bool,
+
     pub on_toggle_editrecord:Callback<Msg>,
+    // #[prop_or_default]
+    // pub edit_data: String,
 }
 
 
@@ -18,7 +22,9 @@ pub struct EditRecord {
     // It can be used to send messages to the component
     link: ComponentLink<Self>,
     props: WindowEditRecordProps,
-    callback_toggle_editecord: Callback<Msg>,
+    callback_toggle_editrecord: Callback<Msg>,
+    value: String,
+    json_is_valid: bool,
 }
 
 impl Component for EditRecord {
@@ -28,15 +34,28 @@ impl Component for EditRecord {
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
             link,
-            callback_toggle_editecord: props.on_toggle_editrecord.clone(),
+            callback_toggle_editrecord: props.on_toggle_editrecord.clone(),
             props,
+            value: "".to_string(),
+            json_is_valid: false,
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::ToggleEditRecord => {
-                self.callback_toggle_editecord.emit(Msg::ToggleEditRecord);
+                self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord);
+                // ConsoleService::info(&format!("DEBUG : self.edit_data COMPONENT:{:?}", self.props.edit_data.clone()));
+                true
+            }
+            Msg::ValidateInputJson (data) => {
+                self.value = data;
+                self.json_is_valid = match serde_json::from_str::<serde_json::Value>(&self.value) {
+                    Ok(_) => true,
+                    Err(_) => false,
+                };
+                ConsoleService::info(&format!("DEBUG : value:{:?}", self.value));
+                ConsoleService::info(&format!("DEBUG : json_is_valid:{:?}", self.json_is_valid));
                 true
             }
         }
@@ -73,19 +92,35 @@ impl Component for EditRecord {
                             <textarea 
                                 type="text" 
                                 class="insert-record" 
+                                
+                                oninput = self.link.callback(|data: InputData| Msg::ValidateInputJson(data.value))
                                 >
-                            {""}  
+                            {"self.props.edit_data.clone()"}  
                             </textarea>
                         </form>   
                     </div> 
 
-                    <button 
-                        type="submit"
-                        form="submit-editrecord"
-                        class="window-confirm-button"
-                    >
-                        { "EDIT RECORD" }
-                    </button>
+                    {
+                        if self.json_is_valid {
+                            html!{
+                                <button 
+                                type="submit"
+                                form="submit-editrecord"
+                                class="window-confirm-button"
+                                >
+                                { "EDIT RECORD" }
+                                </button>
+                            }
+                            
+                        } else {
+                            html! {
+                                <button disabled=true class="window-confirm-button">
+                                    {"FORM INPUT MUST BE IN JSON FORMAT!"}
+                                </button> 
+                            }
+                        }
+                    }
+                    
                     
                 </div>
 

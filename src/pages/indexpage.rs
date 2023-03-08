@@ -26,6 +26,9 @@ pub struct IndexPage {
     display_insert_record: bool,
     display_edit_record: bool,
     display_delete_record: bool,
+
+    // edit_data : Option<String>,
+    // edit_index: usize,
 }
 
 impl Component for IndexPage {
@@ -41,6 +44,10 @@ impl Component for IndexPage {
             display_insert_record: false,
             display_edit_record: false,
             display_delete_record: false,
+
+            //UNTUK EDIT DATA
+            // edit_data : None,
+            // edit_index : 0,
         }
     }
 
@@ -64,7 +71,9 @@ impl Component for IndexPage {
             }
             Msg::ToggleEditRecord => {
                 self.display_edit_record = !self.display_edit_record;
+                // self.edit_data = Some(data.clone());
                 ConsoleService::info(&format!("DEBUG : display_edit_record:{:?}", self.display_edit_record));
+                // ConsoleService::info(&format!("DEBUG : self.edit_data:{:?}", self.edit_data.clone()));
                 true
             }
             Msg::ToggleDeleteRecord => {

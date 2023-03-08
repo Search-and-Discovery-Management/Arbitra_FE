@@ -6,7 +6,7 @@ use yew::{
         ConsoleService,
     },
 };
-use serde_json::{from_str, Value, from_value};
+use serde_json::{from_str, Value, from_value, to_string_pretty};
 
 // use crate::components::{
 //     indexpage_window_createapp::AppCreate,
@@ -37,12 +37,18 @@ pub struct IndexPageCompProps {
     // #[prop_or(String::from("this is value"))]
     #[prop_or(false)]
     pub display_create_app: bool,
+
     #[prop_or(false)]
     pub display_create_index: bool,
+
     #[prop_or(false)]
     pub display_insert_record: bool,
+
     #[prop_or(false)]
     pub display_edit_record: bool,
+    // #[prop_or_default]
+    // pub edit_data: String,
+    
     #[prop_or(false)]
     pub display_delete_record: bool,
 
@@ -119,6 +125,7 @@ impl Component for IndexPageComp {
             Msg::ToggleEditRecord => {
                 self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord);
                 ConsoleService::info(&format!("DEBUG : display_edit_record:{:?}", self.props.display_edit_record));
+                // ConsoleService::info(&format!("DEBUG : self.edit_data INDEX PAGE COMPONENT:{:?}", self.props.edit_data.clone()));
                 true
             }
             Msg::ToggleDeleteRecord => {
@@ -330,11 +337,47 @@ impl Component for IndexPageComp {
 
 impl IndexPageComp {
     fn view_data(&self) -> Vec<Html> {
-        self.card_data.iter().map(|card|{
-                card.iter().map(|card_parse|{
+        self.card_data.iter().enumerate().map(|(i,cards)|{
+                cards.iter().enumerate().map(|(i,card_parse)|{
+                    // //
+                    // let card_value = to_string_pretty(&card_parse).unwrap();
+                    // let card_trim = card_value.trim_start().trim_end().to_string();
+                    // //
                     html!{
                         <div class="index-card">
-                            { serde_json::to_string(card_parse).unwrap() }
+                            <div class="card-main">
+                                <div class="card-number">
+                                    {"#"}{i+1}
+                                </div>
+
+                                <pre class="card-json">
+                                    <code style="font-size:12px;font-weight: bold; line-height: 1.8;">
+                                        { serde_json::to_string_pretty(card_parse).unwrap() }
+                                    </code>
+                                </pre>
+                            
+                            </div>
+
+
+                            <div class="index-card-buttons">
+                                <button 
+                                    type="button"
+                                    class="card-button"
+                                    onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)
+                                >
+                                    <img class="card-icon" src="images/trash-can.png"/>
+                                    
+                                </button>
+
+                                <button 
+                                    type="button"
+                                    class="card-button"
+                                    onclick=self.link.callback(|_| Msg::ToggleEditRecord)
+                                >
+                                    <img class="card-icon" src="images/edit.png"/>
+                                    
+                                </button>
+                            </div>
                         </div>
                     }
                 }).collect()

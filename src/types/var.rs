@@ -21,11 +21,14 @@ pub struct DashboardData {
 pub struct Application {
     pub app_name: String, 
 }
+
+
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct IndexList {
     pub app_name: String,
     pub index_name: String,
 }
+
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 // pub let mut Record:Option<Value>;
