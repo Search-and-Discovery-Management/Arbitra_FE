@@ -6,7 +6,9 @@ use yew::{
         ConsoleService,
     },
 };
-use serde_json::{from_str, Value, from_value};
+use serde::{Deserialize, Serialize};
+use serde_json::{from_str, Value, from_value, Map};
+use crate::types::var;
 
 // use crate::components::{
 //     indexpage_window_createapp::AppCreate,
@@ -25,10 +27,31 @@ pub enum Msg {
     ToggleDeleteRecord,
 
     RequestData,
+    RequestMoreData,
     GetCardData(Option<Vec<Value>>),
+    GetMoreData(Option<Vec<MoreData>>),
     ResponseError(String),
 
+    RequestIndexData,
+    GetIndexData(Option<Vec<IndexData>>),
+
     Ignore,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct IndexData{
+    pub index: Option<String>
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct MoreData {
+    name : Option<String>,
+    element: Option<String>,
+    level: Option<u32>,
+    attack: Option<u32>,
+    defense: Option<u32>,
+    em : Option<u32>,
+    nation: Option<String>,
 }
 
 
@@ -73,6 +96,8 @@ pub struct IndexPageComp {
 
     fetch_task: Option<FetchTask>,
     card_data: Option<Vec<Value>>,
+    more_data: Option<Vec<MoreData>>,
+    index_data: Option<Vec<IndexData>>,
     error: Option<String>,
 }
 
@@ -93,8 +118,8 @@ impl Component for IndexPageComp {
             fetch_task: None,
             card_data: Some(vec![]),
             error: None,
-            
-
+            more_data: Some(vec![]),
+            index_data: Some(vec![]),
         }
     }
 
@@ -130,10 +155,38 @@ impl Component for IndexPageComp {
                 ConsoleService::info(&format!("DEBUG : Event Ignore", ));
                 true
             }
+
+            Msg::RequestIndexData => {
+                //FETCHING...
+                let request = Request::get("https://search-discovery-api.dev-domain.site/api/index")
+                    // .header("access_token", get_access_token{}.unwrap_or_default())
+                    .body(Nothing)
+                    .expect("Could not build request.");
+                let callback = 
+                    self.link.callback(|response: Response<Json<Result<Vec<IndexData>, anyhow::Error>>>| {
+                        let (meta, Json(data)) = response.into_parts();
+                        // let status_number = meta.status.as_u16();
+        
+                        match data { 
+                            Ok(dataok) => {
+                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                Msg:: GetIndexData(Some(dataok))
+                            }
+                            Err(error) => {
+                                Msg::ResponseError(error.to_string())
+                            }
+                        }
+                    });
+        
+                let task = FetchService::fetch(request, callback).expect("failed to start request");
+                
+                self.fetch_task = Some(task);
+                true
+            }
             
             Msg::RequestData => {
                 //FETCHING...
-                let request = Request::get("http://localhost:3000/index_card_data")
+                let request = Request::get("https://search-discovery-api.dev-domain.site/api/search")
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
                     .expect("Could not build request.");
@@ -159,9 +212,64 @@ impl Component for IndexPageComp {
                 true
             }
 
+            Msg::RequestMoreData => {
+                //POST FETCHING...
+
+                let villain = MoreData {
+                    name: Some(String::from("Yelan")),
+                    element: None,
+                    level: None,
+                    attack: None,
+                    defense: None,
+                    em : None,
+                    nation: None,
+                };
+
+                let request = Request::post("http://localhost:3000/attack")
+                    .header("Content-Type", "application/json")
+                    // .header(Json(&villain))
+                    .body(Json(&villain))
+                    .expect("Could not build request.");
+                let callback = 
+                    self.link.callback(|response: Response<Json<Result<Vec<MoreData>, anyhow::Error>>>| {
+                        let (meta, Json(data)) = response.into_parts();
+                        // let status_number = meta.status.as_u16();
+        
+                        match data { 
+                            Ok(dataok) => {
+                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                Msg:: GetMoreData(Some(dataok))
+                            }
+                            Err(error) => {
+                                Msg::ResponseError(error.to_string())
+                            }
+                        }
+                    });
+        
+                let task = FetchService::fetch(request, callback).expect("failed to start request");
+                
+                self.fetch_task = Some(task);
+                true
+            }
+
+            Msg::GetIndexData(data) => {
+                ConsoleService::info(&format!("data is {:?}", data));
+                self.index_data = data;
+                true
+            }
+
+
+            Msg::GetMoreData(data) => {
+                ConsoleService::info(&format!("data is {:?}", data));
+                self.card_data = None;
+                self.more_data = data;
+                true
+            }
+
             Msg::GetCardData(data) => {
                 ConsoleService::info(&format!("data is {:?}", data));
                 self.card_data = data;
+                self.more_data = None;
                 true
             }
 
@@ -174,7 +282,7 @@ impl Component for IndexPageComp {
 
     fn rendered(&mut self, first_render: bool) {
         if first_render {
-			self.link.send_message(Msg::RequestData);
+			self.link.send_message(Msg::RequestIndexData);
         }
     }
 
@@ -226,13 +334,14 @@ impl Component for IndexPageComp {
                                 <div class="dropdownIndex">
                                     <button class="mainmenubtnIndex">{ "INDEX NAME \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
                                     <div class="dropdown-childIndex">
+                                        
+                                        { self.view_index_data() }
+                                        
                                         <a 
                                             href="#"
                                             onclick=self.link.callback(|_| Msg::ToggleCreateIndex)>
                                             { "Create New Index" }
                                         </a>
-                                        // <a href="#">{ "Link 2" }</a>
-                                        // <a href="#">{ "Link 3" }</a>
                                     </div>
                                 </div>
 
@@ -291,14 +400,23 @@ impl Component for IndexPageComp {
 
                             <div class="card">
                                 <div class="search-bar">
-                                    <input class="search" type="text" placeholder="Search..." />
+                                    <input class="search" type="text" placeholder="Search..."/>
+                                </div>
+
+                                <div>
+                                    <button style="margin-left: 45%; margin-top: 1%" onclick=self.link.callback(|_| Msg::RequestData)>{ "Get Data" }</button>
+                                </div>
+
+                                <div>
+                                    <button style="margin-left: 45%; margin-top: 1%" onclick=self.link.callback(|_| Msg::RequestMoreData)>{ "Get More Data (Post)" }</button>
                                 </div>
 
                                 <div>
                                     { self.view_data() }
+                                    { self.view_more_data() }
 
                                     {
-                                        if self.card_data.clone().unwrap().is_empty() {
+                                        if self.card_data.clone().unwrap_or_default().is_empty() && self.more_data.clone().unwrap_or_default().is_empty() {
                                             html!{
                                                 <div class="alert alert-danger m-4" role="alert">
                                                     { "No Record in this Index...  " }
@@ -316,9 +434,9 @@ impl Component for IndexPageComp {
                                         }
                                     }
                                 </div>
-                            </div>
 
-                            
+                            </div>      
+
                         </div>
 
                     </div>
@@ -329,6 +447,19 @@ impl Component for IndexPageComp {
     }
 
 impl IndexPageComp {
+    fn view_index_data(&self) -> Vec<Html> {
+        self.index_data.iter().map(|card|{
+                card.iter().map(|card_parse|{
+                    html!{
+                        <a class="index-name">
+                            { serde_json::to_string(card_parse).unwrap() }
+                        </a>
+                    }
+                }).collect()
+                
+            }).collect()
+    }
+
     fn view_data(&self) -> Vec<Html> {
         self.card_data.iter().map(|card|{
                 card.iter().map(|card_parse|{
@@ -340,5 +471,18 @@ impl IndexPageComp {
                 }).collect()
                 
             }).collect()
-        }
+    }
+
+    fn view_more_data(&self) -> Vec<Html> {
+        self.more_data.iter().map(|card|{
+                card.iter().map(|card_parse|{
+                    html!{
+                        <div class="index-card">
+                            { serde_json::to_string(card_parse).unwrap() }
+                        </div>
+                    }
+                }).collect()
+                
+            }).collect()
+    }
 }
