@@ -14,7 +14,7 @@ pub enum Msg {
     ToggleCreateApp,
     ToggleCreateIndex,
     ToggleInsertRecord,
-    ToggleEditRecord,
+    ToggleEditRecord(String, usize),
     ToggleDeleteRecord,
 }
 
@@ -27,8 +27,8 @@ pub struct IndexPage {
     display_edit_record: bool,
     display_delete_record: bool,
 
-    // edit_data : Option<String>,
-    // edit_index: usize,
+    edit_data : String,
+    edit_index: usize,
 }
 
 impl Component for IndexPage {
@@ -46,8 +46,8 @@ impl Component for IndexPage {
             display_delete_record: false,
 
             //UNTUK EDIT DATA
-            // edit_data : None,
-            // edit_index : 0,
+            edit_data : String::from(""),
+            edit_index : 0,
         }
     }
 
@@ -69,11 +69,15 @@ impl Component for IndexPage {
                 ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.display_insert_record));
                 true
             }
-            Msg::ToggleEditRecord => {
-                self.display_edit_record = !self.display_edit_record;
-                // self.edit_data = Some(data.clone());
+            Msg::ToggleEditRecord (data, index) =>  {
                 ConsoleService::info(&format!("DEBUG : display_edit_record:{:?}", self.display_edit_record));
-                // ConsoleService::info(&format!("DEBUG : self.edit_data:{:?}", self.edit_data.clone()));
+                ConsoleService::info(&format!("DEBUG : data PARENT:{:?}", data.clone()));
+                ConsoleService::info(&format!("DEBUG : idx PARENT:{:?}", index.clone()));
+
+                self.display_edit_record = !self.display_edit_record;
+                self.edit_data = data;
+                self.edit_index = index;
+
                 true
             }
             Msg::ToggleDeleteRecord => {
@@ -99,6 +103,9 @@ impl Component for IndexPage {
         let ToggleInsertRecord = self.display_insert_record;
         let ToggleEditRecord = self.display_edit_record;
         let ToggleDeleteRecord = self.display_delete_record;
+
+        let edit_data_event = self.edit_data.clone();
+        let edit_index_event = self.edit_index.clone();
         
         //CONDITIONAL KALAU BUKA CREATE APP
         if ToggleCreateApp { 
@@ -114,9 +121,12 @@ impl Component for IndexPage {
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
-                        on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
+                        on_toggle_editrecord = self.link.callback(move |_| Msg::ToggleEditRecord(edit_data_event.clone(),edit_index_event.clone()))
                         on_toggle_deleterecord = self.link.callback(|_| Msg::ToggleDeleteRecord)
-                        />
+                        
+                        edit_data = self.edit_data.clone()
+                        edit_index = self.edit_index.clone()
+                    />
                     //DISPLAY WINDOW DISINI         
                     <AppCreate 
                         display_create_app=self.display_create_app.clone()
@@ -138,8 +148,11 @@ impl Component for IndexPage {
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
-                        on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
+                        on_toggle_editrecord = self.link.callback(move |_| Msg::ToggleEditRecord(edit_data_event.clone(),edit_index_event.clone()))
                         on_toggle_deleterecord = self.link.callback(|_| Msg::ToggleDeleteRecord)
+                    
+                        edit_data = self.edit_data.clone()
+                        edit_index = self.edit_index.clone()
                     />
                     //DISPLAY WINDOW DISINI      
                     <IndexCreate 
@@ -162,8 +175,11 @@ impl Component for IndexPage {
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
-                        on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
+                        on_toggle_editrecord = self.link.callback(move |_| Msg::ToggleEditRecord(edit_data_event.clone(),edit_index_event.clone()))
                         on_toggle_deleterecord = self.link.callback(|_| Msg::ToggleDeleteRecord)
+                    
+                        edit_data = self.edit_data.clone()
+                        edit_index = self.edit_index.clone()
                     />
                     //DISPLAY WINDOW DISINI         
                     <InsertRecord
@@ -174,6 +190,10 @@ impl Component for IndexPage {
             }
         //CONDITIONAL BUKA MODAL EDIT RECORD
         } else if ToggleEditRecord {
+
+            let edit_data_event_again = edit_data_event.clone();
+            let edit_index_event_again = edit_index_event.clone();
+
             html!{  
                 <div> 
                     <IndexPageComp
@@ -185,14 +205,21 @@ impl Component for IndexPage {
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
-                        on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
+                        on_toggle_editrecord = self.link.callback(move |_| Msg::ToggleEditRecord(edit_data_event.clone(),edit_index_event.clone()))
                         on_toggle_deleterecord = self.link.callback(|_| Msg::ToggleDeleteRecord)
+
+                        edit_data = self.edit_data.clone()
+                        edit_index = self.edit_index.clone()
                     />
 
                     //DISPLAY WINDOW DISINI         
                     <EditRecord
                         display_edit_record=self.display_edit_record.clone()
-                        on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord) />
+                        edit_data = self.edit_data.clone()
+                        edit_index = self.edit_index.clone()
+                        on_toggle_editrecord = self.link.callback(move |_| Msg::ToggleEditRecord(edit_data_event_again.clone(),edit_index_event_again.clone()))
+                        
+                        />
 
                 </div>
 
@@ -210,8 +237,11 @@ impl Component for IndexPage {
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
-                        on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
+                        on_toggle_editrecord = self.link.callback(move |_| Msg::ToggleEditRecord(edit_data_event.clone(),edit_index_event.clone()))
                         on_toggle_deleterecord = self.link.callback(|_| Msg::ToggleDeleteRecord)
+                    
+                        edit_data = self.edit_data.clone()
+                        edit_index = self.edit_index.clone()
                     />
                     //DISPLAY WINDOW DISINI         
                     <DeleteRecord
@@ -233,8 +263,11 @@ impl Component for IndexPage {
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
-                        on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
+                        on_toggle_editrecord = self.link.callback(move |_| Msg::ToggleEditRecord(edit_data_event.clone(),edit_index_event.clone()))
                         on_toggle_deleterecord = self.link.callback(|_| Msg::ToggleDeleteRecord)
+                    
+                        edit_data = self.edit_data.clone()
+                        edit_index = self.edit_index.clone()
                     />
                     </div>
                

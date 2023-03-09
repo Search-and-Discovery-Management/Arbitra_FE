@@ -21,7 +21,7 @@ pub enum Msg {
     ToggleCreateApp,
     ToggleCreateIndex,
     ToggleInsertRecord,
-    ToggleEditRecord,
+    ToggleEditRecord(String, usize),
     ToggleDeleteRecord,
 
     RequestData,
@@ -46,8 +46,10 @@ pub struct IndexPageCompProps {
 
     #[prop_or(false)]
     pub display_edit_record: bool,
-    // #[prop_or_default]
-    // pub edit_data: String,
+    #[prop_or_default]
+    pub edit_data: String,
+    #[prop_or_default]
+    pub edit_index: usize,
     
     #[prop_or(false)]
     pub display_delete_record: bool,
@@ -64,11 +66,7 @@ pub struct IndexPageCompProps {
 pub struct IndexPageComp {
     link: ComponentLink<Self>,
     //DISPLAY WINDOWS / MODAL (STATE)
-    // display_create_app: bool,
-    // display_create_index: bool,
-    // display_insert_record: bool,
-    // display_edit_record: bool,
-    // display_delete_record: bool,
+
 
     props: IndexPageCompProps,
     callback_toggle_createapp: Callback<Msg>,
@@ -122,10 +120,14 @@ impl Component for IndexPageComp {
                 ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.props.display_insert_record));
                 true
             }
-            Msg::ToggleEditRecord => {
-                self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord);
+            Msg::ToggleEditRecord (data, index) => {
+                
+                // self.props.edit_data.emit("Hello World".to_string());
                 ConsoleService::info(&format!("DEBUG : display_edit_record:{:?}", self.props.display_edit_record));
-                // ConsoleService::info(&format!("DEBUG : self.edit_data INDEX PAGE COMPONENT:{:?}", self.props.edit_data.clone()));
+                ConsoleService::info(&format!("DEBUG : data INDEX PAGE CHILD:{:?}", data.clone()));
+                ConsoleService::info(&format!("DEBUG : index INDEX PAGE CHILD:{:?}", index.clone()));
+
+                self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord("Hello world".to_string(), index));
                 true
             }
             Msg::ToggleDeleteRecord => {
@@ -181,15 +183,21 @@ impl Component for IndexPageComp {
 
     fn rendered(&mut self, first_render: bool) {
         if first_render {
+            // ConsoleService::info(&format!("DEBUG : self.edit_data INDEX PAGE COMPONENT:{:?}", self.props.edit_data));
 			self.link.send_message(Msg::RequestData);
         }
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        // Should only return "true" if new properties are different to
-        // previously received properties.
-        // This component has no properties so we will always return "false".
-        false
+    fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        if self.props.edit_data != props.edit_data || self.props.edit_index != props.edit_index {
+            self.props.edit_data = props.edit_data;
+            self.props.edit_index = props.edit_index;
+            // self.role_permissions = props.role_permissions;
+            true
+        }else {
+            false
+        }
+        
     }
 
     fn view(&self) -> Html {
@@ -255,7 +263,7 @@ impl Component for IndexPageComp {
                                     <button class="mainmenubtnRecord">{ "New Record \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
                                     <div class="dropdown-childRecord">
                                         <a href="#" onclick=self.link.callback(|_| Msg::ToggleInsertRecord)>{ "Insert New Record" }</a>
-                                        <a href="#" onclick=self.link.callback(|_| Msg::ToggleEditRecord)>{ "Edit Record" }</a>
+                                        // <a href="#" onclick=self.link.callback(|_| Msg::ToggleEditRecord)>{ "Edit Record" }</a>
                                         <a href="#" onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)>{ "Delete Record" }</a>
                                     </div>
                                 </div>
@@ -343,6 +351,11 @@ impl IndexPageComp {
                     // let card_value = to_string_pretty(&card_parse).unwrap();
                     // let card_trim = card_value.trim_start().trim_end().to_string();
                     // //
+
+                    let edit_text_data = serde_json::to_string(card_parse).unwrap();
+                    let edit_index = i.clone();
+                   
+                    
                     html!{
                         <div class="index-card">
                             <div class="card-main">
@@ -352,7 +365,7 @@ impl IndexPageComp {
 
                                 <pre class="card-json">
                                     <code style="font-size:12px;font-weight: bold; line-height: 1.8;">
-                                        { serde_json::to_string_pretty(card_parse).unwrap() }
+                                        { serde_json::to_string_pretty(card_parse).unwrap().replace(&['{', '}','"'], "") }
                                     </code>
                                 </pre>
                             
@@ -372,7 +385,7 @@ impl IndexPageComp {
                                 <button 
                                     type="button"
                                     class="card-button"
-                                    onclick=self.link.callback(|_| Msg::ToggleEditRecord)
+                                    onclick=self.link.callback(move |_| Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone()))
                                 >
                                     <img class="card-icon" src="images/edit.png"/>
                                     

@@ -10,10 +10,13 @@ pub struct WindowEditRecordProps {
     // #[prop_or(String::from("this is value"))]
     #[prop_or(false)]
     pub display_edit_record: bool,
-
+    #[prop_or_default]
+    pub edit_data: String,
+    #[prop_or_default]
+    pub edit_index: usize,
     pub on_toggle_editrecord:Callback<Msg>,
-    // #[prop_or_default]
-    // pub edit_data: String,
+
+   
 }
 
 
@@ -61,11 +64,14 @@ impl Component for EditRecord {
         }
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        // Should only return "true" if new properties are different to
-        // previously received properties.
-        // This component has no properties so we will always return "false".
-        false
+    fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        if self.props.edit_data != props.edit_data {
+            self.props.edit_data = props.edit_data;
+            // self.role_permissions = props.role_permissions;
+            true
+        }else {
+            false
+        }
     }
 
     fn view(&self) -> Html {
@@ -95,7 +101,7 @@ impl Component for EditRecord {
                                 
                                 oninput = self.link.callback(|data: InputData| Msg::ValidateInputJson(data.value))
                                 >
-                            {"self.props.edit_data.clone()"}  
+                            {self.props.edit_data.clone()}  
                             </textarea>
                         </form>   
                     </div> 
