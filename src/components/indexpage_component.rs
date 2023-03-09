@@ -452,7 +452,7 @@ impl IndexPageComp {
                 card.iter().map(|card_parse|{
                     html!{
                         <a class="index-name">
-                            { serde_json::to_string(card_parse).unwrap() }
+                            { serde_json::to_string_pretty(&card_parse.index).unwrap().trim_start().replace("\"", "")}
                         </a>
                     }
                 }).collect()
