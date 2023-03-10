@@ -186,7 +186,7 @@ impl Component for IndexPageComp {
             
             Msg::RequestData => {
                 //FETCHING...
-                let request = Request::get("https://search-discovery-api.dev-domain.site/api/search")
+                let request = Request::get("http://localhost:3000/index_card_data")
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
                     .expect("Could not build request.");
