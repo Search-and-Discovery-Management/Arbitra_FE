@@ -1,5 +1,7 @@
 use yew::{prelude::*, services::ConsoleService};
 
+use serde_json::{from_str, Value, from_value, to_string_pretty};
+
 pub enum Msg {
     ToggleEditRecord,
     ValidateInputJson(String)
@@ -28,6 +30,9 @@ pub struct EditRecord {
     callback_toggle_editrecord: Callback<Msg>,
     value: String,
     json_is_valid: bool,
+
+    // edit_textarea_data: String,
+    textarea_string: String,
 }
 
 impl Component for EditRecord {
@@ -35,12 +40,20 @@ impl Component for EditRecord {
     type Properties = WindowEditRecordProps;
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
+       
+        let textarea_value = props.edit_data.clone();
+        let textarea_parse:Value = serde_json::from_str(&textarea_value).unwrap();
+        let textarea_pretty = serde_json::to_string_pretty(&textarea_parse).unwrap();
+
+
         Self {
             link,
             callback_toggle_editrecord: props.on_toggle_editrecord.clone(),
             props,
             value: "".to_string(),
             json_is_valid: false,
+            
+            textarea_string: textarea_pretty,
         }
     }
 
@@ -52,6 +65,7 @@ impl Component for EditRecord {
                 true
             }
             Msg::ValidateInputJson (data) => {
+
                 self.value = data;
                 self.json_is_valid = match serde_json::from_str::<serde_json::Value>(&self.value) {
                     Ok(_) => true,
@@ -75,12 +89,16 @@ impl Component for EditRecord {
     }
 
     fn view(&self) -> Html {
+
+       
+        // let textarea_str = textarea_pretty.as_str();
+
         html! {
             <div class="window-overlay">
                 <div class="window-index" id="create-index"> 
 
                     <div class="top-row-index-window-insert">
-                        <h1>{"EDIT RECORD #"}{""}</h1>
+                        <h1>{"EDIT RECORD #"}{self.props.edit_index.clone()+1}</h1>
                         
                         <button 
                             type="button" 
@@ -98,10 +116,14 @@ impl Component for EditRecord {
                             <textarea 
                                 type="text" 
                                 class="insert-record" 
-                                
+                                style="font-size:12px;font-weight: bold; line-height: 1.8;"
+                                // value = String::from("Superman")
                                 oninput = self.link.callback(|data: InputData| Msg::ValidateInputJson(data.value))
+                                value = self.textarea_string.clone()
                                 >
-                            {self.props.edit_data.clone()}  
+           
+                                    // {self.props.edit_data.clone()} 
+                            
                             </textarea>
                         </form>   
                     </div> 

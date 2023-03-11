@@ -775,8 +775,9 @@ input[type=password]:focus {
     color: #9ECE6A;
 
     tab-size: 2;
-    
+   
     padding: 16px;
+    padding-left : 10%;
 
 }
 

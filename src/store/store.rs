@@ -1,11 +1,16 @@
 use std::rc::Rc;
-use yew::prelude::*;
+use yew::{prelude::*, services::ConsoleService};
 use yewdux::prelude::*;
 
 #[derive(Clone, Debug)]
 pub struct State {
     pub count: u32,
     pub username: Option<String>,
+
+    pub edit_data : String,
+    pub edit_index: usize,
+    // pub display_edit_record : bool,
+
 }
 
 //Enum Mirip seperti event event Msg
@@ -14,6 +19,8 @@ pub enum CounterInput {
     // Increment,
     // Reset,
     UpdateUsername(String),
+    ToggleEditRecord(String, usize),
+
 }
 
 pub enum CounterOutput {
@@ -42,6 +49,9 @@ impl Store for CounterStore {
             state: Rc::new(State { 
                 count: 0,
                 username: None,
+                edit_data: String::from(""),
+                edit_index: 0,
+                
             }),
         }
     }
@@ -70,6 +80,12 @@ impl Store for CounterStore {
                 state.username = Some(username);
                 self.link
                     .respond(who, CounterOutput::Ignore);
+            }
+            CounterInput::ToggleEditRecord(data, index) => {
+                ConsoleService::info(&format!("DEBUG : STATE.edit_data:{:?}", state.edit_data.clone()));
+                ConsoleService::info(&format!("DEBUG : STATE.edit_index:{:?}", state.edit_index.clone()));
+                state.edit_data = data;
+                state.edit_index = index; 
             }
         }
         true

@@ -8,6 +8,8 @@ use yew::{
 };
 use serde_json::{from_str, Value, from_value, to_string_pretty};
 
+use crate::types::var::EditModalData;
+
 // use crate::components::{
 //     indexpage_window_createapp::AppCreate,
 //     indexpage_window_createindex::IndexCreate,
@@ -28,6 +30,7 @@ pub enum Msg {
     GetCardData(Option<Vec<Value>>),
     ResponseError(String),
 
+    SendEditToParent(EditModalData),
     Ignore,
 }
 
@@ -50,6 +53,8 @@ pub struct IndexPageCompProps {
     pub edit_data: String,
     #[prop_or_default]
     pub edit_index: usize,
+
+    pub callback_edit_data: Callback<EditModalData>,
     
     #[prop_or(false)]
     pub display_delete_record: bool,
@@ -78,6 +83,8 @@ pub struct IndexPageComp {
     fetch_task: Option<FetchTask>,
     card_data: Option<Vec<Value>>,
     error: Option<String>,
+
+    callback_edit_data: Callback<EditModalData>,
 }
 
 impl Component for IndexPageComp {
@@ -92,13 +99,14 @@ impl Component for IndexPageComp {
             callback_toggle_insertrecord: props.on_toggle_insertrecord.clone(),
             callback_toggle_editrecord: props.on_toggle_editrecord.clone(),
             callback_toggle_deleterecord: props.on_toggle_deleterecord.clone(),
-            props,
+            
             // DISPLAY WINDOWS / MODAL (STATE)
             fetch_task: None,
             card_data: Some(vec![]),
             error: None,
             
-
+            callback_edit_data: props.callback_edit_data.clone(),
+            props,
         }
     }
 
@@ -127,7 +135,7 @@ impl Component for IndexPageComp {
                 ConsoleService::info(&format!("DEBUG : data INDEX PAGE CHILD:{:?}", data.clone()));
                 ConsoleService::info(&format!("DEBUG : index INDEX PAGE CHILD:{:?}", index.clone()));
 
-                self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord("Hello world".to_string(), index));
+                self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord(data, index));
                 true
             }
             Msg::ToggleDeleteRecord => {
@@ -173,11 +181,18 @@ impl Component for IndexPageComp {
                 self.card_data = data;
                 true
             }
-
+            //UNTUK NGIRIM DATA DI CARD KE EDIT MODAL!!!
+            Msg::SendEditToParent(data) => {
+                self.callback_edit_data.emit(data);
+                true
+            }
+            ////
             Msg::ResponseError(text) => {
                 ConsoleService::info(&format!("error is {:?}", text));
                 true
             }
+
+        
         }
     }
 
@@ -352,9 +367,13 @@ impl IndexPageComp {
                     // let card_trim = card_value.trim_start().trim_end().to_string();
                     // //
 
+                    
                     let edit_text_data = serde_json::to_string(card_parse).unwrap();
                     let edit_index = i.clone();
-                   
+                    let edit_modal_data = EditModalData{    
+                        data: edit_text_data.clone(),
+                        index: edit_index.clone(),
+                            };
                     
                     html!{
                         <div class="index-card">
@@ -366,6 +385,7 @@ impl IndexPageComp {
                                 <pre class="card-json">
                                     <code style="font-size:12px;font-weight: bold; line-height: 1.8;">
                                         { serde_json::to_string_pretty(card_parse).unwrap().replace(&['{', '}','"'], "") }
+                                        
                                     </code>
                                 </pre>
                             
@@ -385,7 +405,14 @@ impl IndexPageComp {
                                 <button 
                                     type="button"
                                     class="card-button"
-                                    onclick=self.link.callback(move |_| Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone()))
+                                    // onclick=self.link.callback(move |_| Msg::SendEditToParent(edit_modal_data.clone()))
+                                    // onclick=self.link.callback(move |_| Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone()))
+
+                                    onclick= self.link.batch_callback(move |_| vec![
+                                        Msg::SendEditToParent(edit_modal_data.clone()),
+                                        Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone()),
+                                    ]
+                                    )
                                 >
                                     <img class="card-icon" src="images/edit.png"/>
                                     
