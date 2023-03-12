@@ -489,8 +489,10 @@ impl IndexPageComp {
 
                 html!{
                             <div class="index-card">
-                                { serde_json::to_string(card.get("_score").unwrap()).unwrap() }
-                                { serde_json::to_string_pretty(card.get("fields").unwrap()).unwrap().replace("\"", "") }
+                                <code style="color: black; font-size:12px;font-weight: bold; line-height: 1.8;">
+                                    { serde_json::to_string_pretty(card.get("_score").unwrap()).unwrap() }
+                                    { serde_json::to_string_pretty(card.get("fields").unwrap()).unwrap().replace(&['{', '}','"','_'], "").replace(',', "\n") }
+                                </code>
                             </div>
                         }
                 
