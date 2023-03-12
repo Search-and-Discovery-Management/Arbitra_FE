@@ -179,7 +179,7 @@ impl Component for DeleteRecord {
 
                     <div class="top-row-index-window-insert">
                         //Diganti Lagi ke DELETE RECORD #
-                        <h1>{"DELETE INDEX #"}{""}</h1>
+                        <h1>{"DELETE INDEX"}{""}</h1>
                         
                         <button 
                             type="button" 
@@ -189,7 +189,7 @@ impl Component for DeleteRecord {
                         </button>
                     </div> 
 
-                    <div style="margin-bottom: 10px">
+                    <div style="margin-bottom: 15px">
                         <p>{ "Here are a list of your indexes:" }</p>
                         { self.view_index_data() }
                     </div>
@@ -204,6 +204,7 @@ impl Component for DeleteRecord {
                             id="create-index-text" 
                             aria-describedby="emailHelp"
                             placeholder="Index name to DELETE here..."
+                            style="margin-top: 5px"
                             oninput = self.link.callback(|data: InputData| Msg::InputDeleteIndex(data.value))
                             />
                         // <div class="window-confirm-button">
