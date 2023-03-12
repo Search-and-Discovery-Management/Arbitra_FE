@@ -67,7 +67,7 @@ impl Component for IndexCreate {
             }
 
             Msg::InputCreateIndex(data) => {
-                ConsoleService::info(&format!("API : {:?}", data));
+                ConsoleService::info(&format!("Input Data: {:?}", data));
                 // let test = data.to_owned();
                 self.index = data;
                 true
@@ -107,7 +107,7 @@ impl Component for IndexCreate {
             }
 
             Msg::GetCreateIndex(data) => {
-                ConsoleService::info(&format!("Inputed index name is {:?}", data));
+                ConsoleService::info(&format!("Index name is {:?}", data));
                 self.index = data;
                 true
             }
