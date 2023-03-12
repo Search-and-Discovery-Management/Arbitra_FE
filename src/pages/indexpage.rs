@@ -1,6 +1,5 @@
 use yew::{prelude::*, services::ConsoleService};
-use yewdux::prelude::*;
-use std::rc::Rc;
+
 
 use crate::components::{
     indexpage_window_createapp::AppCreate,
@@ -11,14 +10,6 @@ use crate::components::{
     indexpage_component::IndexPageComp,
 };
 use crate::types::var::EditModalData;
-
-use crate::store::store::{
-    CounterStore,
-    CounterOutput,
-    CounterInput,
-    State,
-};
-
 
 pub enum Msg {
     //EVENT TOGGLE (MERGE CLOSE DAN OPEN)
@@ -32,6 +23,7 @@ pub enum Msg {
     ToggleDeleteRecord,
 
     RecvEditData(EditModalData),
+    RecvDeleteData(usize),
 }
 
 pub struct IndexPage {
@@ -45,6 +37,8 @@ pub struct IndexPage {
 
     edit_data : String,
     edit_index: usize,
+
+    delete_index : usize,
 
     // dispatch: Dispatch<CounterStore>,
     // recv_edit_data : Callback<IndexPageCompMsg>,
@@ -75,6 +69,8 @@ impl Component for IndexPage {
             //UNTUK EDIT DATA
             edit_data : String::from("JSON Goes Here"),
             edit_index : 47,
+
+            delete_index: 118,
             //RECEIVE EDIT DATA
             // recv_edit_data: link.callback(Msg::RecvDataEdit),
             link,
@@ -128,6 +124,11 @@ impl Component for IndexPage {
                 self.edit_index = data_recv.index.clone();
                 true
             }
+            Msg::RecvDeleteData(data_recv) => {
+                ConsoleService::info(&format!("data in parent is (DELETE MODAL INDEX) {:?}", data_recv));
+                self.delete_index = data_recv.clone();
+                true
+            }
             
         }
     }
@@ -172,6 +173,9 @@ impl Component for IndexPage {
                         edit_data = self.edit_data.clone()
                         edit_index = self.edit_index.clone()
                         callback_edit_data = self.link.callback(Msg::RecvEditData)
+                    
+                        delete_index = self.delete_index.clone()
+                        callback_delete_window = self.link.callback(Msg::RecvDeleteData)
                     />
                     //DISPLAY WINDOW DISINI         
                     <AppCreate 
@@ -200,6 +204,9 @@ impl Component for IndexPage {
                         edit_data = self.edit_data.clone()
                         edit_index = self.edit_index.clone()
                         callback_edit_data = self.link.callback(Msg::RecvEditData)
+                    
+                        delete_index = self.delete_index.clone()
+                        callback_delete_window = self.link.callback(Msg::RecvDeleteData)
                     />
                     //DISPLAY WINDOW DISINI      
                     <IndexCreate 
@@ -228,6 +235,9 @@ impl Component for IndexPage {
                         edit_data = self.edit_data.clone()
                         edit_index = self.edit_index.clone()
                         callback_edit_data = self.link.callback(Msg::RecvEditData)
+                
+                        delete_index = self.delete_index.clone()
+                        callback_delete_window = self.link.callback(Msg::RecvDeleteData)
                     />
                     //DISPLAY WINDOW DISINI         
                     <InsertRecord
@@ -263,6 +273,9 @@ impl Component for IndexPage {
                         edit_data = self.edit_data.clone()
                         edit_index = self.edit_index.clone()
                         callback_edit_data = self.link.callback(Msg::RecvEditData)
+                    
+                        delete_index = self.delete_index.clone()
+                        callback_delete_window = self.link.callback(Msg::RecvDeleteData)
                     />
 
                     //DISPLAY WINDOW DISINI         
@@ -296,11 +309,18 @@ impl Component for IndexPage {
                         edit_data = self.edit_data.clone()
                         edit_index = self.edit_index.clone()
                         callback_edit_data = self.link.callback(Msg::RecvEditData)
+                    
+                        delete_index = self.delete_index.clone()
+                        callback_delete_window = self.link.callback(Msg::RecvDeleteData)
                     />
                     //DISPLAY WINDOW DISINI         
                     <DeleteRecord
                         display_delete_record=self.display_delete_record.clone()
-                        on_toggle_deleterecord = self.link.callback(|_| Msg::ToggleDeleteRecord) />
+                        on_toggle_deleterecord = self.link.callback(|_| Msg::ToggleDeleteRecord) 
+                        
+                        delete_index = self.delete_index.clone()
+
+                        />
 
                 </div>
             }
@@ -323,6 +343,9 @@ impl Component for IndexPage {
                         edit_data = self.edit_data.clone()
                         edit_index = self.edit_index.clone()
                         callback_edit_data = self.link.callback(Msg::RecvEditData)
+
+                        delete_index = self.delete_index.clone()
+                        callback_delete_window = self.link.callback(Msg::RecvDeleteData)
                     />
                     </div>
                

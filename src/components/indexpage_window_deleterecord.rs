@@ -1,4 +1,4 @@
-use yew::prelude::*;
+use yew::{prelude::*, services::ConsoleService};
 
 pub enum Msg {
     ToggleDeleteRecord,
@@ -10,6 +10,8 @@ pub struct WindowDeleteRecordProps {
     // #[prop_or(String::from("this is value"))]
     #[prop_or(false)]
     pub display_delete_record: bool,
+    #[prop_or_default]
+    pub delete_index: usize,
     pub on_toggle_deleterecord:Callback<Msg>,
 }
 
@@ -38,16 +40,19 @@ impl Component for DeleteRecord {
         match msg {
             Msg::ToggleDeleteRecord => {
                 self.callback_toggle_deleterecord.emit(Msg::ToggleDeleteRecord);
+                ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.delete_index.clone()));
                 true
             }
         }
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        // Should only return "true" if new properties are different to
-        // previously received properties.
-        // This component has no properties so we will always return "false".
-        false
+    fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        if self.props.delete_index != props.delete_index {
+            self.props.delete_index = props.delete_index;
+            true 
+        } else {
+            false
+        }
     }
 
     fn view(&self) -> Html {
@@ -56,7 +61,7 @@ impl Component for DeleteRecord {
                 <div class="window-index" id="create-index"> 
 
                     <div class="top-row-index-window-insert">
-                        <h1>{"DELETE RECORD #"}{""}</h1>
+                        <h1>{"DELETE RECORD #"}{self.props.delete_index.clone() + 1}</h1>
                         
                         <button 
                             type="button" 

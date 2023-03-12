@@ -24,16 +24,16 @@ pub enum Msg {
     ToggleCreateIndex,
     ToggleInsertRecord,
     ToggleEditRecord(String, usize),
-    ToggleDeleteRecord,
+    ToggleDeleteRecord(usize),
 
     RequestData,
     GetCardData(Option<Vec<Value>>),
     ResponseError(String),
 
     SendEditToParent(EditModalData),
+    SendDeleteToParent(usize),
     Ignore,
 }
-
 
 #[derive(Properties, Clone, Debug, PartialEq)]
 pub struct IndexPageCompProps {
@@ -58,6 +58,10 @@ pub struct IndexPageCompProps {
     
     #[prop_or(false)]
     pub display_delete_record: bool,
+    #[prop_or_default]
+    pub delete_index: usize,
+
+    pub callback_delete_window: Callback<usize>,
 
     pub on_toggle_createapp:Callback<Msg>,
     pub on_toggle_createindex:Callback<Msg>,
@@ -85,6 +89,7 @@ pub struct IndexPageComp {
     error: Option<String>,
 
     callback_edit_data: Callback<EditModalData>,
+    callback_delete_window: Callback<usize>,
 }
 
 impl Component for IndexPageComp {
@@ -106,6 +111,7 @@ impl Component for IndexPageComp {
             error: None,
             
             callback_edit_data: props.callback_edit_data.clone(),
+            callback_delete_window: props.callback_delete_window.clone(),
             props,
         }
     }
@@ -138,9 +144,11 @@ impl Component for IndexPageComp {
                 self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord(data, index));
                 true
             }
-            Msg::ToggleDeleteRecord => {
-                self.callback_toggle_deleterecord.emit(Msg::ToggleDeleteRecord);
+            Msg::ToggleDeleteRecord (index)=> {
                 ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.props.display_delete_record));
+                ConsoleService::info(&format!("DEBUG : delete_index EVENT :{:?}", index));
+                self.callback_toggle_deleterecord.emit(Msg::ToggleDeleteRecord(index));
+                
                 true
             }
             Msg::Ignore => {
@@ -186,6 +194,13 @@ impl Component for IndexPageComp {
                 self.callback_edit_data.emit(data);
                 true
             }
+            //UNTUK NGIRIM DATA DI CARD KE DELETE MODAL (KE PARENT DULU)
+            Msg::SendDeleteToParent(index) => {
+                self.callback_delete_window.emit(index);
+                true
+            }
+
+
             ////
             Msg::ResponseError(text) => {
                 ConsoleService::info(&format!("error is {:?}", text));
@@ -279,7 +294,7 @@ impl Component for IndexPageComp {
                                     <div class="dropdown-childRecord">
                                         <a href="#" onclick=self.link.callback(|_| Msg::ToggleInsertRecord)>{ "Insert New Record" }</a>
                                         // <a href="#" onclick=self.link.callback(|_| Msg::ToggleEditRecord)>{ "Edit Record" }</a>
-                                        <a href="#" onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)>{ "Delete Record" }</a>
+                                        // <a href="#" onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)>{ "Delete Record" }</a>
                                     </div>
                                 </div>
 
@@ -370,6 +385,7 @@ impl IndexPageComp {
                     
                     let edit_text_data = serde_json::to_string(card_parse).unwrap();
                     let edit_index = i.clone();
+                    let delete_index = i.clone();
                     let edit_modal_data = EditModalData{    
                         data: edit_text_data.clone(),
                         index: edit_index.clone(),
@@ -393,10 +409,14 @@ impl IndexPageComp {
 
 
                             <div class="index-card-buttons">
-                                <button 
+                                <button
                                     type="button"
                                     class="card-button"
-                                    onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)
+                                    onclick=self.link.batch_callback(move |_| vec![
+                                        Msg::SendDeleteToParent(delete_index.clone()),
+                                        Msg::ToggleDeleteRecord(delete_index.clone())
+                                    ]
+                                    )
                                 >
                                     <img class="card-icon" src="images/trash-can.png"/>
                                     
