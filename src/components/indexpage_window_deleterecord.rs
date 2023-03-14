@@ -190,7 +190,7 @@ impl Component for DeleteRecord {
                     </div> 
 
                     <div style="margin-bottom: 15px">
-                        <p>{ "Here are a list of your indexes:" }</p>
+                        <p style="font-weight: bold;">{ "Here are a list of your indexes:" }</p>
                         { self.view_index_data() }
                     </div>
 
