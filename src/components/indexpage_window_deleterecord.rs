@@ -225,7 +225,7 @@ impl Component for DeleteRecord {
                         class="window-confirm-button"
                         onclick=self.link.callback(|_| Msg::RequestDeleteIndex)
                     >
-                        { "DELETE RECORD" }
+                        { "DELETE INDEX" }
                     </button>
                     
                 </div>

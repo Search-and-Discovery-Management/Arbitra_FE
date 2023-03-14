@@ -41,3 +41,10 @@ pub struct RecordData{
     pub list: Option<Vec<Record>>,
     pub error_description: Option<String>,
 }
+
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct EditModalData{
+    pub data: String,
+    pub index: usize,
+}

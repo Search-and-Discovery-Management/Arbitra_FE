@@ -753,6 +753,10 @@ input[type=password]:focus {
 
 }
 
+.window-confirm-button:disabled {
+    background-color : #936c6e;
+}
+
 .createindex-text-input {
     /* background-color: red; */
     position: relative;
@@ -816,7 +820,7 @@ input[type=password]:focus {
     margin: 2vh 4vw 2vh 1vw;
     border-radius: 8px;
 
-    width : 100%;
+    width : 97%;
     background-color: white;
 }
 
@@ -824,3 +828,43 @@ input[type=password]:focus {
     box-shadow: 0 6px 10px 0 rgba(0,0,0,0.3);
 }
 
+
+.index-card-buttons{
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 24px;
+}
+
+.card-button {
+    background-color: #E5C8C9;
+    border-radius: 8px;
+    border: none;
+
+    
+}
+
+.card-icon {
+    height: 20px;
+    padding: 2px;
+    margin-top: -4px;
+}
+
+.card-number {
+    background-color: #e5c8c9;
+    border-radius: 8px;
+    padding:8px;
+    border: none;
+    height: 40px;
+    width: 40px;
+    text-align: center;
+}
+
+.card-main {
+    display: flex;
+    flex-direction: row;
+}
+
+.card-json {
+    padding-left: 5%;
+    padding-top : 1%;
+}

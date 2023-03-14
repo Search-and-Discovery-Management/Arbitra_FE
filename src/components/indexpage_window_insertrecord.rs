@@ -1,7 +1,8 @@
-use yew::prelude::*;
+use yew::{prelude::*, services::ConsoleService};
 
 pub enum Msg {
     ToggleInsertRecord,
+    ValidateInputJson(String),
 }
 
 #[derive(Properties, Clone, Debug, PartialEq)]
@@ -18,6 +19,8 @@ pub struct InsertRecord {
     link: ComponentLink<Self>,
     props: WindowInsertRecordProps,
     callback_toggle_insertrecord: Callback<Msg>,
+    value: String,
+    json_is_valid: bool,
 }
 
 impl Component for InsertRecord {
@@ -29,6 +32,8 @@ impl Component for InsertRecord {
             link,
             callback_toggle_insertrecord: props.on_toggle_insertrecord.clone(),
             props,
+            value: "".to_string(),
+            json_is_valid: false,
         }
     }
 
@@ -36,6 +41,16 @@ impl Component for InsertRecord {
         match msg {
             Msg::ToggleInsertRecord => {
                 self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord);
+                true
+            }
+            Msg::ValidateInputJson (data) => {
+                self.value = data;
+                self.json_is_valid = match serde_json::from_str::<serde_json::Value>(&self.value) {
+                    Ok(_) => true,
+                    Err(_) => false,
+                };
+                ConsoleService::info(&format!("DEBUG : value:{:?}", self.value));
+                ConsoleService::info(&format!("DEBUG : json_is_valid:{:?}", self.json_is_valid));
                 true
             }
         }
@@ -75,6 +90,7 @@ impl Component for InsertRecord {
                                 readonly=true
                                 type="text" 
                                 class="insert-record" 
+                                style="font-size:12px;font-weight: bold; line-height: 1.4;"
                                 
                                 >{"[
         {
@@ -102,6 +118,9 @@ impl Component for InsertRecord {
                             <textarea 
                                 type="text" 
                                 class="insert-record" 
+                                style="font-size:12px;font-weight: bold; line-height: 1.4;"
+
+                                oninput = self.link.callback(|data: InputData| Msg::ValidateInputJson(data.value))
                                 >
                             {""}  
                             </textarea>
@@ -109,14 +128,26 @@ impl Component for InsertRecord {
                         </form>   
                     </div> 
 // FORM INPUT EXAMPLE END
-                    <button 
-                        type="submit"
-                        form="submit-insertrecord"
-                        class="window-confirm-button"
-                    >
-                        { "INSERT NEW RECORD" }
-                    </button>
-                    
+                {
+                    if self.json_is_valid {
+                        html!{
+                            <button 
+                                type="submit"
+                                form="submit-insertrecord"
+                                class="window-confirm-button"
+                            >
+                                { "INSERT NEW RECORD" }
+                            </button>
+                        }
+                    } else {
+                        html! {
+                            <button disabled=true class="window-confirm-button">
+                                {"FORM INPUT MUST BE IN JSON FORMAT!"}
+                            </button> 
+                        }
+                    }
+
+                }
                 </div>
 
             </div>
