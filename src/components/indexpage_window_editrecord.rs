@@ -14,7 +14,7 @@ pub struct WindowEditRecordProps {
     #[prop_or_default]
     pub edit_data: String,
     #[prop_or_default]
-    pub edit_index: usize,
+    pub edit_index: String,
 
     pub on_toggle_editrecord:Callback<Msg>,
 }
@@ -91,7 +91,7 @@ impl Component for EditRecord {
                 <div class="window-index" id="create-index"> 
 
                     <div class="top-row-index-window-insert">
-                        <h1>{"EDIT RECORD #"}{self.props.edit_index.clone()+1}</h1>
+                        <h1>{"EDIT RECORD "}{self.props.edit_index.clone()}</h1>
                         
                         <button 
                             type="button" 

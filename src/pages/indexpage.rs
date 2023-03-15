@@ -21,7 +21,7 @@ pub enum Msg {
     ToggleDeleteCard,
     
     RecvEditData(EditModalData),
-    RecvDeleteData(usize),
+    RecvDeleteData(String),
 }
 
 pub struct IndexPage {
@@ -35,9 +35,9 @@ pub struct IndexPage {
     display_delete_card: bool,
 
     edit_data : String,
-    edit_index: usize,
+    edit_index: String,
 
-    delete_index : usize,
+    delete_index : String,
 }
 
 impl Component for IndexPage {
@@ -56,9 +56,9 @@ impl Component for IndexPage {
             display_delete_card: false,
 
             edit_data : String::from("JSON Goes Here"),
-            edit_index : 47,
+            edit_index : String::from("47"),
 
-            delete_index: 118,
+            delete_index: String::from("118"),
 
             link,
         }

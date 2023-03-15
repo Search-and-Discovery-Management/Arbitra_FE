@@ -24,9 +24,9 @@ pub enum Msg {
     ToggleCreateApp,
     ToggleCreateIndex,
     ToggleInsertRecord,
-    ToggleEditRecord(String, usize),
+    ToggleEditRecord(String, String),
     ToggleDeleteRecord,
-    ToggleDeleteCard(usize),
+    ToggleDeleteCard(String),
 
     RequestData,
     // RequestMoreData,
@@ -40,7 +40,7 @@ pub enum Msg {
     SelectIndex(String),
 
     SendEditToParent(EditModalData),
-    SendDeleteToParent(usize),
+    SendDeleteToParent(String),
 
     Ignore,
 }
@@ -79,7 +79,7 @@ pub struct IndexPageCompProps {
     #[prop_or_default]
     pub edit_data: String,
     #[prop_or_default]
-    pub edit_index: usize,
+    pub edit_index: String,
 
     pub callback_edit_data: Callback<EditModalData>,
 
@@ -89,9 +89,9 @@ pub struct IndexPageCompProps {
     #[prop_or(false)]
     pub display_delete_card: bool,
     #[prop_or_default]
-    pub delete_index: usize,
+    pub delete_index: String,
 
-    pub callback_delete_window: Callback<usize>,
+    pub callback_delete_window: Callback<String>,
 
     pub on_toggle_createapp:Callback<Msg>,
     pub on_toggle_createindex:Callback<Msg>,
@@ -127,7 +127,7 @@ pub struct IndexPageComp {
     error: Option<String>,
 
     callback_edit_data: Callback<EditModalData>,
-    callback_delete_window: Callback<usize>,
+    callback_delete_window: Callback<String>,
 }
 
 impl Component for IndexPageComp {
@@ -540,8 +540,8 @@ impl IndexPageComp {
                 
                 let edit_text_data = serde_json::to_string(card).unwrap();
 
-                let edit_index = i.clone();
-                let delete_index = i.clone();
+                let edit_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap();
+                let delete_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap();
 
                 let edit_modal_data = EditModalData{    
                     data: edit_text_data.clone(),
@@ -567,79 +567,88 @@ impl IndexPageComp {
                 ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.props.display_create_index));
                 
                 html!{
-                            <div class="index-card">
-                                <div class="card-main">
+                        <div class="index-card">
+                            <div class="card-main">
+                                <div class="card-sub">
+
                                     <div class="card-number">
                                         {"#"}{i+1}
                                     </div>
-                                    
+                                        
 
                                     // {for i in x.iter()}
                                     // {x.iter().flat_map(|s| s.iter()).for_each(|(key, value)| {
                                     //     html!{
                                     //         <h1> {value} </h1>
                                     //     }
-                                        
-                                    // })}
+                                            
+                                        // })}
 
-                                <div class="card-json">    
-                                    
+                                    <div class="card-json">    
                                         <pre>
-                                            { serde_json::to_string_pretty(card.get("_score").unwrap()).unwrap() }
-                                        // {x}
-                                        // { card.get("fields").unwrap().as_array().unwrap().iter().map(|f| f.as_array()).collect() }
-                                        // { for x.iter().map( serde_json::to_string_pretty(i))  }
-                                        // {serde_json::to_vec_pretty(&xfdas)}
-                                        
+                                            {"_id: "}{ serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap() }{"\n"}
+                                            {"_score: "}{ serde_json::to_string_pretty(card.get("_score").unwrap()).unwrap() }{"\n"}
+                                                // {x}
+                                                // { card.get("fields").unwrap().as_array().unwrap().iter().map(|f| f.as_array()).collect() }
+                                                // { for x.iter().map( serde_json::to_string_pretty(i))  }
+                                                // {serde_json::to_vec_pretty(&xfdas)}
+                                                
                                             <p style="color: black; font-size:12px;font-weight: bold; line-height: 1.8;">
                                                 { serde_json::to_string_pretty(card.get("fields").unwrap()).unwrap().replace(&['{', '}','"','_'], "") }
                                             </p>
                                         </pre>
-                                        // {
-                                        //     for card.get("fields").unwrap().as_array().iter().for_each(|val|
-                                        
-                                        //     html!{
-                                        //         serde_json::to_string_pretty(val).unwrap()
-                                        //     }
-                                        // )
-                                        // }
-                                        // { serde_json::to_string_pretty(json!(x.clone()))}
-                                        // { x.iter().map(|y| serde_json::to_string_pretty(y)) }
-                                    
+                                                // {
+                                                //     for card.get("fields").unwrap().as_array().iter().for_each(|val|
+                                                
+                                                //     html!{
+                                                //         serde_json::to_string_pretty(val).unwrap()
+                                                //     }
+                                                // )
+                                                // }
+                                                // { serde_json::to_string_pretty(json!(x.clone()))}
+                                                // { x.iter().map(|y| serde_json::to_string_pretty(y)) }
+                                            
+                                    </div>
                                 </div>
+                                // <div class="card-image">
+
+
+                                    <img class="card-image-data" src="images/img-card/JeanGunnhildr.png"/>
+                                    // <img class="card-image-placeholder" src="images/img-card/no-pictures.png"/>
+                                // </div> 
                             </div>
 
                              
                             <div class="index-card-buttons">
-                            <button
-                                type="button"
-                                class="card-button"
-                                onclick=self.link.batch_callback(move |_| vec![
-                                    Msg::SendDeleteToParent(delete_index.clone()),
-                                    Msg::ToggleDeleteCard(delete_index.clone())
-                                ]
-                                )
-                            >
-                                <img class="card-icon" src="images/trash-can.png"/>
-                                
-                            </button>
+                                <button
+                                    type="button"
+                                    class="card-button"
+                                    onclick=self.link.batch_callback(move |_| vec![
+                                        Msg::SendDeleteToParent(delete_index.clone()),
+                                        Msg::ToggleDeleteCard(delete_index.clone())
+                                    ]
+                                    )
+                                >
+                                    <img class="card-icon" src="images/trash-can.png"/>
+                                    
+                                </button>
 
-                            <button 
-                                type="button"
-                                class="card-button"
-                                // onclick=self.link.callback(move |_| Msg::SendEditToParent(edit_modal_data.clone()))
-                                // onclick=self.link.callback(move |_| Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone()))
+                                <button 
+                                    type="button"
+                                    class="card-button"
+                                    // onclick=self.link.callback(move |_| Msg::SendEditToParent(edit_modal_data.clone()))
+                                    // onclick=self.link.callback(move |_| Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone()))
 
-                                onclick= self.link.batch_callback(move |_| vec![
-                                    Msg::SendEditToParent(edit_modal_data.clone()),
-                                    Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone()),
-                                ]
-                                )
-                            >
-                                <img class="card-icon" src="images/edit.png"/>
-                                
-                            </button>
-                        </div>           
+                                    onclick= self.link.batch_callback(move |_| vec![
+                                        Msg::SendEditToParent(edit_modal_data.clone()),
+                                        Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone()),
+                                    ]
+                                    )
+                                >
+                                    <img class="card-icon" src="images/edit.png"/>
+                                    
+                                </button>
+                            </div>           
 
 
                         </div>

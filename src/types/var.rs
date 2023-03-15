@@ -46,5 +46,6 @@ pub struct RecordData{
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct EditModalData{
     pub data: String,
-    pub index: usize,
+    // pub index: usize,
+    pub index: String,
 }

@@ -11,7 +11,7 @@ pub struct WindowDeleteCardProps {
     #[prop_or(false)]
     pub display_delete_card: bool,
     #[prop_or_default]
-    pub delete_index: usize,
+    pub delete_index: String,
     pub on_toggle_deletecard:Callback<Msg>,
 }
 
@@ -61,7 +61,7 @@ impl Component for DeleteCard {
                 <div class="window-index" id="create-index"> 
 
                     <div class="top-row-index-window-insert">
-                        <h1>{"DELETE RECORD #"}{self.props.delete_index.clone() + 1}</h1>
+                        <h1>{"DELETE RECORD "}{self.props.delete_index.clone()}</h1>
                         
                         <button 
                             type="button" 
