@@ -13,7 +13,7 @@ use crate::types::var;
 pub enum Msg {
     ToggleDeleteRecord,
     RequestDeleteIndex,
-    GetDeleteIndexName(String),
+    GetDeleteIndexName,
     InputDeleteIndex(String),
 
     RequestIndexData,
@@ -125,18 +125,22 @@ impl Component for DeleteRecord {
                     .body(Json(&self.index_name))
                     .expect("Could not build request.");
                 let callback = 
-                    self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
+                    self.link.callback(|response: Response<Json<Result<(), anyhow::Error>>>| {
                         let (meta, Json(data)) = response.into_parts();
                         // let status_number = meta.status.as_u16();
-        
-                        match data { 
-                            Ok(dataok) => {
-                                ConsoleService::info(&format!("data response {:?}", &dataok));
-                                Msg:: GetDeleteIndexName(dataok)
-                            }
-                            Err(error) => {
-                                Msg::ResponseError(error.to_string())
-                            }
+
+                        if meta.status.is_success() {
+                            Msg::GetDeleteIndexName                            
+                        } else {
+                            match data { 
+                                Ok(dataok) => {
+                                    ConsoleService::info(&format!("data response {:?}", &dataok));
+                                    Msg:: GetDeleteIndexName
+                                }
+                                Err(error) => {
+                                    Msg::ResponseError(error.to_string())
+                                }
+                            }   
                         }
                     });
         
@@ -146,9 +150,8 @@ impl Component for DeleteRecord {
                 true
             }
 
-            Msg::GetDeleteIndexName (data) => {
-                ConsoleService::info(&format!("data is {:?}", data));
-                self.index_name = data;
+            Msg::GetDeleteIndexName => {
+                self.link.send_message(Msg::RequestIndexData);
                 true
             }
 
