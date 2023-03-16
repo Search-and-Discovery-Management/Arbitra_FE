@@ -88,7 +88,7 @@ impl Component for IndexCreate {
                     self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
                         let (meta, Json(data)) = response.into_parts();
                         // let status_number = meta.status.as_u16();
-        
+                        
                         match data { 
                             Ok(dataok) => {
                                 ConsoleService::info(&format!("data response {:?}", &dataok));

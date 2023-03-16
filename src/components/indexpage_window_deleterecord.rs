@@ -120,7 +120,7 @@ impl Component for DeleteRecord {
                 let url = format!("https://search-discovery-api.dev-domain.site/api/index/{}", &self.index_name);
 
                 let request = Request::delete(url)
-                    .header("Content-Type", "application/json")
+                    // .header("Content-Type", "application/json")
                     // .header(Json(&villain))
                     .body(Json(&self.index_name))
                     .expect("Could not build request.");

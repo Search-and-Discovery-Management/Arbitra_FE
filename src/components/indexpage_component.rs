@@ -125,6 +125,7 @@ pub struct IndexPageComp {
     // more_data: Option<Vec<MoreData>>,
     index_data: Option<Vec<IndexData>>,
     error: Option<String>,
+    index_name: String,
 
     callback_edit_data: Callback<EditModalData>,
     callback_delete_window: Callback<String>,
@@ -150,6 +151,8 @@ impl Component for IndexPageComp {
             error: None,
             // more_data: Some(vec![]),
             index_data: Some(vec![]),
+
+            index_name: String::from("INDEX NAME"),
 
             callback_edit_data: props.callback_edit_data.clone(),
             callback_delete_window: props.callback_delete_window.clone(),
@@ -204,6 +207,8 @@ impl Component for IndexPageComp {
 
             Msg::SelectIndex(index) => {
                 ConsoleService::info(&format!("Selected index: {:?}", index));
+                self.index_name = index;
+                self.link.send_message(Msg::RequestData);
                 true
             }
 
@@ -237,7 +242,7 @@ impl Component for IndexPageComp {
             
             Msg::RequestData => {
                 //FETCHING...
-                let request = Request::get("https://search-discovery-api.dev-domain.site/api/search/airplanes_v3")
+                let request = Request::get(format!("https://search-discovery-api.dev-domain.site/api/search/{}", &self.index_name))
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
                     .expect("Could not build request.");
@@ -345,7 +350,6 @@ impl Component for IndexPageComp {
 
     fn rendered(&mut self, first_render: bool) {
         if first_render {
-            self.link.send_message(Msg::RequestData);
 			self.link.send_message(Msg::RequestIndexData)
         }
     }
@@ -396,7 +400,7 @@ impl Component for IndexPageComp {
                             <div class="top-index-dashboard">
 
                                 <div class="dropdownIndex">
-                                    <button class="mainmenubtnIndex">{ "INDEX NAME \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
+                                    <button class="mainmenubtnIndex">{ format!("{} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}", &self.index_name)}</button>
                                     <div class="dropdown-childIndex">
                                     
                                         { self.view_index_data() }
@@ -475,12 +479,8 @@ impl Component for IndexPageComp {
                                     <input class="search" type="text" placeholder="Search..."/>
                                 </div>
 
-                                <div>
-                                    <button style="margin-left: 45%; margin-top: 1%" onclick=self.link.callback(|_| Msg::RequestData)>{ "Get Data" }</button>
-                                </div>
-
                                 // <div>
-                                //     <button style="margin-left: 45%; margin-top: 1%" onclick=self.link.callback(|_| Msg::RequestMoreData)>{ "Get More Data (Post)" }</button>
+                                //     <button style="margin-left: 45%; margin-top: 1%" onclick=self.link.callback(|_| Msg::RequestData)>{ "Get Data" }</button>
                                 // </div>
 
                                 <div>
