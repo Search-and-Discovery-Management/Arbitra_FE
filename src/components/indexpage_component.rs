@@ -6,6 +6,8 @@ use yew::{
         ConsoleService,
     },
 };
+
+
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, Value, from_value, to_string_pretty,Map};
 
@@ -548,22 +550,8 @@ impl IndexPageComp {
                     index: edit_index.clone(),
                         };
 
-
-    // fn view_data(&self) -> Vec<Html> {
-    //     self.card_data.get("data").unwrap().as_array()
-    //                 .unwrap().iter().map(|card|{
-                // card.iter().map(|card_parse|{
-                //     html!{
-                //         <div class="index-card">
-                //             { serde_json::to_string(card_parse).unwrap() }
-                //         </div>
-                //     }
-                // }).collect()
-
-                // let x: Vec<String> = card.get("fields").unwrap().as_array().unwrap().iter().map(|f| f[0].to_string()).collect();
-                
-                // let x: Vec<Value> = card.get("fields").unwrap().as_array().unwrap().iter();
-
+                // let card_image = serde_json::to_string_pretty(card.get("_image").unwrap());
+ 
                 ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.props.display_create_index));
                 
                 html!{
@@ -576,46 +564,35 @@ impl IndexPageComp {
                                     </div>
                                         
 
-                                    // {for i in x.iter()}
-                                    // {x.iter().flat_map(|s| s.iter()).for_each(|(key, value)| {
-                                    //     html!{
-                                    //         <h1> {value} </h1>
-                                    //     }
-                                            
-                                        // })}
 
                                     <div class="card-json">    
                                         <pre>
                                             {"_id: "}{ serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap() }{"\n"}
                                             {"_score: "}{ serde_json::to_string_pretty(card.get("_score").unwrap()).unwrap() }{"\n"}
-                                                // {x}
-                                                // { card.get("fields").unwrap().as_array().unwrap().iter().map(|f| f.as_array()).collect() }
-                                                // { for x.iter().map( serde_json::to_string_pretty(i))  }
-                                                // {serde_json::to_vec_pretty(&xfdas)}
+                                  
                                                 
                                             <p style="color: black; font-size:12px;font-weight: bold; line-height: 1.8;">
                                                 { serde_json::to_string_pretty(card.get("fields").unwrap()).unwrap().replace(&['{', '}','"','_'], "") }
                                             </p>
                                         </pre>
-                                                // {
-                                                //     for card.get("fields").unwrap().as_array().iter().for_each(|val|
                                                 
-                                                //     html!{
-                                                //         serde_json::to_string_pretty(val).unwrap()
-                                                //     }
-                                                // )
-                                                // }
-                                                // { serde_json::to_string_pretty(json!(x.clone()))}
-                                                // { x.iter().map(|y| serde_json::to_string_pretty(y)) }
                                             
                                     </div>
                                 </div>
-                                // <div class="card-image">
-
-
-                                    <img class="card-image-data" src="images/img-card/JeanGunnhildr.png"/>
-                                    // <img class="card-image-placeholder" src="images/img-card/no-pictures.png"/>
-                                // </div> 
+                                    {
+                                        match card.get("fields").unwrap().get("image"){ 
+                                            Some(dataok) => {
+                                                html!{ 
+                                                        <img class="card-image-data" src={serde_json::to_string(dataok).unwrap().replace(&['[', ']','"','_'], "")}/>
+                                                    }
+                                            }
+                                            None => {
+                                                html!{ 
+                                                        <img class="card-image-placeholder" src="images/img-card/no-pictures.png"/>
+                                                    }
+                                            }
+                                        }
+                                    }      
                             </div>
 
                              
@@ -636,8 +613,7 @@ impl IndexPageComp {
                                 <button 
                                     type="button"
                                     class="card-button"
-                                    // onclick=self.link.callback(move |_| Msg::SendEditToParent(edit_modal_data.clone()))
-                                    // onclick=self.link.callback(move |_| Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone()))
+
 
                                     onclick= self.link.batch_callback(move |_| vec![
                                         Msg::SendEditToParent(edit_modal_data.clone()),
@@ -657,16 +633,52 @@ impl IndexPageComp {
             }).collect()
     }
 
-    // fn view_more_data(&self) -> Vec<Html> {
-    //     self.more_data.iter().map(|card|{
-    //             card.iter().map(|card_parse|{
-    //                 html!{
-    //                     <div class="index-card">
-    //                         { serde_json::to_string(card_parse).unwrap() }
-    //                     </div>
-    //                 }
-    //             }).collect()
-                
-    //         }).collect()
-    // }
+
 }
+
+
+
+
+   // fn view_data(&self) -> Vec<Html> {
+    //     self.card_data.get("data").unwrap().as_array()
+    //                 .unwrap().iter().map(|card|{
+                // card.iter().map(|card_parse|{
+                //     html!{
+                //         <div class="index-card">
+                //             { serde_json::to_string(card_parse).unwrap() }
+                //         </div>
+                //     }
+                // }).collect()
+
+                // let x: Vec<String> = card.get("fields").unwrap().as_array().unwrap().iter().map(|f| f[0].to_string()).collect();
+                
+                // let x: Vec<Value> = card.get("fields").unwrap().as_array().unwrap().iter();
+
+
+                                    // {for i in x.iter()}
+                                    // {x.iter().flat_map(|s| s.iter()).for_each(|(key, value)| {
+                                    //     html!{
+                                    //         <h1> {value} </h1>
+                                    //     }
+                                            
+                                        // })}
+
+
+              // {x}
+                                                // { card.get("fields").unwrap().as_array().unwrap().iter().map(|f| f.as_array()).collect() }
+                                                // { for x.iter().map( serde_json::to_string_pretty(i))  }
+                                                // {serde_json::to_vec_pretty(&xfdas)}
+
+
+
+
+                                                // {
+                                                //     for card.get("fields").unwrap().as_array().iter().for_each(|val|
+                                                
+                                                //     html!{
+                                                //         serde_json::to_string_pretty(val).unwrap()
+                                                //     }
+                                                // )
+                                                // }
+                                                // { serde_json::to_string_pretty(json!(x.clone()))}
+                                                // { x.iter().map(|y| serde_json::to_string_pretty(y)) }

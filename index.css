@@ -905,4 +905,6 @@ input[type=password]:focus {
     
     min-width: 64px;
     min-height: 64px;
+
+    /* aspect-ratio: 1/1; */
 }
