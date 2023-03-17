@@ -30,10 +30,8 @@ pub enum Msg {
     ToggleDeleteRecord,
     ToggleDeleteCard(String),
 
-    RequestData,
-    // RequestMoreData,
-    GetCardData(Value),
-    // GetMoreData(Option<Vec<MoreData>>),
+    RequestRecordData,
+    GetRecordData(Value),
     ResponseError(String),
 
     RequestIndexData,
@@ -51,18 +49,6 @@ pub enum Msg {
 pub struct IndexData{
     pub index: String
 }
-
-// #[derive(Deserialize, Serialize, Clone, Debug)]
-// pub struct MoreData {
-//     name : Option<String>,
-//     element: Option<String>,
-//     level: Option<u32>,
-//     attack: Option<u32>,
-//     defense: Option<u32>,
-//     em : Option<u32>,
-//     nation: Option<String>,
-// }
-
 
 #[derive(Properties, Clone, Debug, PartialEq)]
 pub struct IndexPageCompProps {
@@ -123,7 +109,7 @@ pub struct IndexPageComp {
     callback_toggle_deletecard: Callback<Msg>,
 
     fetch_task: Option<FetchTask>,
-    card_data: Value,
+    record_data: Value,
     // more_data: Option<Vec<MoreData>>,
     index_data: Option<Vec<IndexData>>,
     error: Option<String>,
@@ -149,12 +135,12 @@ impl Component for IndexPageComp {
 
             // DISPLAY WINDOWS / MODAL (STATE)
             fetch_task: None,
-            card_data: serde_json::json!({"data": []}),
+            record_data: serde_json::json!({"data": []}),
             error: None,
             // more_data: Some(vec![]),
             index_data: Some(vec![]),
 
-            index_name: String::from("INDEX NAME"),
+            index_name: String::from("SELECT INDEX ..."),
 
             callback_edit_data: props.callback_edit_data.clone(),
             callback_delete_window: props.callback_delete_window.clone(),
@@ -207,13 +193,6 @@ impl Component for IndexPageComp {
                 true
             }
 
-            Msg::SelectIndex(index) => {
-                ConsoleService::info(&format!("Selected index: {:?}", index));
-                self.index_name = index;
-                self.link.send_message(Msg::RequestData);
-                true
-            }
-
             Msg::RequestIndexData => {
                 //FETCHING...
                 let request = Request::get("https://search-discovery-api.dev-domain.site/api/index")
@@ -223,7 +202,6 @@ impl Component for IndexPageComp {
                 let callback = 
                     self.link.callback(|response: Response<Json<Result<Vec<IndexData>, anyhow::Error>>>| {
                         let (meta, Json(data)) = response.into_parts();
-                        // let status_number = meta.status.as_u16();
         
                         match data { 
                             Ok(dataok) => {
@@ -241,8 +219,21 @@ impl Component for IndexPageComp {
                 self.fetch_task = Some(task);
                 true
             }
+
+            Msg::SelectIndex(index) => {
+                ConsoleService::info(&format!("Selected index: {:?}", index));
+                self.index_name = index;
+                self.link.send_message(Msg::RequestRecordData);
+                true
+            }
+
+            Msg::GetIndexData(data) => {
+                ConsoleService::info(&format!("data is {:?}", data));
+                self.index_data = data;
+                true
+            }
             
-            Msg::RequestData => {
+            Msg::RequestRecordData => {
                 //FETCHING...
                 let request = Request::get(format!("https://search-discovery-api.dev-domain.site/api/search/{}", &self.index_name))
                     // .header("access_token", get_access_token{}.unwrap_or_default())
@@ -251,12 +242,11 @@ impl Component for IndexPageComp {
                 let callback = 
                     self.link.callback(|response: Response<Json<Result<Value, anyhow::Error>>>| {
                         let (meta, Json(data)) = response.into_parts();
-                        // let status_number = meta.status.as_u16();
         
                         match data { 
                             Ok(dataok) => {
                                 ConsoleService::info(&format!("data response {:?}", &dataok));
-                                Msg:: GetCardData(dataok)
+                                Msg:: GetRecordData(dataok)
                             }
                             Err(error) => {
                                 Msg::ResponseError(error.to_string())
@@ -270,64 +260,9 @@ impl Component for IndexPageComp {
                 true
             }
 
-            // Msg::RequestMoreData => {
-            //     //POST FETCHING...
-
-            //     let villain = MoreData {
-            //         name: Some(String::from("Yelan")),
-            //         element: None,
-            //         level: None,
-            //         attack: None,
-            //         defense: None,
-            //         em : None,
-            //         nation: None,
-            //     };
-
-            //     let request = Request::post("http://localhost:3000/attack")
-            //         .header("Content-Type", "application/json")
-            //         // .header(Json(&villain))
-            //         .body(Json(&villain))
-            //         .expect("Could not build request.");
-            //     let callback = 
-            //         self.link.callback(|response: Response<Json<Result<Vec<MoreData>, anyhow::Error>>>| {
-            //             let (meta, Json(data)) = response.into_parts();
-            //             // let status_number = meta.status.as_u16();
-        
-            //             match data { 
-            //                 Ok(dataok) => {
-            //                     ConsoleService::info(&format!("data response {:?}", &dataok));
-            //                     Msg:: GetMoreData(Some(dataok))
-            //                 }
-            //                 Err(error) => {
-            //                     Msg::ResponseError(error.to_string())
-            //                 }
-            //             }
-            //         });
-        
-            //     let task = FetchService::fetch(request, callback).expect("failed to start request");
-                
-            //     self.fetch_task = Some(task);
-            //     true
-            // }
-
-            Msg::GetIndexData(data) => {
-                ConsoleService::info(&format!("data is {:?}", data));
-                self.index_data = data;
-                true
-            }
-
-
-            // Msg::GetMoreData(data) => {
-            //     ConsoleService::info(&format!("data is {:?}", data));
-            //     self.card_data = None;
-            //     self.more_data = data;
-            //     true
-            // }
-
-            Msg::GetCardData(data) => {
+            Msg::GetRecordData(data) => {
                 ConsoleService::info(&format!("data is {:?}", data.get("data").unwrap().as_array().unwrap()));
-                self.card_data = data;
-                // self.more_data = None;
+                self.record_data = data;
                 true
             }
 
@@ -481,16 +416,11 @@ impl Component for IndexPageComp {
                                     <input class="search" type="text" placeholder="Search..."/>
                                 </div>
 
-                                // <div>
-                                //     <button style="margin-left: 45%; margin-top: 1%" onclick=self.link.callback(|_| Msg::RequestData)>{ "Get Data" }</button>
-                                // </div>
-
                                 <div>
                                     { self.view_data() }
-                                    // { self.view_more_data() }
 
                                     // {
-                                    //     if self.card_data.clone().unwrap_or_default().is_empty() && self.more_data.clone().unwrap_or_default().is_empty() {
+                                    //     if self.record_data.clone().unwrap_or_default.is_empty() {
                                     //         html!{
                                     //             <div class="alert alert-danger m-4" role="alert">
                                     //                 { "No Record in this Index...  " }
@@ -537,7 +467,7 @@ impl IndexPageComp {
     }
 
     fn view_data(&self) -> Vec<Html> {
-        self.card_data.get("data").unwrap().as_array()
+        self.record_data.get("data").unwrap().as_array()
             .unwrap().iter().enumerate().map(|(i,card)|{
                 
                 let edit_text_data = serde_json::to_string(card).unwrap();
@@ -572,7 +502,7 @@ impl IndexPageComp {
                                   
                                                 
                                             <p style="color: black; font-size:12px;font-weight: bold; line-height: 1.8;">
-                                                { serde_json::to_string_pretty(card.get("fields").unwrap()).unwrap().replace(&['{', '}','"','_'], "") }
+                                                { serde_json::to_string_pretty(card.get("fields").unwrap()).unwrap().replace(&['{', '}','"','_', '[', ']'], "") }
                                             </p>
                                         </pre>
                                                 
