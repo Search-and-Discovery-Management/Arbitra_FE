@@ -1,8 +1,13 @@
 use yew::{prelude::*, services::ConsoleService};
+use yew::services::fetch::Request;
+use yew::services::fetch::Response;
+use yew::format::{Json, self};
 
 pub enum Msg {
     ToggleInsertRecord,
     ValidateInputJson(String),
+    RequestCreateRecordsData,
+    Ignore,
 }
 
 #[derive(Properties, Clone, Debug, PartialEq)]
@@ -43,15 +48,51 @@ impl Component for InsertRecord {
                 self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord);
                 true
             }
+
             Msg::ValidateInputJson (data) => {
                 self.value = data;
                 self.json_is_valid = match serde_json::from_str::<serde_json::Value>(&self.value) {
                     Ok(_) => true,
                     Err(_) => false,
                 };
-                ConsoleService::info(&format!("DEBUG : value:{:?}", self.value));
+                ConsoleService::info(&format!("DEBUG : value:{:?}", &self.value));
                 ConsoleService::info(&format!("DEBUG : json_is_valid:{:?}", self.json_is_valid));
                 true
+            }
+
+            Msg::RequestCreateRecordsData => {
+                let mut x = serde_json::json!({});
+                match serde_json::from_str::<serde_json::Value>(&self.value) {
+                    Ok(create) => x = create, 
+                    Err(_) => (),
+                };
+                ConsoleService::info(&format!("Value X = {}", &x));
+
+                let request = Request::post("https://search-discovery-api.dev-domain.site/api/document")
+                    .header("Content-Type", "application/json")
+                    .body(x)
+                    .expect("Could not build request.");
+                    ConsoleService::info(&format!("APA RETURNYA??? {:?}", &request));
+                let callback = 
+                    self.link.callback(|response: Response<Json<Result<serde_json::Value, anyhow::Error>>>| {
+                        let (meta, Json(data)) = response.into_parts();
+                        // let status_number = meta.status.as_u16();
+                        
+                        match data { 
+                            Ok(dataok) => {
+                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                Msg::Ignore
+                            }
+                            Err(error) => {
+                                Msg::Ignore
+                            }
+                        }
+                    });
+                true
+            }
+
+            Msg::Ignore => {
+                false
             }
         }
     }
@@ -135,6 +176,7 @@ impl Component for InsertRecord {
                                 type="submit"
                                 form="submit-insertrecord"
                                 class="window-confirm-button"
+                                onclick = self.link.callback(|_| Msg::RequestCreateRecordsData)
                             >
                                 { "INSERT NEW RECORD" }
                             </button>

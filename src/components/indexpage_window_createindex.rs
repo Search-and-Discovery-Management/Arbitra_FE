@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::{from_str, Value, from_value, Map};
 use crate::{types::var};
 
-
 pub enum Msg {
     ToggleCreateIndex,
 
