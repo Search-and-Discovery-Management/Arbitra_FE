@@ -66,13 +66,13 @@ impl Component for InsertRecord {
                     Ok(create) => x = create, 
                     Err(_) => (),
                 };
-                ConsoleService::info(&format!("Value X = {}", &x));
+                ConsoleService::info(&format!("Data Input = {}", &x));
 
                 let request = Request::post("https://search-discovery-api.dev-domain.site/api/document")
                     .header("Content-Type", "application/json")
                     .body(x)
                     .expect("Could not build request.");
-                    ConsoleService::info(&format!("APA RETURNYA??? {:?}", &request));
+                    ConsoleService::info(&format!("Request: {:?}", &request));
                 let callback = 
                     self.link.callback(|response: Response<Json<Result<serde_json::Value, anyhow::Error>>>| {
                         let (meta, Json(data)) = response.into_parts();
