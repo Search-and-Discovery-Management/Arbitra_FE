@@ -1,6 +1,7 @@
+use serde::Serialize;
 use yew::{prelude::*, services::ConsoleService};
 use yew::services::fetch::Request;
-use yew::services::fetch::Response;
+use yew::services::fetch::{Response, FetchService, FetchTask};
 use yew::format::{Json, self};
 
 pub enum Msg {
@@ -26,6 +27,7 @@ pub struct InsertRecord {
     callback_toggle_insertrecord: Callback<Msg>,
     value: String,
     json_is_valid: bool,
+    fetch_task: Option<FetchTask>,
 }
 
 impl Component for InsertRecord {
@@ -39,6 +41,7 @@ impl Component for InsertRecord {
             props,
             value: "".to_string(),
             json_is_valid: false,
+            fetch_task: None,
         }
     }
 
@@ -61,23 +64,23 @@ impl Component for InsertRecord {
             }
 
             Msg::RequestCreateRecordsData => {
-                let mut x = serde_json::json!({});
+                let mut records = serde_json::json!({});
                 match serde_json::from_str::<serde_json::Value>(&self.value) {
-                    Ok(create) => x = create, 
-                    Err(_) => (),
+                    Ok(create) => records = create,
+                    Err(Error) => ConsoleService::info(&format!("Data Input = {}", &Error)),
                 };
-                ConsoleService::info(&format!("Data Input = {}", &x));
+                ConsoleService::info(&format!("Data Input = {}", &records));
+
 
                 let request = Request::post("https://search-discovery-api.dev-domain.site/api/document")
                     .header("Content-Type", "application/json")
-                    .body(x)
+                    .body(Json(&records))
                     .expect("Could not build request.");
                     ConsoleService::info(&format!("Request: {:?}", &request));
                 let callback = 
-                    self.link.callback(|response: Response<Json<Result<serde_json::Value, anyhow::Error>>>| {
+                    self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
                         let (meta, Json(data)) = response.into_parts();
                         // let status_number = meta.status.as_u16();
-                        
                         match data { 
                             Ok(dataok) => {
                                 ConsoleService::info(&format!("data response {:?}", &dataok));
@@ -88,6 +91,9 @@ impl Component for InsertRecord {
                             }
                         }
                     });
+                    let task = FetchService::fetch(request, callback).expect("failed to start request");
+                
+                    self.fetch_task = Some(task);
                 true
             }
 

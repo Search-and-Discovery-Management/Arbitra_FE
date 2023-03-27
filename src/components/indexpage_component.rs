@@ -418,25 +418,6 @@ impl Component for IndexPageComp {
 
                                 <div>
                                     { self.view_data() }
-
-                                    // {
-                                    //     if self.record_data.clone().unwrap_or_default.is_empty() {
-                                    //         html!{
-                                    //             <div class="alert alert-danger m-4" role="alert">
-                                    //                 { "No Record in this Index...  " }
-                                                    
-                                    //                 <a href="#" onclick=self.link.callback(|_| Msg::ToggleInsertRecord)>
-                                    //                     { "Insert New Record" }
-                                    //                 </a>
-
-                                    //             </div>
-                                    //         }
-                                    //     } else {
-                                    //         html! {
-                                    //             //NOTHING YET
-                                    //         }
-                                    //     }
-                                    // }
                                 </div>
 
                             </div>      
