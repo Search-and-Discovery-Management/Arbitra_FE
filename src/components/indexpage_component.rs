@@ -496,15 +496,9 @@ impl IndexPageComp {
 
 
                                     <div class="card-json">    
-                                        <pre>
-                                            {"_id: "}{ serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap() }{"\n"}
-                                            {"_score: "}{ serde_json::to_string_pretty(card.get("_score").unwrap()).unwrap() }{"\n"}
-                                  
-                                                
-                                            <p style="color: black; font-size:12px;font-weight: bold; line-height: 1.8;">
-                                                { serde_json::to_string_pretty(card.get("fields").unwrap()).unwrap().replace(&['{', '}','"','_', '[', ']'], "") }
-                                            </p>
-                                        </pre>
+                                        //DISPLAY DATA NEW
+                                        
+                                        { self.view_card(card) }
                                                 
                                             
                                     </div>
@@ -563,6 +557,52 @@ impl IndexPageComp {
             }).collect()
     }
 
+    ///////////////////////
+    fn view_card(&self, card:&Value) -> Vec<Html> {
+
+        match card.as_object() {
+            Some(data_parse_3) => data_parse_3.iter().map(|(key, value)|{
+                // ConsoleService::info(&format!("DEBUG DATAPARSE3  :{:?}", data_parse_3));
+                // ConsoleService::info(&format!("DEBUG :{:?}, {:?}", key, value.to_string()));
+                html! {
+                    <div class="card-json-line"> 
+                    
+                        {
+                            if key.eq("fields") {
+                                match value.as_object() {
+                                        Some (data) => data.iter().map(|(key, value)|{
+                                            html!{
+                                                <div class="data-fields"> 
+                                                    <b>{ key }</b>
+                                                    // {" : "}
+                                                    <p>{ serde_json::to_string_pretty(value).unwrap().replace(&['{', '}','"','_', '[', ']'], "") }</p>
+                                                </div> 
+                                                // <p class="card-json-key"><b>{ key }</b>{" : "}{ serde_json::to_string_pretty(value).unwrap().replace(&['{', '}','"','_', '[', ']'], "") }</p>
+                                            }
+                                        }).collect(),
+                                    
+                                        None => html!{}
+                                    }
+                            } else {
+                                html!{
+                                    <div class="data-header">
+                                            <b>{ key }</b>
+                                            // {" : "}
+                                            <p>{ serde_json::to_string_pretty(value).unwrap().replace(&['{', '}','"','_', '[', ']'], "") }</p>
+                                    </div>
+                                }
+                            }
+                            
+                        }
+                    </div>            
+
+                    
+                }  
+            }).collect(),
+
+            None => vec![html! {}],
+            }
+    }
 
 }
 

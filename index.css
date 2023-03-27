@@ -871,17 +871,39 @@ input[type=password]:focus {
 .card-sub {
     display: flex;
     flex-direction: row;
-
+    padding-right: 10%;
     width: 65%;
 }
 
 .card-json {
     padding-left: 5%;
     padding-top : 1%;
-    width: 60%;
+    width: 90%;
 }
 
+.card-json-line {
+    width: 100%;
+    padding-top: 4px;
+    padding-bottom: 4px;
 
+    font-size: 13px;
+}
+
+.data-fields { 
+    padding-left: 10%;
+    display: flex;
+    justify-content: space-between;
+    gap: 5%;
+    text-overflow: ellipsis;
+}
+
+.data-header { 
+    padding-right: 10%;
+    display: flex;
+    justify-content: space-between;
+    gap: 5%;
+    text-overflow: ellipsis;
+}
 
 .card-image-placeholder {
     border-style: solid;
