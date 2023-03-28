@@ -454,7 +454,7 @@ impl IndexPageComp {
                 let edit_text_data = serde_json::to_string(card).unwrap();
 
                 let edit_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap();
-                let delete_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap();
+                let delete_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap().replace("\"", "");
 
                 let edit_modal_data = EditModalData{    
                     data: edit_text_data.clone(),

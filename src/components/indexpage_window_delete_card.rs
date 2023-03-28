@@ -1,7 +1,19 @@
-use yew::{prelude::*, services::ConsoleService};
+use yew::{
+    format::{ Json, Nothing },
+    prelude::*,
+    services::{
+        fetch::{FetchService, FetchTask, Request, Response},
+        ConsoleService,
+    },
+};
+use serde::{Deserialize, Serialize};
+use serde_json::{from_str, Value, from_value, Map};
+use crate::types::var;
 
 pub enum Msg {
     ToggleDeleteCard,
+    RequestDeleteCard,
+    Ignore,
 }
 
 
@@ -22,6 +34,7 @@ pub struct DeleteCard {
     link: ComponentLink<Self>,
     props: WindowDeleteCardProps,
     callback_toggle_deletecard: Callback<Msg>,
+    fetch_task: Option<FetchTask>,
 }
 
 impl Component for DeleteCard {
@@ -33,6 +46,7 @@ impl Component for DeleteCard {
             link,
             callback_toggle_deletecard: props.on_toggle_deletecard.clone(),
             props,
+            fetch_task: None,
         }
     }
 
@@ -42,6 +56,54 @@ impl Component for DeleteCard {
                 self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard);
                 ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.delete_index.clone()));
                 true
+            }
+
+            Msg::RequestDeleteCard => {
+                let url = format!("https://search-discovery-api.dev-domain.site/api/document/index2/{}", &self.props.delete_index);
+                ConsoleService::info(&format!("RecordID: {:?}", self.props.delete_index));
+                let request = Request::delete(url)
+                    // .header("Content-Type", "application/json")
+                    // .header(Json(&villain))
+                    .body(Nothing)
+                    .expect("Could not build request.");
+                let callback = 
+                    self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
+                        let (meta, Json(data)) = response.into_parts();
+                        // let status_number = meta.status.as_u16();
+
+                        // if meta.status.is_success() {
+                        //     Msg::GetDeleteIndexName                            
+                        // } else {
+                        //     match data { 
+                        //         Ok(dataok) => {
+                        //             ConsoleService::info(&format!("data response {:?}", &dataok));
+                        //             Msg:: GetDeleteIndexName
+                        //         }
+                        //         Err(error) => {
+                        //             Msg::ResponseError(error.to_string())
+                        //         }
+                        //     }   
+                        // }
+
+                        match data { 
+                            Ok(dataok) => {
+                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                Msg::Ignore
+                            }
+                            Err(error) => {
+                                Msg::Ignore
+                            }
+                        }
+                    });
+        
+                let task = FetchService::fetch(request, callback).expect("failed to start request");
+                
+                self.fetch_task = Some(task);
+                true
+            }
+
+            Msg::Ignore => {
+                false
             }
         }
     }
@@ -82,7 +144,7 @@ impl Component for DeleteCard {
                         type="submit"
                         form="submit-deletecard"
                         class="window-confirm-button"
-                        //WIRING EVENT DELETE CARD / RECORD DISINI!!
+                        onclick=self.link.callback(|_| Msg::RequestDeleteCard)
                     >
                         { "DELETE RECORD" }
                     </button>
