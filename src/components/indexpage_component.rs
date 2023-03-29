@@ -84,9 +84,9 @@ pub struct IndexPageCompProps {
 
 
     #[prop_or_default]
-    pub index_name: String,
+    pub card_index: String,
     
-    pub callback_index_name: Callback<String>,
+    pub callback_card_index: Callback<String>,
 
     pub on_toggle_createapp:Callback<Msg>,
     pub on_toggle_createindex:Callback<Msg>,
@@ -124,7 +124,7 @@ pub struct IndexPageComp {
 
     callback_edit_data: Callback<EditModalData>,
     callback_delete_window: Callback<String>,
-    callback_index_name: Callback<String>,
+    callback_card_index: Callback<String>,
 }
 
 impl Component for IndexPageComp {
@@ -152,7 +152,7 @@ impl Component for IndexPageComp {
 
             callback_edit_data: props.callback_edit_data.clone(),
             callback_delete_window: props.callback_delete_window.clone(),
-            callback_index_name: props.callback_index_name.clone(),
+            callback_card_index: props.callback_card_index.clone(),
             props,
         }
     }
@@ -189,11 +189,11 @@ impl Component for IndexPageComp {
                 ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.props.display_delete_record));
                 true
             }
-            Msg::ToggleDeleteCard (index, index_name) => {
+            Msg::ToggleDeleteCard (index, card_index) => {
                 ConsoleService::info(&format!("DEBUG : delete_index EVENT :{:?}", index));
-                ConsoleService::info(&format!("DEBUG : Index_name EVENT :{:?}", index_name));
+                ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
                 ConsoleService::info(&format!("DEBUG : display_delete_card:{:?}", self.props.display_delete_card));
-                self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard(index, index_name));
+                self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard(index, card_index));
                 true
             }
 
@@ -288,7 +288,7 @@ impl Component for IndexPageComp {
 
             //UNTUK NGIRIM DATA INDEX KE PARENT
             Msg::SendIndexNameToParent(data) => {
-                self.callback_index_name.emit(data);
+                self.callback_card_index.emit(data);
                 true
             }
             
@@ -478,7 +478,7 @@ impl IndexPageComp {
                     index: edit_index.clone(),
                     };
 
-                let index_name_card = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
+                let card_index = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
 
                 // let card_image = serde_json::to_string_pretty(card.get("_image").unwrap());
  
@@ -526,8 +526,8 @@ impl IndexPageComp {
                                     class="card-button"
                                     onclick=self.link.batch_callback(move |_| vec![
                                         Msg::SendDeleteToParent(delete_index.clone()),
-                                        Msg::SendIndexNameToParent(index_name_card.clone()),
-                                        Msg::ToggleDeleteCard(delete_index.clone(), index_name_card.clone())
+                                        Msg::SendIndexNameToParent(card_index.clone()),
+                                        Msg::ToggleDeleteCard(delete_index.clone(), card_index.clone())
                                     ]
                                     )
                                 >
