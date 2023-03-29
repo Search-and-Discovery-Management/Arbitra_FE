@@ -63,7 +63,7 @@ impl Component for DeleteCard {
             }
 
             Msg::RequestDeleteCard => {
-                let url = format!("https://search-discovery-api.dev-domain.site/api/document/index2/{}", &self.props.delete_index);
+                let url = format!("https://search-discovery-api.dev-domain.site/api/document/{}/{}", &self.props.card_index, &self.props.delete_index);
                 ConsoleService::info(&format!("RecordID: {:?}", self.props.delete_index));
                 let request = Request::delete(url)
                     // .header("Content-Type", "application/json")

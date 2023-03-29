@@ -122,7 +122,7 @@ impl Component for DeleteRecord {
                 let request = Request::delete(url)
                     // .header("Content-Type", "application/json")
                     // .header(Json(&villain))
-                    .body(Json(&self.index_name))
+                    .body(Nothing)
                     .expect("Could not build request.");
                 let callback = 
                     self.link.callback(|response: Response<Json<Result<(), anyhow::Error>>>| {
