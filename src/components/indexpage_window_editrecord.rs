@@ -17,6 +17,9 @@ pub struct WindowEditRecordProps {
     pub edit_index: String,
 
     pub on_toggle_editrecord:Callback<Msg>,
+
+    #[prop_or_default]
+    pub card_index: String,
 }
 
 
@@ -58,6 +61,8 @@ impl Component for EditRecord {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::ToggleEditRecord => {
+                ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.edit_index.clone()));
+                ConsoleService::info(&format!("DEBUG : self.card_index MODAL COMP:{:?}", self.props.card_index.clone()));
                 self.callback_toggle_editecord.emit(Msg::ToggleEditRecord);
                 true
             }
@@ -82,6 +87,13 @@ impl Component for EditRecord {
             true
         }else {
             false
+        }
+    }
+
+    fn rendered(&mut self, first_render: bool) {
+        if first_render {
+			ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.edit_index.clone()));
+            ConsoleService::info(&format!("DEBUG : self.card_index MODAL COMP:{:?}", self.props.card_index.clone()));
         }
     }
 

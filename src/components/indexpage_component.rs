@@ -26,7 +26,7 @@ pub enum Msg {
     ToggleCreateApp,
     ToggleCreateIndex,
     ToggleInsertRecord,
-    ToggleEditRecord(String, String),
+    ToggleEditRecord(String, String, String),
     ToggleDeleteRecord,
     ToggleDeleteCard(String, String),
 
@@ -175,13 +175,14 @@ impl Component for IndexPageComp {
                 ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.props.display_insert_record));
                 true
             }
-            Msg::ToggleEditRecord (data, index)=> {
+            Msg::ToggleEditRecord (data, index, card_index)=> {
 
                 ConsoleService::info(&format!("DEBUG : display_edit_record:{:?}", self.props.display_edit_record));
                 ConsoleService::info(&format!("DEBUG : data INDEX PAGE CHILD:{:?}", data.clone()));
                 ConsoleService::info(&format!("DEBUG : index INDEX PAGE CHILD:{:?}", index.clone()));
+                ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
                 
-                self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord(data, index));
+                self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord(data, index, card_index));
                 true
             }
             Msg::ToggleDeleteRecord => {
@@ -479,6 +480,7 @@ impl IndexPageComp {
                     };
 
                 let card_index = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
+                let card_index_2 = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
 
                 // let card_image = serde_json::to_string_pretty(card.get("_image").unwrap());
  
@@ -542,7 +544,8 @@ impl IndexPageComp {
 
                                     onclick= self.link.batch_callback(move |_| vec![
                                         Msg::SendEditToParent(edit_modal_data.clone()),
-                                        Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone()),
+                                        Msg::SendIndexNameToParent(card_index_2.clone()),
+                                        Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone(), card_index_2.clone()),
                                     ]
                                     )
                                 >

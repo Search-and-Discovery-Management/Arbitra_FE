@@ -288,7 +288,7 @@ impl Component for IndexPage {
                         edit_data = self.edit_data.clone()
                         edit_index = self.edit_index.clone()
                         on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord) 
-                        
+                        card_index = self.card_index.clone()
                         />
 
                 </div>
