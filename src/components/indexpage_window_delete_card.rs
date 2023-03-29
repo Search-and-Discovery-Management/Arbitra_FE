@@ -25,6 +25,9 @@ pub struct WindowDeleteCardProps {
     #[prop_or_default]
     pub delete_index: String,
     pub on_toggle_deletecard:Callback<Msg>,
+
+    #[prop_or_default]
+    pub index_name: String,
 }
 
 
@@ -55,6 +58,7 @@ impl Component for DeleteCard {
             Msg::ToggleDeleteCard => {
                 self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard);
                 ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.delete_index.clone()));
+                ConsoleService::info(&format!("DEBUG : self.index_name MODAL COMP:{:?}", self.props.index_name.clone()));
                 true
             }
 
@@ -105,6 +109,13 @@ impl Component for DeleteCard {
             Msg::Ignore => {
                 false
             }
+        }
+    }
+
+    fn rendered(&mut self, first_render: bool) {
+        if first_render {
+			ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.delete_index.clone()));
+            ConsoleService::info(&format!("DEBUG : self.index_name MODAL COMP:{:?}", self.props.index_name.clone()));
         }
     }
 

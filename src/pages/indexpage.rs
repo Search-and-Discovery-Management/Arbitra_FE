@@ -22,6 +22,7 @@ pub enum Msg {
     
     RecvEditData(EditModalData),
     RecvDeleteData(String),
+    RecvIndexName(String),
 }
 
 pub struct IndexPage {
@@ -38,6 +39,8 @@ pub struct IndexPage {
     edit_index: String,
 
     delete_index : String,
+
+    index_name : String,
 }
 
 impl Component for IndexPage {
@@ -60,6 +63,7 @@ impl Component for IndexPage {
 
             delete_index: String::from("118"),
 
+            index_name: String::from("Index Name here"),
             link,
         }
     }
@@ -113,6 +117,12 @@ impl Component for IndexPage {
                 self.delete_index = data_recv.clone();
                 true
             }
+            Msg::RecvIndexName(data_recv) => {
+                ConsoleService::info(&format!("data in parent is (INDEX NAME) {:?}", data_recv));
+                self.index_name = data_recv.clone();
+                ConsoleService::info(&format!("data in parent STATE is (INDEX NAME) {:?}", self.index_name));
+                true
+            }
             
         }
     }
@@ -159,6 +169,9 @@ impl Component for IndexPage {
 
                         delete_index = self.delete_index.clone()
                         callback_delete_window = self.link.callback(Msg::RecvDeleteData)
+
+                        callback_index_name = self.link.callback(Msg::RecvIndexName)
+                        index_name = self.index_name.clone()
                         />
                     //DISPLAY WINDOW DISINI         
                     <AppCreate 
@@ -193,6 +206,9 @@ impl Component for IndexPage {
                         
                         delete_index = self.delete_index.clone()
                         callback_delete_window = self.link.callback(Msg::RecvDeleteData)
+
+                        callback_index_name = self.link.callback(Msg::RecvIndexName)
+                        index_name = self.index_name.clone()
                     />
                     //DISPLAY WINDOW DISINI      
                     <IndexCreate 
@@ -226,6 +242,9 @@ impl Component for IndexPage {
                         
                         delete_index = self.delete_index.clone()
                         callback_delete_window = self.link.callback(Msg::RecvDeleteData)
+
+                        callback_index_name = self.link.callback(Msg::RecvIndexName)
+                        index_name = self.index_name.clone()
                     />
                     //DISPLAY WINDOW DISINI         
                     <InsertRecord
@@ -258,6 +277,9 @@ impl Component for IndexPage {
 
                         delete_index = self.delete_index.clone()
                         callback_delete_window = self.link.callback(Msg::RecvDeleteData)
+
+                        callback_index_name = self.link.callback(Msg::RecvIndexName)
+                        index_name = self.index_name.clone()
                     />
 
                     //DISPLAY WINDOW DISINI         
@@ -295,7 +317,10 @@ impl Component for IndexPage {
                         callback_edit_data = self.link.callback(Msg::RecvEditData)
 
                         delete_index = self.delete_index.clone()
-                        callback_delete_window = self.link.callback(Msg::RecvDeleteData)                
+                        callback_delete_window = self.link.callback(Msg::RecvDeleteData)   
+
+                        callback_index_name = self.link.callback(Msg::RecvIndexName)    
+                        index_name = self.index_name.clone()         
                     />
                     //DISPLAY WINDOW DISINI         
                     <DeleteRecord
@@ -327,13 +352,17 @@ impl Component for IndexPage {
                         callback_edit_data = self.link.callback(Msg::RecvEditData)
 
                         delete_index = self.delete_index.clone()
-                        callback_delete_window = self.link.callback(Msg::RecvDeleteData)                
+                        callback_delete_window = self.link.callback(Msg::RecvDeleteData)   
+
+                        callback_index_name = self.link.callback(Msg::RecvIndexName)  
+                        index_name = self.index_name.clone()           
                     />
                     //DISPLAY WINDOW DISINI         
                     <DeleteCard
                         display_delete_card=self.display_delete_card.clone()
                         on_toggle_deletecard = self.link.callback(|_| Msg::ToggleDeleteCard)
                         delete_index = self.delete_index.clone()
+                        index_name = self.index_name.clone()
                         />
 
                 </div>
@@ -362,6 +391,9 @@ impl Component for IndexPage {
                         
                         delete_index = self.delete_index.clone()
                         callback_delete_window = self.link.callback(Msg::RecvDeleteData) 
+
+                        callback_index_name = self.link.callback(Msg::RecvIndexName)
+                        index_name = self.index_name.clone()
                     />
                     </div>
                

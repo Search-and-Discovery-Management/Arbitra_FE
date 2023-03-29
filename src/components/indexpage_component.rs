@@ -28,7 +28,7 @@ pub enum Msg {
     ToggleInsertRecord,
     ToggleEditRecord(String, String),
     ToggleDeleteRecord,
-    ToggleDeleteCard(String),
+    ToggleDeleteCard(String, String),
 
     RequestRecordData,
     GetRecordData(Value),
@@ -41,6 +41,7 @@ pub enum Msg {
 
     SendEditToParent(EditModalData),
     SendDeleteToParent(String),
+    SendIndexNameToParent(String),
 
     Ignore,
 }
@@ -81,6 +82,12 @@ pub struct IndexPageCompProps {
 
     pub callback_delete_window: Callback<String>,
 
+
+    #[prop_or_default]
+    pub index_name: String,
+    
+    pub callback_index_name: Callback<String>,
+
     pub on_toggle_createapp:Callback<Msg>,
     pub on_toggle_createindex:Callback<Msg>,
     pub on_toggle_insertrecord:Callback<Msg>,
@@ -117,6 +124,7 @@ pub struct IndexPageComp {
 
     callback_edit_data: Callback<EditModalData>,
     callback_delete_window: Callback<String>,
+    callback_index_name: Callback<String>,
 }
 
 impl Component for IndexPageComp {
@@ -144,6 +152,7 @@ impl Component for IndexPageComp {
 
             callback_edit_data: props.callback_edit_data.clone(),
             callback_delete_window: props.callback_delete_window.clone(),
+            callback_index_name: props.callback_index_name.clone(),
             props,
         }
     }
@@ -180,13 +189,13 @@ impl Component for IndexPageComp {
                 ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.props.display_delete_record));
                 true
             }
-            Msg::ToggleDeleteCard (index) => {
+            Msg::ToggleDeleteCard (index, index_name) => {
                 ConsoleService::info(&format!("DEBUG : delete_index EVENT :{:?}", index));
+                ConsoleService::info(&format!("DEBUG : Index_name EVENT :{:?}", index_name));
                 ConsoleService::info(&format!("DEBUG : display_delete_card:{:?}", self.props.display_delete_card));
-                self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard(index));
+                self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard(index, index_name));
                 true
             }
-            
 
             Msg::Ignore => {
                 ConsoleService::info(&format!("DEBUG : Event Ignore", ));
@@ -276,6 +285,13 @@ impl Component for IndexPageComp {
                 self.callback_delete_window.emit(index);
                 true
             }
+
+            //UNTUK NGIRIM DATA INDEX KE PARENT
+            Msg::SendIndexNameToParent(data) => {
+                self.callback_index_name.emit(data);
+                true
+            }
+            
 
 
             Msg::ResponseError(text) => {
@@ -451,6 +467,7 @@ impl IndexPageComp {
         self.record_data.get("data").unwrap().as_array()
             .unwrap().iter().enumerate().map(|(i,card)|{
                 
+                
                 let edit_text_data = serde_json::to_string(card).unwrap();
 
                 let edit_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap();
@@ -459,7 +476,9 @@ impl IndexPageComp {
                 let edit_modal_data = EditModalData{    
                     data: edit_text_data.clone(),
                     index: edit_index.clone(),
-                        };
+                    };
+
+                let index_name_card = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
 
                 // let card_image = serde_json::to_string_pretty(card.get("_image").unwrap());
  
@@ -507,7 +526,8 @@ impl IndexPageComp {
                                     class="card-button"
                                     onclick=self.link.batch_callback(move |_| vec![
                                         Msg::SendDeleteToParent(delete_index.clone()),
-                                        Msg::ToggleDeleteCard(delete_index.clone())
+                                        Msg::SendIndexNameToParent(index_name_card.clone()),
+                                        Msg::ToggleDeleteCard(delete_index.clone(), index_name_card.clone())
                                     ]
                                     )
                                 >
