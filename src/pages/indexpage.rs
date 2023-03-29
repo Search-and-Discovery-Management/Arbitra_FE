@@ -73,23 +73,23 @@ impl Component for IndexPage {
             //EVENT BUAT OPEN MODAL
             Msg::ToggleCreateIndex => {
                 self.display_create_index = !self.display_create_index;
-                ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.display_create_index));
+                // // ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.display_create_index));
                 true
             }
             Msg::ToggleCreateApp => {
                 self.display_create_app = !self.display_create_app;
-                ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.display_create_app));
+                // // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.display_create_app));
                 true
             }
             Msg::ToggleInsertRecord => {
                 self.display_insert_record = !self.display_insert_record;
-                ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.display_insert_record));
+                // // ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.display_insert_record));
                 true
             }
             Msg::ToggleEditRecord => {
-                ConsoleService::info(&format!("DEBUG : display_edit_record:{:?}", self.display_edit_record));
-                ConsoleService::info(&format!("DEBUG : self.edit_data:{:?}", self.edit_data.clone()));
-                ConsoleService::info(&format!("DEBUG : self.edit_index:{:?}", self.edit_index.clone()));
+                // ConsoleService::info(&format!("DEBUG : display_edit_record:{:?}", self.display_edit_record));
+                // ConsoleService::info(&format!("DEBUG : self.edit_data:{:?}", self.edit_data.clone()));
+                // ConsoleService::info(&format!("DEBUG : self.edit_index:{:?}", self.edit_index.clone()));
 
                 self.display_edit_record = !self.display_edit_record;
 
@@ -97,30 +97,30 @@ impl Component for IndexPage {
             }
             Msg::ToggleDeleteRecord => {
                 self.display_delete_record = !self.display_delete_record;
-                ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.display_delete_record));
+                // ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.display_delete_record));
                 true
             }
             Msg::ToggleDeleteCard => {
                 self.display_delete_card = !self.display_delete_card;
-                ConsoleService::info(&format!("DEBUG : display_delete_card:{:?}", self.display_delete_card));
+                // ConsoleService::info(&format!("DEBUG : display_delete_card:{:?}", self.display_delete_card));
                 true
             }
             Msg::RecvEditData(data_recv) => {
-                ConsoleService::info(&format!("data in parent is {:?}", data_recv));
+                // ConsoleService::info(&format!("data in parent is {:?}", data_recv));
 
                 self.edit_data = data_recv.data.clone();
                 self.edit_index = data_recv.index.clone();
                 true
             }
             Msg::RecvDeleteData(data_recv) => {
-                ConsoleService::info(&format!("data in parent is (DELETE MODAL INDEX) {:?}", data_recv));
+                // ConsoleService::info(&format!("data in parent is (DELETE MODAL INDEX) {:?}", data_recv));
                 self.delete_index = data_recv.clone();
                 true
             }
             Msg::RecvIndexName(data_recv) => {
-                ConsoleService::info(&format!("data in parent is (INDEX NAME) {:?}", data_recv));
+                // ConsoleService::info(&format!("data in parent is (INDEX NAME) {:?}", data_recv));
                 self.card_index = data_recv.clone();
-                ConsoleService::info(&format!("data in parent STATE is (INDEX NAME) {:?}", self.card_index));
+                // ConsoleService::info(&format!("data in parent STATE is (INDEX NAME) {:?}", self.card_index));
                 true
             }
             

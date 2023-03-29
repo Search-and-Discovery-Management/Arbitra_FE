@@ -1,11 +1,9 @@
 //IMPORT 
 use yew::prelude::*;
-use yew_router::prelude::*;
 use std::rc::Rc;
 use yewdux::prelude::*;
 
 use yew::{
-    prelude::*,
     services::{
         ConsoleService,
     },
@@ -13,16 +11,13 @@ use yew::{
 
 use crate::router::{
     render::Render,
-    render_guest::RenderGuest,
-    render_member::RenderMember,
+    // render_guest::RenderGuest,
+    // render_member::RenderMember,
 };
-use crate::components::navtop::Navtop;
-use crate::pages::indexpage::IndexPage;
 
 use crate::store::store:: {
     CounterStore,
     CounterOutput,
-    CounterInput,
     State,
 };
 
@@ -111,7 +106,6 @@ impl Component for App {
 
         html! {
             <div>
-                // <Router<AppRoute,()> render=render/>
                 <Render/>
 
             </div>

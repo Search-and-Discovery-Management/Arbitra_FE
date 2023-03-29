@@ -58,7 +58,7 @@ impl Component for DashboardPage {
         
                         match data { 
                             Ok(dataok) => {
-                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
                                 Msg:: GetDashboardData(dataok)
                             }
                             Err(error) => {
@@ -74,7 +74,7 @@ impl Component for DashboardPage {
             }
 
             Msg::GetDashboardData(data) => {
-                ConsoleService::info(&format!("data is {:?}", data));
+                // ConsoleService::info(&format!("data is {:?}", data));
                 self.dashboarddata = data;
                 true
             }

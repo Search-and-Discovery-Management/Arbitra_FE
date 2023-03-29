@@ -28,11 +28,7 @@ pub struct IndexList {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-// pub let mut Record:Option<Value>;
 pub struct Record { 
-    // pub app_name: String,
-    // pub index_name: String,
-    // pub record_id: String,
     pub record_data: Option<Value>,
 }
 
@@ -46,6 +42,5 @@ pub struct RecordData{
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct EditModalData{
     pub data: String,
-    // pub index: usize,
     pub index: String,
 }

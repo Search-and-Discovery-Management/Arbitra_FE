@@ -86,7 +86,7 @@ impl Component for DeleteRecord {
         
                         match data { 
                             Ok(dataok) => {
-                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
                                 Msg:: GetIndexData(Some(dataok))
                             }
                             Err(error) => {
@@ -102,13 +102,13 @@ impl Component for DeleteRecord {
             }
 
             Msg::GetIndexData(data) => {
-                ConsoleService::info(&format!("data is {:?}", data));
+                // ConsoleService::info(&format!("data is {:?}", data));
                 self.index_data = data;
                 true
             }
 
             Msg::InputDeleteIndex(data) => {
-                ConsoleService::info(&format!("Input Data for deletion: {:?}", data));
+                // ConsoleService::info(&format!("Input Data for deletion: {:?}", data));
                 // let test = data.to_owned();
                 self.index_name = data;
                 true
@@ -134,7 +134,7 @@ impl Component for DeleteRecord {
                         } else {
                             match data { 
                                 Ok(dataok) => {
-                                    ConsoleService::info(&format!("data response {:?}", &dataok));
+                                    // ConsoleService::info(&format!("data response {:?}", &dataok));
                                     Msg:: GetDeleteIndexName
                                 }
                                 Err(error) => {

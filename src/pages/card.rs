@@ -7,13 +7,7 @@ use yew::{
     },
 };
 
-use serde_json::{from_str, Value, from_value};
-
-
-use crate::types::var::{
-    Record, 
-    RecordData,
-};
+use serde_json::{Value};
 
 pub enum Msg {
     RequestData,
@@ -27,7 +21,7 @@ pub struct CardTemp {
     fetch_task: Option<FetchTask>,
     link: ComponentLink<Self>,
     card_data: Option<Vec<Value>>,
-    error: Option<String>,
+    // error: Option<String>,
 }
 
 impl Component for CardTemp {
@@ -39,7 +33,7 @@ impl Component for CardTemp {
             fetch_task: None,
             link,
             card_data: Some(vec![]),
-            error: None,
+            // error: None,
         }
     }
 
@@ -54,11 +48,10 @@ impl Component for CardTemp {
                 let callback = 
                     self.link.callback(|response: Response<Json<Result<Vec<Value>, anyhow::Error>>>| {
                         let (meta, Json(data)) = response.into_parts();
-                        // let status_number = meta.status.as_u16();
         
                         match data { 
                             Ok(dataok) => {
-                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
                                 Msg:: GetCardData(Some(dataok))
                             }
                             Err(error) => {
@@ -74,7 +67,7 @@ impl Component for CardTemp {
             }
 
             Msg::GetCardData(data) => {
-                ConsoleService::info(&format!("data is {:?}", data));
+                // ConsoleService::info(&format!("data is {:?}", data));
                 self.card_data = data;
                 true
             }

@@ -57,47 +57,21 @@ impl Component for DeleteCard {
         match msg {
             Msg::ToggleDeleteCard => {
                 self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard);
-                ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.delete_index.clone()));
-                ConsoleService::info(&format!("DEBUG : self.card_index MODAL COMP:{:?}", self.props.card_index.clone()));
+                // ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.delete_index.clone()));
+                // ConsoleService::info(&format!("DEBUG : self.card_index MODAL COMP:{:?}", self.props.card_index.clone()));
                 true
             }
 
             Msg::RequestDeleteCard => {
                 let url = format!("https://search-discovery-api.dev-domain.site/api/document/{}/{}", &self.props.card_index, &self.props.delete_index);
-                ConsoleService::info(&format!("RecordID: {:?}", self.props.delete_index));
+                // ConsoleService::info(&format!("RecordID: {:?}", self.props.delete_index));
                 let request = Request::delete(url)
                     // .header("Content-Type", "application/json")
-                    // .header(Json(&villain))
                     .body(Nothing)
                     .expect("Could not build request.");
                 let callback = 
                     self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
-                        let (meta, Json(data)) = response.into_parts();
-                        // let status_number = meta.status.as_u16();
-
-                        // if meta.status.is_success() {
-                        //     Msg::GetDeleteIndexName                            
-                        // } else {
-                        //     match data { 
-                        //         Ok(dataok) => {
-                        //             ConsoleService::info(&format!("data response {:?}", &dataok));
-                        //             Msg:: GetDeleteIndexName
-                        //         }
-                        //         Err(error) => {
-                        //             Msg::ResponseError(error.to_string())
-                        //         }
-                        //     }   
-                        // }
-
-                        match data { 
-                            Ok(dataok) => {
-                                ConsoleService::info(&format!("data response {:?}", &dataok));
-                                Msg::Ignore
-                            }
-                            Err(error) => {
-                                Msg::Ignore
-                            }
-                        }
+                        Msg::Ignore
                     });
         
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
@@ -109,13 +83,6 @@ impl Component for DeleteCard {
             Msg::Ignore => {
                 false
             }
-        }
-    }
-
-    fn rendered(&mut self, first_render: bool) {
-        if first_render {
-			ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.delete_index.clone()));
-            ConsoleService::info(&format!("DEBUG : self.card_index MODAL COMP:{:?}", self.props.card_index.clone()));
         }
     }
 

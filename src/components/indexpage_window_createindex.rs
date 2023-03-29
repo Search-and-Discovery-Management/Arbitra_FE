@@ -66,7 +66,7 @@ impl Component for IndexCreate {
             }
 
             Msg::InputCreateIndex(data) => {
-                ConsoleService::info(&format!("Input Data: {:?}", data));
+                // ConsoleService::info(&format!("Input Data: {:?}", data));
                 // let test = data.to_owned();
                 self.index = data;
                 true
@@ -90,7 +90,7 @@ impl Component for IndexCreate {
                         
                         match data { 
                             Ok(dataok) => {
-                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
                                 Msg:: GetCreateIndex(dataok)
                             }
                             Err(error) => {
@@ -106,13 +106,13 @@ impl Component for IndexCreate {
             }
 
             Msg::GetCreateIndex(data) => {
-                ConsoleService::info(&format!("Index name is {:?}", data));
+                // ConsoleService::info(&format!("Index name is {:?}", data));
                 self.index = data;
                 true
             }
 
             Msg::ResponseError(text) => {
-                ConsoleService::info(&format!("error is {:?}", text));
+                // ConsoleService::info(&format!("error is {:?}", text));
                 true
             }
 

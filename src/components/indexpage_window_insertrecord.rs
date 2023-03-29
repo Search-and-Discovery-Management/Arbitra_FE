@@ -58,8 +58,8 @@ impl Component for InsertRecord {
                     Ok(_) => true,
                     Err(_) => false,
                 };
-                ConsoleService::info(&format!("DEBUG : value:{:?}", &self.value));
-                ConsoleService::info(&format!("DEBUG : json_is_valid:{:?}", self.json_is_valid));
+                // ConsoleService::info(&format!("DEBUG : value:{:?}", &self.value));
+                // ConsoleService::info(&format!("DEBUG : json_is_valid:{:?}", self.json_is_valid));
                 true
             }
 
@@ -69,21 +69,19 @@ impl Component for InsertRecord {
                     Ok(create) => records = create,
                     Err(Error) => ConsoleService::info(&format!("Data Input = {}", &Error)),
                 };
-                ConsoleService::info(&format!("Data Input = {}", &records));
+                // ConsoleService::info(&format!("Data Input = {}", &records));
 
 
                 let request = Request::post("https://search-discovery-api.dev-domain.site/api/document")
                     .header("Content-Type", "application/json")
                     .body(Json(&records))
                     .expect("Could not build request.");
-                    ConsoleService::info(&format!("Request: {:?}", &request));
                 let callback = 
                     self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
                         let (meta, Json(data)) = response.into_parts();
-                        // let status_number = meta.status.as_u16();
                         match data { 
                             Ok(dataok) => {
-                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
                                 Msg::Ignore
                             }
                             Err(error) => {

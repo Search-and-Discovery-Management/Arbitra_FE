@@ -21,6 +21,14 @@ use crate::types::var::EditModalData;
 //     indexpage_window_insertrecord::InsertRecord,
 // };
 
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct SearchRecord {
+    index: String,
+    search_term: String,
+    from: u32,
+    count: u32
+}
+
 pub enum Msg {
     //EVENT TOGGLE (MERGE CLOSE DAN OPEN)
     ToggleCreateApp,
@@ -42,6 +50,9 @@ pub enum Msg {
     SendEditToParent(EditModalData),
     SendDeleteToParent(String),
     SendIndexNameToParent(String),
+
+    InputSearch(String),
+    RequestSearch(String),
 
     Ignore,
 }
@@ -122,6 +133,8 @@ pub struct IndexPageComp {
     error: Option<String>,
     index_name: String,
 
+    search_input: String,
+
     callback_edit_data: Callback<EditModalData>,
     callback_delete_window: Callback<String>,
     callback_card_index: Callback<String>,
@@ -149,6 +162,7 @@ impl Component for IndexPageComp {
             index_data: Some(vec![]),
 
             index_name: String::from("SELECT INDEX ..."),
+            search_input: String::from(""),
 
             callback_edit_data: props.callback_edit_data.clone(),
             callback_delete_window: props.callback_delete_window.clone(),
@@ -162,44 +176,87 @@ impl Component for IndexPageComp {
             //EVENT BUAT OPEN MODAL
             Msg::ToggleCreateIndex => {
                 self.callback_toggle_createindex.emit(Msg::ToggleCreateIndex);
-                ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.props.display_create_index));
+                // ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.props.display_create_index));
                 true
             }
             Msg::ToggleCreateApp => {
                 self.callback_toggle_createapp.emit(Msg::ToggleCreateApp);
-                ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.props.display_create_app));
+                // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.props.display_create_app));
                 true
             }
             Msg::ToggleInsertRecord => {
                 self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord);
-                ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.props.display_insert_record));
+                // ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.props.display_insert_record));
                 true
             }
             Msg::ToggleEditRecord (data, index, card_index)=> {
 
-                ConsoleService::info(&format!("DEBUG : display_edit_record:{:?}", self.props.display_edit_record));
-                ConsoleService::info(&format!("DEBUG : data INDEX PAGE CHILD:{:?}", data.clone()));
-                ConsoleService::info(&format!("DEBUG : index INDEX PAGE CHILD:{:?}", index.clone()));
-                ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
+                // ConsoleService::info(&format!("DEBUG : display_edit_record:{:?}", self.props.display_edit_record));
+                // ConsoleService::info(&format!("DEBUG : data INDEX PAGE CHILD:{:?}", data.clone()));
+                // ConsoleService::info(&format!("DEBUG : index INDEX PAGE CHILD:{:?}", index.clone()));
+                // ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
                 
                 self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord(data, index, card_index));
                 true
             }
             Msg::ToggleDeleteRecord => {
                 self.callback_toggle_deleterecord.emit(Msg::ToggleDeleteRecord);
-                ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.props.display_delete_record));
+                // ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.props.display_delete_record));
                 true
             }
             Msg::ToggleDeleteCard (index, card_index) => {
-                ConsoleService::info(&format!("DEBUG : delete_index EVENT :{:?}", index));
-                ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
-                ConsoleService::info(&format!("DEBUG : display_delete_card:{:?}", self.props.display_delete_card));
+                // ConsoleService::info(&format!("DEBUG : delete_index EVENT :{:?}", index));
+                // ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
+                // ConsoleService::info(&format!("DEBUG : display_delete_card:{:?}", self.props.display_delete_card));
                 self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard(index, card_index));
                 true
             }
 
             Msg::Ignore => {
                 ConsoleService::info(&format!("DEBUG : Event Ignore", ));
+                true
+            }
+
+            Msg::InputSearch(data) => {
+                // ConsoleService::info(&format!("Input Data for Search: {:?}", data));
+                self.link.send_message(Msg::RequestSearch(data));
+                true
+            }
+
+            Msg::RequestSearch(data) => {
+                let mut search_term = SearchRecord{
+                    index: self.index_name.clone(),
+                    search_term: String::from(""),
+                    from: 0,
+                    count: 50
+                };
+                if data.is_empty() {
+                    search_term.search_term = String::from("*");
+                }else {
+                    search_term.search_term = data;
+                }
+                let request = Request::post("https://search-discovery-api.dev-domain.site/api/search")
+                    .header("Content-Type", "application/json")
+                    .body(Json(&search_term))
+                    .expect("Could not build request.");
+                let callback = 
+                    self.link.callback(|response: Response<Json<Result<Value, anyhow::Error>>>| {
+                        let (meta, Json(data)) = response.into_parts();
+        
+                        match data { 
+                            Ok(dataok) => {
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
+                                Msg::GetRecordData(dataok)
+                            }
+                            Err(error) => {
+                                Msg::Ignore
+                            }
+                        }
+                    });
+        
+                let task = FetchService::fetch(request, callback).expect("failed to start request");
+                
+                self.fetch_task = Some(task);
                 true
             }
 
@@ -215,7 +272,7 @@ impl Component for IndexPageComp {
         
                         match data { 
                             Ok(dataok) => {
-                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
                                 Msg:: GetIndexData(Some(dataok))
                             }
                             Err(error) => {
@@ -231,14 +288,14 @@ impl Component for IndexPageComp {
             }
 
             Msg::SelectIndex(index) => {
-                ConsoleService::info(&format!("Selected index: {:?}", index));
+                // ConsoleService::info(&format!("Selected index: {:?}", index));
                 self.index_name = index;
                 self.link.send_message(Msg::RequestRecordData);
                 true
             }
 
             Msg::GetIndexData(data) => {
-                ConsoleService::info(&format!("data is {:?}", data));
+                // ConsoleService::info(&format!("data is {:?}", data));
                 self.index_data = data;
                 true
             }
@@ -255,7 +312,7 @@ impl Component for IndexPageComp {
         
                         match data { 
                             Ok(dataok) => {
-                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
                                 Msg:: GetRecordData(dataok)
                             }
                             Err(error) => {
@@ -271,7 +328,7 @@ impl Component for IndexPageComp {
             }
 
             Msg::GetRecordData(data) => {
-                ConsoleService::info(&format!("data is {:?}", data.get("data").unwrap().as_array().unwrap()));
+                // ConsoleService::info(&format!("data is {:?}", data.get("data").unwrap().as_array().unwrap()));
                 self.record_data = data;
                 true
             }
@@ -430,7 +487,12 @@ impl Component for IndexPageComp {
 
                             <div class="card">
                                 <div class="search-bar">
-                                    <input class="search" type="text" placeholder="Search..."/>
+                                    <input
+                                    class="search"
+                                    type="text"
+                                    placeholder="Search..."
+                                    oninput = self.link.callback(|data: InputData| Msg::InputSearch(data.value))
+                                    />
                                 </div>
 
                                 <div>
@@ -468,8 +530,7 @@ impl IndexPageComp {
         self.record_data.get("data").unwrap().as_array()
             .unwrap().iter().enumerate().map(|(i,card)|{
                 
-                
-                let edit_text_data = serde_json::to_string(card).unwrap();
+                let edit_text_data = serde_json::to_string(card.get("fields").unwrap()).unwrap();
 
                 let edit_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap();
                 let delete_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap().replace("\"", "");
@@ -484,7 +545,7 @@ impl IndexPageComp {
 
                 // let card_image = serde_json::to_string_pretty(card.get("_image").unwrap());
  
-                ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.props.display_create_index));
+                // ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.props.display_create_index));
                 
                 html!{
                         <div class="index-card">
@@ -505,20 +566,37 @@ impl IndexPageComp {
                                             
                                     </div>
                                 </div>
-                                    {
-                                        match card.get("fields").unwrap().get("image"){ 
-                                            Some(dataok) => {
-                                                html!{ 
-                                                        <img class="card-image-data" src={serde_json::to_string(dataok).unwrap().replace(&['[', ']','"','_'], "")}/>
+                                        {
+                                            match card.get("fields"){ 
+                                               Some(card_fields) => {
+                                                    match card_fields.get("image"){
+                                                        Some(card_image) => {
+                                                            html!{ 
+                                                                <img class="card-image-data" src={
+                                                                    match serde_json::to_string(card_image){
+                                                                        Ok(image) => {
+                                                                            image.replace(&['[', ']','"','_'], "")
+                                                                        }
+                                                                        Err(error) => {
+                                                                            "images/img-card/no-pictures.png".to_string()
+                                                                        }
+                                                                    }}/>
+                                                            }
+                                                        }
+                                                        None => {
+                                                            html!{ 
+                                                                <img class="card-image-placeholder" src="images/img-card/no-pictures.png"/>
+                                                            }
+                                                        }
                                                     }
-                                            }
-                                            None => {
-                                                html!{ 
+                                               }
+                                               None => {
+                                                    html!{ 
                                                         <img class="card-image-placeholder" src="images/img-card/no-pictures.png"/>
                                                     }
+                                               }
                                             }
                                         }
-                                    }      
                             </div>
 
                              

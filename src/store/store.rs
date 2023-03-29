@@ -1,5 +1,4 @@
 use std::rc::Rc;
-use yew::prelude::*;
 use yewdux::prelude::*;
 
 #[derive(Clone, Debug)]

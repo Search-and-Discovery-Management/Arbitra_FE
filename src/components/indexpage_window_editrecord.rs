@@ -1,8 +1,25 @@
+use serde::{Serialize, Deserialize};
 use yew::{prelude::*, services::ConsoleService};
 use serde_json::{from_str, Value, from_value, to_string_pretty};
+use yew::{
+    format::{ Json, Nothing },
+    services::{
+        fetch::{FetchService, FetchTask, Request, Response},
+    },
+};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateRecord {
+    pub index: String,
+    pub document_id: String,
+    pub data: Value
+}
+
 pub enum Msg {
     ToggleEditRecord,
-    ValidateInputJson(String)
+    ValidateInputJson(String),
+    RequestUpdateRecord,
+    Ignore
 }
 
 #[derive(Properties, Clone, Debug, PartialEq)]
@@ -35,6 +52,8 @@ pub struct EditRecord {
 
     textarea_string: String,
 
+    fetch_task: Option<FetchTask>,
+
 }
 
 impl Component for EditRecord {
@@ -55,14 +74,16 @@ impl Component for EditRecord {
             json_is_valid: false,
 
             textarea_string: textarea_pretty,
+
+            fetch_task: None,
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::ToggleEditRecord => {
-                ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.edit_index.clone()));
-                ConsoleService::info(&format!("DEBUG : self.card_index MODAL COMP:{:?}", self.props.card_index.clone()));
+                // ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.edit_index.clone()));
+                // ConsoleService::info(&format!("DEBUG : self.card_index MODAL COMP:{:?}", self.props.card_index.clone()));
                 self.callback_toggle_editecord.emit(Msg::ToggleEditRecord);
                 true
             }
@@ -73,9 +94,52 @@ impl Component for EditRecord {
                     Ok(_) => true,
                     Err(_) => false,
                 };
-                ConsoleService::info(&format!("DEBUG : value:{:?}", self.value));
-                ConsoleService::info(&format!("DEBUG : json_is_valid:{:?}", self.json_is_valid));
+                // ConsoleService::info(&format!("DEBUG : value:{:?}", self.value));
+                // ConsoleService::info(&format!("DEBUG : json_is_valid:{:?}", self.json_is_valid));
                 true
+            }
+
+            Msg::RequestUpdateRecord => {
+                let mut records = serde_json::json!({});
+                match serde_json::from_str::<serde_json::Value>(&self.value) {
+                    Ok(create) => records = create,
+                    Err(Error) => ConsoleService::info(&format!("Data Input = {}", &Error)),
+                };
+
+                let update = UpdateRecord{
+                    index: self.props.card_index.clone(),
+                    document_id: self.props.edit_index.clone().replace("\"", ""),
+                    data: records
+                };
+
+                let request = Request::put(format!("https://search-discovery-api.dev-domain.site/api/document"))
+                    .header("Content-Type", "application/json")
+                    .body(Json(&update))
+                    .expect("Could not build request.");
+                
+                let callback = 
+                    self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
+                        let (meta, Json(data)) = response.into_parts();
+        
+                        match data { 
+                            Ok(dataok) => {
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
+                                Msg::Ignore
+                            }
+                            Err(error) => {
+                                Msg::Ignore
+                            }
+                        }
+                    });
+        
+                let task = FetchService::fetch(request, callback).expect("failed to start request");
+                
+                self.fetch_task = Some(task);
+                true
+            }
+
+            Msg::Ignore => {
+                false
             }
         }
     }
@@ -87,13 +151,6 @@ impl Component for EditRecord {
             true
         }else {
             false
-        }
-    }
-
-    fn rendered(&mut self, first_render: bool) {
-        if first_render {
-			ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.edit_index.clone()));
-            ConsoleService::info(&format!("DEBUG : self.card_index MODAL COMP:{:?}", self.props.card_index.clone()));
         }
     }
 
@@ -137,6 +194,7 @@ impl Component for EditRecord {
                                 type="submit"
                                 form="submit-editrecord"
                                 class="window-confirm-button"
+                                onclick = self.link.callback(|_| Msg::RequestUpdateRecord)
                                 >
                                 { "EDIT RECORD" }
                                 </button>
