@@ -37,6 +37,8 @@ pub struct WindowEditRecordProps {
 
     #[prop_or_default]
     pub card_index: String,
+
+    
 }
 
 
@@ -195,6 +197,11 @@ impl Component for EditRecord {
                                 form="submit-editrecord"
                                 class="window-confirm-button"
                                 onclick = self.link.callback(|_| Msg::RequestUpdateRecord)
+
+                                // onclick=self.link.batch_callback(|_| vec![
+                                //     Msg::RequestUpdateRecord,
+                                //     Msg::ToggleEditRecord,
+                                // ])
                                 >
                                 { "EDIT RECORD" }
                                 </button>

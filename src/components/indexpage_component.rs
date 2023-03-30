@@ -93,6 +93,14 @@ pub struct IndexPageCompProps {
     pub on_toggle_editrecord:Callback<Msg>,
     pub on_toggle_deleterecord:Callback<Msg>,
     pub on_toggle_deletecard:Callback<Msg>,
+
+    #[prop_or(false)]
+    pub modal_open_index: bool,
+    #[prop_or(false)]
+    pub modal_open_record: bool,
+    //BUAT MODAL CREATEAPP MSIH BLM SKRG
+    #[prop_or(false)]
+    pub modal_open_app: bool,
     
 }
 
@@ -155,18 +163,21 @@ impl Component for IndexPageComp {
             Msg::ToggleCreateIndex => {
                 self.callback_toggle_createindex.emit(Msg::ToggleCreateIndex);
                 // ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.props.display_create_index));
+                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_index));
                 true
             }
 
             Msg::ToggleCreateApp => {
                 self.callback_toggle_createapp.emit(Msg::ToggleCreateApp);
                 // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.props.display_create_app));
+                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_app));
                 true
             }
 
             Msg::ToggleInsertRecord => {
                 self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord);
                 // ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.props.display_insert_record));
+                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
                 true
             }
 
@@ -178,12 +189,14 @@ impl Component for IndexPageComp {
                 // ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
                 
                 self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord(data, index, card_index));
+                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
                 true
             }
 
             Msg::ToggleDeleteRecord => {
                 self.callback_toggle_deleterecord.emit(Msg::ToggleDeleteRecord);
                 // ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.props.display_delete_record));
+                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_index));
                 true
             }
 
@@ -192,6 +205,7 @@ impl Component for IndexPageComp {
                 // ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
                 // ConsoleService::info(&format!("DEBUG : display_delete_card:{:?}", self.props.display_delete_card));
                 self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard(index, card_index));
+                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
                 true
             }
 
@@ -348,10 +362,24 @@ impl Component for IndexPageComp {
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        // Should only return "true" if new properties are different to
-        // previously received properties.
-        // This component has no properties so we will always return "false".
-        false
+        if  self.props.modal_open_index != props.modal_open_index {
+
+            self.props.modal_open_index = props.modal_open_index;
+            self.link.send_message(Msg::RequestIndexData);
+            true
+        } else if self.props.modal_open_record != props.modal_open_record {
+
+            self.props.modal_open_record = props.modal_open_record;
+            self.link.send_message(Msg::RequestRecordData);
+            // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT Fn change:{:?}", self.props.modal_open_record));
+            true
+        } else if self.props.modal_open_app != props.modal_open_app {
+            
+            self.props.modal_open_app = props.modal_open_app;
+            true
+        } else {
+            false
+        }
     }
 
     fn view(&self) -> Html {

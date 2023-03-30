@@ -28,6 +28,8 @@ pub struct WindowDeleteCardProps {
 
     #[prop_or_default]
     pub card_index: String,
+    // #[prop_or_default]
+    // pub modal_open_record: bool,
 }
 
 
@@ -57,6 +59,7 @@ impl Component for DeleteCard {
         match msg {
             Msg::ToggleDeleteCard => {
                 self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard);
+                // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
                 // ConsoleService::info(&format!("DEBUG : self.delete_index MODAL COMP:{:?}", self.props.delete_index.clone()));
                 // ConsoleService::info(&format!("DEBUG : self.card_index MODAL COMP:{:?}", self.props.card_index.clone()));
                 true
@@ -90,6 +93,12 @@ impl Component for DeleteCard {
         if self.props.delete_index != props.delete_index {
             self.props.delete_index = props.delete_index;
             true 
+        // } else if self.props.modal_open_record != props.modal_open_record {
+
+        //     self.props.modal_open_record = props.modal_open_record;
+        //     self.link.send_message(Msg::ToggleDeleteCard);
+        //     // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
+        //     true
         } else {
             false
         }
@@ -123,6 +132,12 @@ impl Component for DeleteCard {
                         form="submit-deletecard"
                         class="window-confirm-button"
                         onclick=self.link.callback(|_| Msg::RequestDeleteCard)
+                        // onchange= self.link.callback(|_| Msg::ToggleDeleteCard)
+
+                        // onclick=self.link.batch_callback(|_| vec![
+                        //     Msg::RequestDeleteCard, 
+                        //     Msg::ToggleDeleteCard, 
+                        // ])
                     >
                         { "DELETE RECORD" }
                     </button>

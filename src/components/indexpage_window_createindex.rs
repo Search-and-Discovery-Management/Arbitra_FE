@@ -173,6 +173,11 @@ impl Component for IndexCreate {
                         form="submit-createindex"
                         class="window-confirm-button"
                         onclick=self.link.callback(|_| Msg::RequestCreateIndex)
+
+                        // onclick=self.link.batch_callback(|_| vec![
+                        //     Msg::RequestCreateIndex,
+                        //     Msg::ToggleCreateIndex,
+                        // ])
                     >
                             { "CREATE INDEX" }
                     </button>

@@ -89,9 +89,12 @@ impl Component for InsertRecord {
                             }
                         }
                     });
+                    // self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord);
                     let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
+                    
                     self.fetch_task = Some(task);
+                    ConsoleService::info(&format!("REQUEST JALAN"));
                 true
             }
 
@@ -179,6 +182,11 @@ impl Component for InsertRecord {
                                 form="submit-insertrecord"
                                 class="window-confirm-button"
                                 onclick = self.link.callback(|_| Msg::RequestCreateRecordsData)
+
+                                // onclick=self.link.batch_callback(|_| vec![
+                                //     Msg::ToggleInsertRecord,
+                                //     Msg::RequestCreateRecordsData,
+                                // ])
                             >
                                 { "INSERT NEW RECORD" }
                             </button>

@@ -41,6 +41,13 @@ pub struct IndexPage {
     delete_index : String,
 
     card_index : String,
+
+    //HANYA UNTUK FUNCTION CHANGE DI INDEXPAGE_COMPONENT UNTUK REFRESH DATA
+    modal_open_index: bool,
+    modal_open_record: bool,
+    //BUAT MODAL CREATEAPP MSIH BLM SKRG
+    modal_open_app: bool,
+
 }
 
 impl Component for IndexPage {
@@ -64,6 +71,12 @@ impl Component for IndexPage {
             delete_index: String::from("118"),
 
             card_index: String::from("Index Name here"),
+
+            //HANYA UNTUK FUNCTION CHANGE
+            modal_open_index: false,
+            modal_open_record: false,
+            modal_open_app: false,
+
             link,
         }
     }
@@ -73,17 +86,23 @@ impl Component for IndexPage {
             //EVENT BUAT OPEN MODAL
             Msg::ToggleCreateIndex => {
                 self.display_create_index = !self.display_create_index;
+                self.modal_open_index = !self.modal_open_index;
                 // // ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.display_create_index));
+                ConsoleService::info(&format!("DEBUG : modal_open_index:{:?}", self.modal_open_index));
                 true
             }
             Msg::ToggleCreateApp => {
                 self.display_create_app = !self.display_create_app;
+                self.modal_open_app = !self.modal_open_app;
                 // // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.display_create_app));
+                ConsoleService::info(&format!("DEBUG : modal_open_app:{:?}", self.modal_open_app));
                 true
             }
             Msg::ToggleInsertRecord => {
                 self.display_insert_record = !self.display_insert_record;
+                self.modal_open_record = !self.modal_open_record;
                 // // ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.display_insert_record));
+                ConsoleService::info(&format!("DEBUG : modal_open_record:{:?}", self.modal_open_record));
                 true
             }
             Msg::ToggleEditRecord => {
@@ -92,17 +111,22 @@ impl Component for IndexPage {
                 // ConsoleService::info(&format!("DEBUG : self.edit_index:{:?}", self.edit_index.clone()));
 
                 self.display_edit_record = !self.display_edit_record;
-
+                self.modal_open_record = !self.modal_open_record;
+                ConsoleService::info(&format!("DEBUG : modal_open_record:{:?}", self.modal_open_record));
                 true
             }
-            Msg::ToggleDeleteRecord => {
+            Msg::ToggleDeleteRecord => { //NOTE INI BUAT DELETE INDEX, BUKAN DELETE RECORD
                 self.display_delete_record = !self.display_delete_record;
+                self.modal_open_index = !self.modal_open_index;
                 // ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.display_delete_record));
+                ConsoleService::info(&format!("DEBUG : modal_open_index:{:?}", self.modal_open_index));
                 true
             }
-            Msg::ToggleDeleteCard => {
+            Msg::ToggleDeleteCard => {  //NOTE INI BUAT DELETE RECORD DI CARD
                 self.display_delete_card = !self.display_delete_card;
+                self.modal_open_record = !self.modal_open_record;
                 // ConsoleService::info(&format!("DEBUG : display_delete_card:{:?}", self.display_delete_card));
+                ConsoleService::info(&format!("DEBUG : modal_open_record:{:?}", self.modal_open_record));
                 true
             }
             Msg::RecvEditData(data_recv) => {
@@ -172,6 +196,10 @@ impl Component for IndexPage {
 
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
+
+                        modal_open_index = self.modal_open_index.clone()
+                        modal_open_record = self.modal_open_record.clone()
+                        modal_open_app = self.modal_open_app.clone()
                         />
                     //DISPLAY WINDOW DISINI         
                     <AppCreate 
@@ -209,6 +237,10 @@ impl Component for IndexPage {
 
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
+
+                        modal_open_index = self.modal_open_index.clone()
+                        modal_open_record = self.modal_open_record.clone()
+                        modal_open_app = self.modal_open_app.clone()
                     />
                     //DISPLAY WINDOW DISINI      
                     <IndexCreate 
@@ -245,6 +277,10 @@ impl Component for IndexPage {
 
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
+
+                        modal_open_index = self.modal_open_index.clone()
+                        modal_open_record = self.modal_open_record.clone()
+                        modal_open_app = self.modal_open_app.clone()
                     />
                     //DISPLAY WINDOW DISINI         
                     <InsertRecord
@@ -280,6 +316,10 @@ impl Component for IndexPage {
 
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
+
+                        modal_open_index = self.modal_open_index.clone()
+                        modal_open_record = self.modal_open_record.clone()
+                        modal_open_app = self.modal_open_app.clone()
                     />
 
                     //DISPLAY WINDOW DISINI         
@@ -320,7 +360,11 @@ impl Component for IndexPage {
                         callback_delete_window = self.link.callback(Msg::RecvDeleteData)   
 
                         callback_card_index = self.link.callback(Msg::RecvIndexName)    
-                        card_index = self.card_index.clone()         
+                        card_index = self.card_index.clone()
+
+                        modal_open_index = self.modal_open_index.clone()
+                        modal_open_record = self.modal_open_record.clone()
+                        modal_open_app = self.modal_open_app.clone()         
                     />
                     //DISPLAY WINDOW DISINI         
                     <DeleteRecord
@@ -355,7 +399,11 @@ impl Component for IndexPage {
                         callback_delete_window = self.link.callback(Msg::RecvDeleteData)   
 
                         callback_card_index = self.link.callback(Msg::RecvIndexName)  
-                        card_index = self.card_index.clone()           
+                        card_index = self.card_index.clone()
+
+                        modal_open_index = self.modal_open_index.clone()
+                        modal_open_record = self.modal_open_record.clone()
+                        modal_open_app = self.modal_open_app.clone()
                     />
                     //DISPLAY WINDOW DISINI         
                     <DeleteCard
@@ -394,6 +442,10 @@ impl Component for IndexPage {
 
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
+
+                        modal_open_index = self.modal_open_index.clone()
+                        modal_open_record = self.modal_open_record.clone()
+                        modal_open_app = self.modal_open_app.clone()
                     />
                     </div>
                

@@ -227,6 +227,11 @@ impl Component for DeleteRecord {
                         form="submit-deleterecord"
                         class="window-confirm-button"
                         onclick=self.link.callback(|_| Msg::RequestDeleteIndex)
+
+                        // onclick=self.link.batch_callback(|_| vec![
+                        //     Msg::RequestDeleteIndex,
+                        //     Msg::ToggleDeleteRecord,
+                        // ])
                     >
                         { "DELETE INDEX" }
                     </button>
