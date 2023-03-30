@@ -6,20 +6,9 @@ use yew::{
         ConsoleService,
     },
 };
-
-
 use serde::{Deserialize, Serialize};
-use serde_json::{from_str, Value, from_value, to_string_pretty,Map};
-
-use crate::types::var;
+use serde_json::{Value};
 use crate::types::var::EditModalData;
-// use crate::components::{
-//     indexpage_window_createapp::AppCreate,
-//     indexpage_window_createindex::IndexCreate,
-//     indexpage_window_deleterecord::DeleteRecord,
-//     indexpage_window_editrecord::EditRecord,
-//     indexpage_window_insertrecord::InsertRecord,
-// };
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct SearchRecord {
@@ -64,7 +53,6 @@ pub struct IndexData{
 
 #[derive(Properties, Clone, Debug, PartialEq)]
 pub struct IndexPageCompProps {
-    // #[prop_or(String::from("this is value"))]
     #[prop_or(false)]
     pub display_create_app: bool,
 
@@ -111,33 +99,24 @@ pub struct IndexPageCompProps {
 
 pub struct IndexPageComp {
     link: ComponentLink<Self>,
-    //DISPLAY WINDOWS / MODAL (STATE)
-    // display_create_app: bool,
-    // display_create_index: bool,
-    // display_insert_record: bool,
-    // display_edit_record: bool,
-    // display_delete_record: bool,
-
     props: IndexPageCompProps,
+
     callback_toggle_createapp: Callback<Msg>,
     callback_toggle_createindex: Callback<Msg>,
     callback_toggle_insertrecord: Callback<Msg>,
     callback_toggle_editrecord: Callback<Msg>,
     callback_toggle_deleterecord: Callback<Msg>,
     callback_toggle_deletecard: Callback<Msg>,
-
-    fetch_task: Option<FetchTask>,
-    record_data: Value,
-    // more_data: Option<Vec<MoreData>>,
-    index_data: Option<Vec<IndexData>>,
-    error: Option<String>,
-    index_name: String,
-
-    search_input: String,
-
     callback_edit_data: Callback<EditModalData>,
     callback_delete_window: Callback<String>,
     callback_card_index: Callback<String>,
+
+    fetch_task: Option<FetchTask>,
+    record_data: Value,
+    index_data: Option<Vec<IndexData>>,
+    error: Option<String>,
+    index_name: String,
+    search_input: String,
 }
 
 impl Component for IndexPageComp {
@@ -158,7 +137,6 @@ impl Component for IndexPageComp {
             fetch_task: None,
             record_data: serde_json::json!({"data": []}),
             error: None,
-            // more_data: Some(vec![]),
             index_data: Some(vec![]),
 
             index_name: String::from("SELECT INDEX ..."),
@@ -179,16 +157,19 @@ impl Component for IndexPageComp {
                 // ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.props.display_create_index));
                 true
             }
+
             Msg::ToggleCreateApp => {
                 self.callback_toggle_createapp.emit(Msg::ToggleCreateApp);
                 // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.props.display_create_app));
                 true
             }
+
             Msg::ToggleInsertRecord => {
                 self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord);
                 // ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.props.display_insert_record));
                 true
             }
+
             Msg::ToggleEditRecord (data, index, card_index)=> {
 
                 // ConsoleService::info(&format!("DEBUG : display_edit_record:{:?}", self.props.display_edit_record));
@@ -199,11 +180,13 @@ impl Component for IndexPageComp {
                 self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord(data, index, card_index));
                 true
             }
+
             Msg::ToggleDeleteRecord => {
                 self.callback_toggle_deleterecord.emit(Msg::ToggleDeleteRecord);
                 // ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.props.display_delete_record));
                 true
             }
+
             Msg::ToggleDeleteCard (index, card_index) => {
                 // ConsoleService::info(&format!("DEBUG : delete_index EVENT :{:?}", index));
                 // ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
@@ -214,12 +197,6 @@ impl Component for IndexPageComp {
 
             Msg::Ignore => {
                 ConsoleService::info(&format!("DEBUG : Event Ignore", ));
-                true
-            }
-
-            Msg::InputSearch(data) => {
-                // ConsoleService::info(&format!("Input Data for Search: {:?}", data));
-                self.link.send_message(Msg::RequestSearch(data));
                 true
             }
 
@@ -257,6 +234,12 @@ impl Component for IndexPageComp {
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                 self.fetch_task = Some(task);
+                true
+            }
+
+            Msg::InputSearch(data) => {
+                // ConsoleService::info(&format!("Input Data for Search: {:?}", data));
+                self.link.send_message(Msg::RequestSearch(data));
                 true
             }
 
@@ -338,6 +321,7 @@ impl Component for IndexPageComp {
                 self.callback_edit_data.emit(data);
                 true
             }
+
             //UNTUK NGIRIM DATA DI CARD KE DELETE MODAL (KE PARENT DULU)
             Msg::SendDeleteToParent(index) => {
                 self.callback_delete_window.emit(index);
@@ -350,8 +334,6 @@ impl Component for IndexPageComp {
                 true
             }
             
-
-
             Msg::ResponseError(text) => {
                 ConsoleService::info(&format!("error is {:?}", text));
                 true
@@ -393,8 +375,6 @@ impl Component for IndexPageComp {
                                             onclick=self.link.callback(|_| Msg::ToggleCreateApp)>
                                             { "Create New Application" }
                                         </a>
-                                        // <a href="#">{ "Link 2" }</a>
-                                        // <a href="#">{ "Link 3" }</a>
                                     </div>
                                 </div>
                                 
@@ -402,8 +382,6 @@ impl Component for IndexPageComp {
 
                                 <p class="index-directry">{ "\u{007C}\u{00a0} Index" }</p>
                                 <p class="index-directry">{ "\u{007C}\u{00a0} Dictionary" }</p>
-                                <p class="index-directry">{ "\u{007C}\u{00a0} Lorem Ipsum" }</p>
-                                <p class="index-directry">{ "\u{007C}\u{00a0} Lorem Ipsum" }</p>
                             </div>
                         </div>
 
@@ -449,14 +427,15 @@ impl Component for IndexPageComp {
                                     </div>
                                 </div>
 
-                                <div class="dropdownRecord">
-                                    <button class="mainmenubtnRecord">{ "Add Records \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
-                                    <div class="dropdown-childRecord">
-                                        <a href="#">{ "Upload File" }</a>
-                                        <a href="#">{ "Use the API" }</a>
-                                        <a href="#">{ "Add Manually" }</a>
-                                    </div>
-                                </div>
+                                //Add Record Dropdown
+                                // <div class="dropdownRecord">
+                                //     <button class="mainmenubtnRecord">{ "Add Records \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
+                                //     <div class="dropdown-childRecord">
+                                //         <a href="#">{ "Upload File" }</a>
+                                //         <a href="#">{ "Use the API" }</a>
+                                //         <a href="#">{ "Add Manually" }</a>
+                                //     </div>
+                                // </div>
 
                                 <div class="dropdownRecord">
                                     <button class="mainmenubtnRecord">{ "Manage Index \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
@@ -470,7 +449,7 @@ impl Component for IndexPageComp {
                                 </div>
 
                                 <img class="copyIcon" src="images/Copy Icon.png"/>
-                                <img class="copyIcon" src="images/Refresh.png"/>
+                                <a onclick=self.link.callback(|_| Msg::RequestRecordData)><img class="copyIcon" src="images/Refresh.png"/></a>
 
                             </div>
                         </div>
