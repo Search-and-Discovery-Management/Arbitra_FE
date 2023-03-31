@@ -503,7 +503,21 @@ impl Component for IndexPageComp {
                                 </div>
 
                                 <div>
+                                    
                                     { self.view_data() }
+                                    {
+                                        if self.view_data().is_empty(){
+                                            html!{
+                                                <button disabled=true class="window-delete-warning" style="padding: 8px">
+                                                    {"NO RECORD!"}
+                                                </button> 
+                                            }
+                                        } else {
+                                            html!{}
+                                        }
+                                    }
+                                    
+                                    
                                 </div>
 
                             </div>      

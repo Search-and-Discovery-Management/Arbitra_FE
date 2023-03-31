@@ -148,3 +148,27 @@ impl Component for DeleteCard {
         }
     }
 }
+
+impl DeleteCard {
+    fn modal_success(&self) -> Html {
+        html! {
+            <div class="window-overlay">
+                <div class="window-index" id="create-index"> 
+
+                    <div class="top-row-index-window-insert">
+                        <h1>{"DELETE RECORD SUCCESSFUL"}</h1>
+                    </div> 
+
+                    <button 
+                        type="submit"
+                        form="submit-deletecard"
+                        class="window-confirm-button"
+                        onclick=self.link.callback(|_| Msg::ToggleDeleteCard)
+                    >
+                        { "OKAY" }
+                    </button>  
+                </div>
+            </div>
+        }
+    }
+}

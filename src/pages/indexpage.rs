@@ -132,18 +132,18 @@ impl Component for IndexPage {
             Msg::RecvEditData(data_recv) => {
                 // ConsoleService::info(&format!("data in parent is {:?}", data_recv));
 
-                self.edit_data = data_recv.data.clone();
-                self.edit_index = data_recv.index.clone();
+                self.edit_data = data_recv.data;
+                self.edit_index = data_recv.index;
                 true
             }
             Msg::RecvDeleteData(data_recv) => {
                 // ConsoleService::info(&format!("data in parent is (DELETE MODAL INDEX) {:?}", data_recv));
-                self.delete_index = data_recv.clone();
+                self.delete_index = data_recv;
                 true
             }
             Msg::RecvIndexName(data_recv) => {
                 // ConsoleService::info(&format!("data in parent is (INDEX NAME) {:?}", data_recv));
-                self.card_index = data_recv.clone();
+                self.card_index = data_recv;
                 // ConsoleService::info(&format!("data in parent STATE is (INDEX NAME) {:?}", self.card_index));
                 true
             }
