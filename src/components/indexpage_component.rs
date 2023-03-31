@@ -548,116 +548,124 @@ impl IndexPageComp {
     }
 
     fn view_data(&self) -> Vec<Html> {
-        self.record_data.get("data").unwrap().as_array()
-            .unwrap().iter().enumerate().map(|(i,card)|{
-                
-                let edit_text_data = serde_json::to_string(card.get("fields").unwrap()).unwrap();
 
-                let edit_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap();
-                let delete_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap().replace("\"", "");
+        match self.record_data.get("data") {
+            Some(data_get) => {
+                match data_get.as_array() {
+                    Some(data_as_array) => {
+                        data_as_array.iter().enumerate().map(|(i, card)|{
 
-                let edit_modal_data = EditModalData{    
-                    data: edit_text_data.clone(),
-                    index: edit_index.clone(),
-                    };
+                            let edit_text_data = serde_json::to_string(card.get("fields").unwrap()).unwrap();
 
-                let card_index = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
-                let card_index_2 = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
+                            let edit_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap();
+                            let delete_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap().replace("\"", "");
+                            
+                            let edit_modal_data = EditModalData{    
+                                data: edit_text_data.clone(),
+                                index: edit_index.clone(),
+                                };
 
-                // let card_image = serde_json::to_string_pretty(card.get("_image").unwrap());
- 
-                // ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.props.display_create_index));
-                
-                html!{
-                        <div class="index-card">
-                            <div class="card-main">
-                                <div class="card-sub">
-
-                                    <div class="card-number">
-                                        {"#"}{i+1}
-                                    </div>
-                                        
-
-
-                                    <div class="card-json">    
-                                        //DISPLAY DATA NEW
-                                        
-                                        { self.view_card(card) }
+                            let card_index = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
+                            let card_index_2 = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
+                            
+                            html!{
+                                <div class="index-card">
+                                    <div class="card-main">
+                                        <div class="card-sub">
+        
+                                            <div class="card-number">
+                                                {"#"}{i+1}
+                                            </div>
                                                 
-                                            
-                                    </div>
-                                </div>
-                                        {
-                                            match card.get("fields"){ 
-                                               Some(card_fields) => {
-                                                    match card_fields.get("image"){
-                                                        Some(card_image) => {
-                                                            html!{ 
-                                                                <img class="card-image-data" src={
-                                                                    match serde_json::to_string(card_image){
-                                                                        Ok(image) => {
-                                                                            image.replace(&['[', ']','"','_'], "")
-                                                                        }
-                                                                        Err(error) => {
-                                                                            "images/img-card/no-pictures.png".to_string()
-                                                                        }
-                                                                    }}/>
+        
+        
+                                            <div class="card-json">    
+                                                //DISPLAY DATA NEW
+                                                
+                                                { self.view_card(card) }
+                                                        
+                                                    
+                                            </div>
+                                        </div>
+                                                {
+                                                    match card.get("fields"){ 
+                                                       Some(card_fields) => {
+                                                            match card_fields.get("image"){
+                                                                Some(card_image) => {
+                                                                    html!{ 
+                                                                        <img class="card-image-data" src={
+                                                                            match serde_json::to_string(card_image){
+                                                                                Ok(image) => {
+                                                                                    image.replace(&['[', ']','"','_'], "")
+                                                                                }
+                                                                                Err(error) => {
+                                                                                    "images/img-card/no-pictures.png".to_string()
+                                                                                }
+                                                                            }}/>
+                                                                    }
+                                                                }
+                                                                None => {
+                                                                    html!{ 
+                                                                        <img class="card-image-placeholder" src="images/img-card/no-pictures.png"/>
+                                                                    }
+                                                                }
                                                             }
-                                                        }
-                                                        None => {
+                                                       }
+                                                       None => {
                                                             html!{ 
                                                                 <img class="card-image-placeholder" src="images/img-card/no-pictures.png"/>
                                                             }
-                                                        }
+                                                       }
                                                     }
-                                               }
-                                               None => {
-                                                    html!{ 
-                                                        <img class="card-image-placeholder" src="images/img-card/no-pictures.png"/>
-                                                    }
-                                               }
-                                            }
-                                        }
-                            </div>
+                                                }
+                                    </div>
+        
+                                     
+                                    <div class="index-card-buttons">
+                                        <button
+                                            type="button"
+                                            class="card-button"
+                                            onclick=self.link.batch_callback(move |_| vec![
+                                                Msg::SendDeleteToParent(delete_index.clone()),
+                                                Msg::SendIndexNameToParent(card_index.clone()),
+                                                Msg::ToggleDeleteCard(delete_index.clone(), card_index.clone())
+                                            ]
+                                            )
+                                        >
+                                            <img class="card-icon" src="images/trash-can.png"/>
+                                            
+                                        </button>
+        
+                                        <button 
+                                            type="button"
+                                            class="card-button"
+        
+        
+                                            onclick= self.link.batch_callback(move |_| vec![
+                                                Msg::SendEditToParent(edit_modal_data.clone()),
+                                                Msg::SendIndexNameToParent(card_index_2.clone()),
+                                                Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone(), card_index_2.clone()),
+                                            ]
+                                            )
+                                        >
+                                            <img class="card-icon" src="images/edit.png"/>
+                                            
+                                        </button>
+                                    </div>           
+        
+        
+                                </div>
+                            }
 
-                             
-                            <div class="index-card-buttons">
-                                <button
-                                    type="button"
-                                    class="card-button"
-                                    onclick=self.link.batch_callback(move |_| vec![
-                                        Msg::SendDeleteToParent(delete_index.clone()),
-                                        Msg::SendIndexNameToParent(card_index.clone()),
-                                        Msg::ToggleDeleteCard(delete_index.clone(), card_index.clone())
-                                    ]
-                                    )
-                                >
-                                    <img class="card-icon" src="images/trash-can.png"/>
-                                    
-                                </button>
+                        }).collect()
+                    }
 
-                                <button 
-                                    type="button"
-                                    class="card-button"
+                    None => vec![html! {}],
+                }
+            }
 
-
-                                    onclick= self.link.batch_callback(move |_| vec![
-                                        Msg::SendEditToParent(edit_modal_data.clone()),
-                                        Msg::SendIndexNameToParent(card_index_2.clone()),
-                                        Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone(), card_index_2.clone()),
-                                    ]
-                                    )
-                                >
-                                    <img class="card-icon" src="images/edit.png"/>
-                                    
-                                </button>
-                            </div>           
-
-
-                        </div>
-                        }
-                
-            }).collect()
+            None => vec![html! {}],
+        }
     }
 
     ///////////////////////

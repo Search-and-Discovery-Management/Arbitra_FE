@@ -42,6 +42,7 @@ pub struct IndexCreate {
     callback_toggle_createindex: Callback<Msg>,
     index: String,
     fetch_task: Option<FetchTask>,
+    request_success: bool,
 }
 
 impl Component for IndexCreate {
@@ -55,6 +56,7 @@ impl Component for IndexCreate {
             props,
             index: String::from(""),
             fetch_task: None,
+            request_success: false,
         }
     }
 
@@ -102,6 +104,7 @@ impl Component for IndexCreate {
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                 self.fetch_task = Some(task);
+                self.request_success = true;
                 true
             }
 
@@ -182,10 +185,41 @@ impl Component for IndexCreate {
                             { "CREATE INDEX" }
                     </button>
 
-                    
-                    
                 </div>
+                {
+                    if self.request_success {
+                        html!{
+                            {self.modal_success()}
+                        }
+                            
+                    } else {
+                        html!{}
+                    }
+                }
+            </div>
+        }
+    }
+}
 
+impl IndexCreate {
+    fn modal_success(&self) -> Html {
+        html! {
+            <div class="window-overlay">
+                <div class="window-index" id="create-index"> 
+
+                    <div class="top-row-index-window-insert">
+                        <h1>{"CREATE INDEX SUCCESSFUL"}</h1>
+                    </div> 
+
+                    <button 
+                        type="submit"
+                        form="submit-deletecard"
+                        class="window-confirm-button"
+                        onclick=self.link.callback(|_| Msg::ToggleCreateIndex)
+                    >
+                        { "OKAY" }
+                    </button>  
+                </div>
             </div>
         }
     }

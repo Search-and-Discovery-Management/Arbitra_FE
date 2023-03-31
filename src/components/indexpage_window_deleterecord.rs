@@ -47,6 +47,7 @@ pub struct DeleteRecord {
     index_data: Option<Vec<IndexData>>,
 
     index_name: String,
+    request_success: bool,
 }
 
 impl Component for DeleteRecord {
@@ -63,6 +64,7 @@ impl Component for DeleteRecord {
             index_data: Some(vec![]),
 
             index_name: String::from(""),
+            request_success: false,
         }
     }
 
@@ -147,6 +149,7 @@ impl Component for DeleteRecord {
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                 self.fetch_task = Some(task);
+                self.request_success = true;
                 true
             }
 
@@ -237,7 +240,16 @@ impl Component for DeleteRecord {
                     </button>
                     
                 </div>
-
+                {
+                    if self.request_success {
+                        html!{
+                            {self.modal_success()}
+                        }
+                            
+                    } else {
+                        html!{}
+                    }
+                }
             </div>
         }
     }
@@ -257,5 +269,26 @@ impl DeleteRecord {
                 }).collect()
                 
             }).collect()
+    }
+    fn modal_success(&self) -> Html {
+        html! {
+            <div class="window-overlay">
+                <div class="window-index" id="create-index"> 
+
+                    <div class="top-row-index-window-insert">
+                        <h1>{"DELETE INDEX SUCCESSFUL"}</h1>
+                    </div> 
+
+                    <button 
+                        type="submit"
+                        form="submit-deletecard"
+                        class="window-confirm-button"
+                        onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)
+                    >
+                        { "OKAY" }
+                    </button>  
+                </div>
+            </div>
+        }
     }
 }

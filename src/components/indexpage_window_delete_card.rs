@@ -40,6 +40,7 @@ pub struct DeleteCard {
     props: WindowDeleteCardProps,
     callback_toggle_deletecard: Callback<Msg>,
     fetch_task: Option<FetchTask>,
+    request_success: bool,
 }
 
 impl Component for DeleteCard {
@@ -52,6 +53,7 @@ impl Component for DeleteCard {
             callback_toggle_deletecard: props.on_toggle_deletecard.clone(),
             props,
             fetch_task: None,
+            request_success: false,
         }
     }
 
@@ -80,6 +82,7 @@ impl Component for DeleteCard {
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                 self.fetch_task = Some(task);
+                self.request_success = true;
                 true
             }
 
@@ -143,8 +146,19 @@ impl Component for DeleteCard {
                     </button>
                     
                 </div>
-
+                {
+                    if self.request_success {
+                        html!{
+                            {self.modal_success()}
+                        }
+                            
+                    } else {
+                        html!{}
+                    }
+                }
             </div>
+
+            
         }
     }
 }

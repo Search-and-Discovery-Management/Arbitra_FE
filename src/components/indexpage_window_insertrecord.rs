@@ -28,6 +28,7 @@ pub struct InsertRecord {
     value: String,
     json_is_valid: bool,
     fetch_task: Option<FetchTask>,
+    request_success: bool,
 }
 
 impl Component for InsertRecord {
@@ -42,6 +43,7 @@ impl Component for InsertRecord {
             value: "".to_string(),
             json_is_valid: false,
             fetch_task: None,
+            request_success: false,
         }
     }
 
@@ -95,6 +97,7 @@ impl Component for InsertRecord {
                     
                     self.fetch_task = Some(task);
                     ConsoleService::info(&format!("REQUEST JALAN"));
+                    self.request_success = true;
                 true
             }
 
@@ -201,7 +204,39 @@ impl Component for InsertRecord {
 
                 }
                 </div>
+                {
+                    if self.request_success {
+                        html!{
+                            {self.modal_success()}
+                        }
+                            
+                    } else {
+                        html!{}
+                    }
+                }
+            </div>
+        }
+    }
+}
+impl InsertRecord {
+    fn modal_success(&self) -> Html {
+        html! {
+            <div class="window-overlay">
+                <div class="window-index" id="create-index"> 
 
+                    <div class="top-row-index-window-insert">
+                        <h1>{"INSERT RECORD SUCCESSFUL"}</h1>
+                    </div> 
+
+                    <button 
+                        type="submit"
+                        form="submit-deletecard"
+                        class="window-confirm-button"
+                        onclick=self.link.callback(|_| Msg::ToggleInsertRecord)
+                    >
+                        { "OKAY" }
+                    </button>  
+                </div>
             </div>
         }
     }
