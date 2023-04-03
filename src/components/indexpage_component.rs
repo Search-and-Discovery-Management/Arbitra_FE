@@ -11,6 +11,17 @@ use serde_json::{Value};
 use crate::types::var::EditModalData;
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct AppData{
+    pub _id: String,
+    pub _source: Value
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct IndexData{
+    pub index: String
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct SearchRecord {
     index: String,
     search_term: String,
@@ -34,6 +45,13 @@ pub enum Msg {
     RequestIndexData,
     GetIndexData(Option<Vec<IndexData>>),
 
+    RequestAppData,
+    GetAppData(Option<Vec<AppData>>),
+    
+    RequestDeleteApp,
+
+    SelectApp(String),
+
     SelectIndex(String),
 
     SendEditToParent(EditModalData),
@@ -44,11 +62,6 @@ pub enum Msg {
     RequestSearch(String),
 
     Ignore,
-}
-
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct IndexData{
-    pub index: String
 }
 
 #[derive(Properties, Clone, Debug, PartialEq)]
@@ -122,9 +135,11 @@ pub struct IndexPageComp {
     fetch_task: Option<FetchTask>,
     record_data: Value,
     index_data: Option<Vec<IndexData>>,
-    error: Option<String>,
     index_name: String,
+    error: Option<String>,
     search_input: String,
+    app_data: Option<Vec<AppData>>,
+    app_id: String
 }
 
 impl Component for IndexPageComp {
@@ -145,9 +160,13 @@ impl Component for IndexPageComp {
             fetch_task: None,
             record_data: serde_json::json!({"data": []}),
             error: None,
-            index_data: Some(vec![]),
 
             index_name: String::from("SELECT INDEX ..."),
+            index_data: Some(vec![]),
+
+            app_id: String::from(""),
+            app_data: Some(vec![]),
+
             search_input: String::from(""),
 
             callback_edit_data: props.callback_edit_data.clone(),
@@ -209,11 +228,6 @@ impl Component for IndexPageComp {
                 true
             }
 
-            Msg::Ignore => {
-                ConsoleService::info(&format!("DEBUG : Event Ignore", ));
-                true
-            }
-
             Msg::RequestSearch(data) => {
                 let mut search_term = SearchRecord{
                     index: self.index_name.clone(),
@@ -259,7 +273,8 @@ impl Component for IndexPageComp {
 
             Msg::RequestIndexData => {
                 //FETCHING...
-                let request = Request::get("https://search-discovery-api.dev-domain.site/api/index")
+                let url = format!("https://test-dps-api.dev-domain.site/api/index/{}", &self.app_id);
+                let request = Request::get(url)
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
                     .expect("Could not build request.");
@@ -285,7 +300,7 @@ impl Component for IndexPageComp {
             }
 
             Msg::SelectIndex(index) => {
-                // ConsoleService::info(&format!("Selected index: {:?}", index));
+                ConsoleService::info(&format!("Selected index: {:?}", index));
                 self.index_name = index;
                 self.link.send_message(Msg::RequestRecordData);
                 true
@@ -296,10 +311,66 @@ impl Component for IndexPageComp {
                 self.index_data = data;
                 true
             }
+
+            Msg::RequestAppData => {
+                let request = Request::get("https://test-dps-api.dev-domain.site/api/apps")
+                    // .header("access_token", get_access_token{}.unwrap_or_default())
+                    .body(Nothing)
+                    .expect("Could not build request.");
+                let callback = 
+                    self.link.callback(|response: Response<Json<Result<Vec<AppData>, anyhow::Error>>>| {
+                        let (meta, Json(data)) = response.into_parts();
+        
+                        match data { 
+                            Ok(dataok) => {
+                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                Msg:: GetAppData(Some(dataok))
+                            }
+                            Err(error) => {
+                                Msg::ResponseError(error.to_string())
+                            }
+                        }
+                    });
+        
+                let task = FetchService::fetch(request, callback).expect("failed to start request");
+                
+                self.fetch_task = Some(task);
+                true
+            }
+
+            Msg::GetAppData(data) => {
+                self.app_data = data;
+                true
+            }
+
+            Msg::SelectApp(app) => {
+                // ConsoleService::info(&format!("Selected index: {:?}", index));
+                self.app_id = app;
+                self.link.send_message(Msg::RequestIndexData);
+                true
+            }
+
+            Msg::RequestDeleteApp => {
+                let url = format!("https://test-dps-api.dev-domain.site/api/app/:app_id", );
+                // ConsoleService::info(&format!("RecordID: {:?}", self.props.delete_index));
+                let request = Request::delete(url)
+                    // .header("Content-Type", "application/json")
+                    .body(Nothing)
+                    .expect("Could not build request.");
+                let callback = 
+                    self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
+                        Msg::Ignore
+                    });
+        
+                let task = FetchService::fetch(request, callback).expect("failed to start request");
+                
+                self.fetch_task = Some(task);
+                true
+            }
             
             Msg::RequestRecordData => {
                 //FETCHING...
-                let request = Request::get(format!("https://search-discovery-api.dev-domain.site/api/search/{}", &self.index_name))
+                let request = Request::get(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
                     .expect("Could not build request.");
@@ -352,12 +423,17 @@ impl Component for IndexPageComp {
                 ConsoleService::info(&format!("error is {:?}", text));
                 true
             }
+
+            Msg::Ignore => {
+                ConsoleService::info(&format!("DEBUG : Event Ignore", ));
+                true
+            }
         }
     }
 
     fn rendered(&mut self, first_render: bool) {
         if first_render {
-			self.link.send_message(Msg::RequestIndexData)
+			self.link.send_message(Msg::RequestAppData)
         }
     }
 
@@ -396,12 +472,20 @@ impl Component for IndexPageComp {
                                 <p style="margin-top: -8px">{ "Application" }</p>
 
                                 <div class="dropdown">
-                                    <button class="mainmenubtn"><img class="applicationIcon" src="images/APP.png"/>{ "Scara \u{00a0} \u{23F7}"}</button>
+                                    <button class="mainmenubtn"><img class="applicationIcon" src="images/APP.png"/>{ format!("{} \u{00a0} \u{23F7}", &self.app_id)}</button>
                                     <div class="dropdown-child">
+
+                                        { self.view_app_data() }
                                         <a 
                                             href="#" 
                                             onclick=self.link.callback(|_| Msg::ToggleCreateApp)>
                                             { "Create New Application" }
+                                        </a>
+
+                                        <a 
+                                            href="#" 
+                                            onclick=self.link.callback(|_| Msg::ToggleCreateApp)>
+                                            { "Remove Application" }
                                         </a>
                                     </div>
                                 </div>
@@ -532,14 +616,52 @@ impl Component for IndexPageComp {
     }
 
 impl IndexPageComp {
+    fn view_app_data(&self) -> Vec<Html> {
+        self.app_data.iter().map(|card|{
+                card.iter().map(|card_parse|{
+                    let app_id = card_parse._id.clone();
+                    let app_name = card_parse._source.clone();
+                    html!(
+                        <a onclick=self.link.callback(move |_| Msg::SelectApp(app_id.clone()))>
+                            { app_name.get("name").unwrap().as_str().unwrap() }
+                        </a>
+                    )
+                }).collect()
+                
+            }).collect()
+    }
+
+    fn view_app_data_id(&self) -> Vec<Html> {
+        self.app_data.iter().map(|card|{
+                card.iter().map(|card_parse|{
+                    let app_id = card_parse._id.clone();
+                    let app_name = card_parse._source.clone();
+                    app_name.as_object().unwrap().iter().map(| (appstring, appvalue) |{
+                        if appstring.eq("name") {
+                            html!{
+                                <a>
+                                { format!{"{} - {}", appvalue.as_str().unwrap(), app_id} }
+                                </a>
+                            }
+                        } else {
+                            html!{
+                                
+                            }
+                        }
+                    }).collect::<Html>()
+                }).collect()
+                
+            }).collect()
+    }
+
     fn view_index_data(&self) -> Vec<Html> {
         self.index_data.iter().map(|card|{
                 card.iter().map(|card_parse|{
-                    let index_name = card_parse.index.clone();
+                    let index_name = card_parse.index.clone().split('.').next_back().unwrap().to_string();
                     html!{
                         <a class="index-name" onclick=self.link.callback(move |_| Msg::SelectIndex(index_name.clone()))>
                             // { serde_json::to_string_pretty(&card_parse.index).unwrap().trim_start().replace("\"", "")}
-                            { card_parse.index.clone() }
+                            { card_parse.index.clone().split('.').next_back().unwrap() }
                         </a>
                     }
                 }).collect()

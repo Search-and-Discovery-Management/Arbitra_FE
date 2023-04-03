@@ -73,7 +73,7 @@ impl Component for IndexCreate {
                 self.index = data;
                 true
             }
-
+            
             Msg::RequestCreateIndex => {
                 //POST FETCHING...
 

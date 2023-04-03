@@ -1,7 +1,27 @@
-use yew::prelude::*;
+use yew::{
+    format::{ Json, Nothing },
+    prelude::*,
+    services::{
+        fetch::{FetchService, FetchTask, Request, Response},
+        ConsoleService,
+    },
+};
+use serde::{Deserialize, Serialize};
+use serde_json::{from_str, Value, from_value, Map};
+use crate::{types::var};
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct CreateApp{
+    pub app_name: String
+}
 
 pub enum Msg {
     ToggleCreateApp,
+    RequestCreateApplication,
+    GetCreateApp(String),
+    ResponseError(String),
+    InputCreateApp(String),
+    Ignore
 }
 
 #[derive(Properties, Clone, Debug, PartialEq)]
@@ -18,6 +38,8 @@ pub struct AppCreate {
     link: ComponentLink<Self>,
     props: WindowCreateAppProps,
     callback_toggle_createapp: Callback<Msg>,
+    fetch_task: Option<FetchTask>,
+    app_name: String
 
 }
 
@@ -30,6 +52,8 @@ impl Component for AppCreate {
             link,
             callback_toggle_createapp: props.on_toggle_createapp.clone(),
             props,
+            fetch_task: None,
+            app_name: String::from("")
             
             // {
             //     display_create_app: props.display_create_app,
@@ -44,6 +68,57 @@ impl Component for AppCreate {
             Msg::ToggleCreateApp => {
                 self.callback_toggle_createapp.emit(Msg::ToggleCreateApp);
                 true
+            }
+
+            Msg::InputCreateApp(data) => {
+                ConsoleService::info(&format!("Input Data: {:?}", data));
+                self.app_name = data;
+                true
+            }
+
+            Msg::RequestCreateApplication => {
+
+                let create = CreateApp {
+                    app_name: self.app_name.clone(),
+                };
+
+                let request = Request::post("https://test-dps-api.dev-domain.site/api/app")
+                    .header("Content-Type", "application/json")
+                    .body(Json(&create))
+                    .expect("Could not build request.");
+                let callback = 
+                    self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
+                        let (meta, Json(data)) = response.into_parts();
+                        // let status_number = meta.status.as_u16();
+                        
+                        match data { 
+                            Ok(dataok) => {
+                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                Msg:: GetCreateApp(dataok)
+                            }
+                            Err(error) => {
+                                Msg::ResponseError(error.to_string())
+                            }
+                        }
+                    });
+        
+                let task = FetchService::fetch(request, callback).expect("failed to start request");
+                
+                self.fetch_task = Some(task);
+                true
+            }
+
+            Msg::GetCreateApp(data) => {
+                self.app_name = data;
+                true
+            }
+
+            Msg::ResponseError(text) => {
+                true
+            }
+
+            Msg::Ignore => {
+                false
             }
         }
     }
@@ -79,7 +154,8 @@ impl Component for AppCreate {
                             class="form-control" 
                             id="create-app-text" 
                             aria-describedby="emailHelp"
-                            placeholder="Application name here..."/>
+                            placeholder="Application name here..."
+                            oninput = self.link.callback(|data: InputData| Msg::InputCreateApp(data.value))/>
             
                     // <div class="window-confirm-button">
                     // </div>
@@ -88,6 +164,7 @@ impl Component for AppCreate {
                         type="submit"
                         class="window-confirm-button"
                         form="submit-createapp"
+                        onclick = self.link.callback(|_| Msg::RequestCreateApplication)
                     >
                     { "CREATE APPLICATION" }
                     </button>
