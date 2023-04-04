@@ -39,7 +39,8 @@ pub struct AppCreate {
     props: WindowCreateAppProps,
     callback_toggle_createapp: Callback<Msg>,
     fetch_task: Option<FetchTask>,
-    app_name: String
+    app_name: String,
+    request_success: bool,
 
 }
 
@@ -53,7 +54,8 @@ impl Component for AppCreate {
             callback_toggle_createapp: props.on_toggle_createapp.clone(),
             props,
             fetch_task: None,
-            app_name: String::from("")
+            app_name: String::from(""),
+            request_success: false,
             
             // {
             //     display_create_app: props.display_create_app,
@@ -105,6 +107,7 @@ impl Component for AppCreate {
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                 self.fetch_task = Some(task);
+                self.request_success = true;
                 true
             }
 
@@ -172,8 +175,42 @@ impl Component for AppCreate {
 
                     
                 </div>
+                {
+                    if self.request_success {
+                        html!{
+                            {self.modal_success()}
+                        }
+                            
+                    } else {
+                        html!{}
+                    }
+                }
 
             </div>
         }
     }  
+}
+
+impl AppCreate {
+    fn modal_success(&self) -> Html {
+        html! {
+            <div class="window-overlay">
+                <div class="window-index" id="create-index"> 
+
+                    <div class="top-row-index-window-insert">
+                        <h1>{"CREATE APPLICATION SUCCESSFUL"}</h1>
+                    </div> 
+
+                    <button 
+                        type="submit"
+                        form="submit-deletecard"
+                        class="window-confirm-button"
+                        onclick=self.link.callback(|_| Msg::ToggleCreateApp)
+                    >
+                        { "OKAY" }
+                    </button>  
+                </div>
+            </div>
+        }
+    }
 }

@@ -32,6 +32,7 @@ pub struct SearchRecord {
 pub enum Msg {
     //EVENT TOGGLE (MERGE CLOSE DAN OPEN)
     ToggleCreateApp,
+    ToggleDeleteApp,
     ToggleCreateIndex,
     ToggleInsertRecord,
     ToggleEditRecord(String, String, String),
@@ -70,6 +71,9 @@ pub struct IndexPageCompProps {
     pub display_create_app: bool,
 
     #[prop_or(false)]
+    pub display_delete_app: bool,
+
+    #[prop_or(false)]
     pub display_create_index: bool,
 
     #[prop_or(false)]
@@ -101,11 +105,13 @@ pub struct IndexPageCompProps {
     pub callback_card_index: Callback<String>,
 
     pub on_toggle_createapp:Callback<Msg>,
+    pub on_toggle_deleteapp:Callback<Msg>,
     pub on_toggle_createindex:Callback<Msg>,
     pub on_toggle_insertrecord:Callback<Msg>,
     pub on_toggle_editrecord:Callback<Msg>,
     pub on_toggle_deleterecord:Callback<Msg>,
     pub on_toggle_deletecard:Callback<Msg>,
+    
 
     #[prop_or(false)]
     pub modal_open_index: bool,
@@ -123,11 +129,13 @@ pub struct IndexPageComp {
     props: IndexPageCompProps,
 
     callback_toggle_createapp: Callback<Msg>,
+    callback_toggle_deleteapp: Callback<Msg>,
     callback_toggle_createindex: Callback<Msg>,
     callback_toggle_insertrecord: Callback<Msg>,
     callback_toggle_editrecord: Callback<Msg>,
     callback_toggle_deleterecord: Callback<Msg>,
     callback_toggle_deletecard: Callback<Msg>,
+    
     callback_edit_data: Callback<EditModalData>,
     callback_delete_window: Callback<String>,
     callback_card_index: Callback<String>,
@@ -150,6 +158,7 @@ impl Component for IndexPageComp {
         Self {
             link,
             callback_toggle_createapp: props.on_toggle_createapp.clone(),
+            callback_toggle_deleteapp: props.on_toggle_deleteapp.clone(),
             callback_toggle_createindex: props.on_toggle_createindex.clone(),
             callback_toggle_insertrecord: props.on_toggle_insertrecord.clone(),
             callback_toggle_editrecord: props.on_toggle_editrecord.clone(),
@@ -189,6 +198,13 @@ impl Component for IndexPageComp {
             Msg::ToggleCreateApp => {
                 self.callback_toggle_createapp.emit(Msg::ToggleCreateApp);
                 // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.props.display_create_app));
+                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_app));
+                true
+            }
+
+            Msg::ToggleDeleteApp => {
+                self.callback_toggle_deleteapp.emit(Msg::ToggleDeleteApp);
+                // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.props.display_delete_app));
                 ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_app));
                 true
             }
@@ -478,13 +494,15 @@ impl Component for IndexPageComp {
                                         { self.view_app_data() }
                                         <a 
                                             href="#" 
-                                            onclick=self.link.callback(|_| Msg::ToggleCreateApp)>
+                                            onclick=self.link.callback(|_| Msg::ToggleCreateApp)
+                                            style="background-color: #e3e8ed">
                                             { "Create New Application" }
                                         </a>
 
                                         <a 
                                             href="#" 
-                                            onclick=self.link.callback(|_| Msg::ToggleCreateApp)>
+                                            onclick=self.link.callback(|_| Msg::ToggleDeleteApp)
+                                            style="color: white; background-color: #a73034">
                                             { "Remove Application" }
                                         </a>
                                     </div>

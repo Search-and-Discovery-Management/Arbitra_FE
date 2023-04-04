@@ -2,6 +2,7 @@ use yew::{prelude::*, services::ConsoleService};
 
 use crate::components::{
     indexpage_window_createapp::AppCreate,
+    indexpage_window_deleteapp::DeleteApp,
     indexpage_window_createindex::IndexCreate,
     indexpage_window_deleterecord::DeleteRecord,
     indexpage_window_editrecord::EditRecord,
@@ -14,6 +15,7 @@ use crate::types::var::EditModalData;
 pub enum Msg {
     //EVENT TOGGLE (MERGE CLOSE DAN OPEN)
     ToggleCreateApp,
+    ToggleDeleteApp,
     ToggleCreateIndex,
     ToggleInsertRecord,
     ToggleEditRecord,
@@ -29,6 +31,7 @@ pub struct IndexPage {
     link: ComponentLink<Self>,
     //DISPLAY WINDOWS / MODAL (STATE)
     display_create_app: bool,
+    display_delete_app: bool,
     display_create_index: bool,
     display_insert_record: bool,
     display_edit_record: bool,
@@ -45,7 +48,6 @@ pub struct IndexPage {
     //HANYA UNTUK FUNCTION CHANGE DI INDEXPAGE_COMPONENT UNTUK REFRESH DATA
     modal_open_index: bool,
     modal_open_record: bool,
-    //BUAT MODAL CREATEAPP MSIH BLM SKRG
     modal_open_app: bool,
 
 }
@@ -59,6 +61,7 @@ impl Component for IndexPage {
 
             //DISPLAY WINDOWS / MODAL (STATE)
             display_create_index: false,
+            display_delete_app: false,
             display_create_app: false,
             display_insert_record: false,
             display_edit_record: false,
@@ -93,6 +96,13 @@ impl Component for IndexPage {
             }
             Msg::ToggleCreateApp => {
                 self.display_create_app = !self.display_create_app;
+                self.modal_open_app = !self.modal_open_app;
+                // // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.display_create_app));
+                ConsoleService::info(&format!("DEBUG : modal_open_app:{:?}", self.modal_open_app));
+                true
+            }
+            Msg::ToggleDeleteApp => {
+                self.display_delete_app = !self.display_delete_app;
                 self.modal_open_app = !self.modal_open_app;
                 // // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.display_create_app));
                 ConsoleService::info(&format!("DEBUG : modal_open_app:{:?}", self.modal_open_app));
@@ -161,6 +171,7 @@ impl Component for IndexPage {
     fn view(&self) -> Html {
 
         let ToggleCreateApp = self.display_create_app;
+        let ToggleDeleteApp = self.display_delete_app;
         let ToggleCreateIndex = self.display_create_index;
         let ToggleInsertRecord = self.display_insert_record;
         let ToggleEditRecord = self.display_edit_record;
@@ -175,12 +186,14 @@ impl Component for IndexPage {
                    
                     <IndexPageComp
                         display_create_app=self.display_create_app.clone()
+                        display_delete_app=self.display_delete_app.clone()
                         display_create_index=self.display_create_index.clone()
                         display_insert_record=self.display_insert_record.clone()
                         display_edit_record=self.display_edit_record.clone()
                         display_delete_record=self.display_delete_record.clone()
                         display_delete_card=self.display_delete_card.clone()
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
+                        on_toggle_deleteapp = self.link.callback(|_| Msg::ToggleDeleteApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
                         on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
@@ -209,18 +222,64 @@ impl Component for IndexPage {
                 </div>
                 
             }
-        //CONDITIONAL BUKA MODAL CREATE INDEX
-        } else if ToggleCreateIndex {
+        //CONDITIONAL BUKA MODAL DELETE APP
+            } else if ToggleDeleteApp {
             html! {
                 <div> 
                     <IndexPageComp
                         display_create_app=self.display_create_app.clone()
+                        display_delete_app=self.display_delete_app.clone()
                         display_create_index=self.display_create_index.clone()
                         display_insert_record=self.display_insert_record.clone()
                         display_edit_record=self.display_edit_record.clone()
                         display_delete_record=self.display_delete_record.clone()
                         display_delete_card=self.display_delete_card.clone()
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
+                        on_toggle_deleteapp = self.link.callback(|_| Msg::ToggleDeleteApp)
+                        on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
+                        on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
+                        on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
+                        on_toggle_deleterecord = self.link.callback(|_| Msg::ToggleDeleteRecord)
+                        on_toggle_deletecard = self.link.callback(|_| Msg::ToggleDeleteCard)
+
+
+                        edit_data = self.edit_data.clone()
+                        edit_index = self.edit_index.clone()
+                        callback_edit_data = self.link.callback(Msg::RecvEditData)
+                        
+                        delete_index = self.delete_index.clone()
+                        callback_delete_window = self.link.callback(Msg::RecvDeleteData)
+
+                        callback_card_index = self.link.callback(Msg::RecvIndexName)
+                        card_index = self.card_index.clone()
+
+                        modal_open_index = self.modal_open_index.clone()
+                        modal_open_record = self.modal_open_record.clone()
+                        modal_open_app = self.modal_open_app.clone()
+                    />
+                    //DISPLAY WINDOW DISINI      
+                    <DeleteApp 
+                        display_delete_app=self.display_delete_app.clone()
+                        on_toggle_deleteapp = self.link.callback(|_| Msg::ToggleDeleteApp) />
+
+                </div>
+                
+            }
+
+        //CONDITIONAL BUKA MODAL CREATE INDEX
+        } else if ToggleCreateIndex {
+            html! {
+                <div> 
+                    <IndexPageComp
+                        display_create_app=self.display_create_app.clone()
+                        display_delete_app=self.display_delete_app.clone()
+                        display_create_index=self.display_create_index.clone()
+                        display_insert_record=self.display_insert_record.clone()
+                        display_edit_record=self.display_edit_record.clone()
+                        display_delete_record=self.display_delete_record.clone()
+                        display_delete_card=self.display_delete_card.clone()
+                        on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
+                        on_toggle_deleteapp = self.link.callback(|_| Msg::ToggleDeleteApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
                         on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
@@ -256,12 +315,14 @@ impl Component for IndexPage {
                 <div> 
                     <IndexPageComp
                         display_create_app=self.display_create_app.clone()
+                        display_delete_app=self.display_delete_app.clone()
                         display_create_index=self.display_create_index.clone()
                         display_insert_record=self.display_insert_record.clone()
                         display_edit_record=self.display_edit_record.clone()
                         display_delete_record=self.display_delete_record.clone()
                         display_delete_card=self.display_delete_card.clone()
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
+                        on_toggle_deleteapp = self.link.callback(|_| Msg::ToggleDeleteApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
                         on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
@@ -295,12 +356,14 @@ impl Component for IndexPage {
                 <div> 
                     <IndexPageComp
                         display_create_app=self.display_create_app.clone()
+                        display_delete_app=self.display_delete_app.clone()
                         display_create_index=self.display_create_index.clone()
                         display_insert_record=self.display_insert_record.clone()
                         display_edit_record=self.display_edit_record.clone()
                         display_delete_record=self.display_delete_record.clone()
                         display_delete_card=self.display_delete_card.clone()
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
+                        on_toggle_deleteapp = self.link.callback(|_| Msg::ToggleDeleteApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
                         on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
@@ -340,12 +403,14 @@ impl Component for IndexPage {
                 <div> 
                     <IndexPageComp
                         display_create_app=self.display_create_app.clone()
+                        display_delete_app=self.display_delete_app.clone()
                         display_create_index=self.display_create_index.clone()
                         display_insert_record=self.display_insert_record.clone()
                         display_edit_record=self.display_edit_record.clone()
                         display_delete_record=self.display_delete_record.clone()
                         display_delete_card=self.display_delete_card.clone()
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
+                        on_toggle_deleteapp = self.link.callback(|_| Msg::ToggleDeleteApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
                         on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
@@ -379,12 +444,14 @@ impl Component for IndexPage {
                 <div> 
                     <IndexPageComp
                         display_create_app=self.display_create_app.clone()
+                        display_delete_app=self.display_delete_app.clone()
                         display_create_index=self.display_create_index.clone()
                         display_insert_record=self.display_insert_record.clone()
                         display_edit_record=self.display_edit_record.clone()
                         display_delete_record=self.display_delete_record.clone()
                         display_delete_card=self.display_delete_card.clone()
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
+                        on_toggle_deleteapp = self.link.callback(|_| Msg::ToggleDeleteApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
                         on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
@@ -421,12 +488,14 @@ impl Component for IndexPage {
                 <div> 
                     <IndexPageComp
                         display_create_app=self.display_create_app.clone()
+                        display_delete_app=self.display_delete_app.clone()
                         display_create_index=self.display_create_index.clone()
                         display_insert_record=self.display_insert_record.clone()
                         display_edit_record=self.display_edit_record.clone()
                         display_delete_record=self.display_delete_record.clone()
                         display_delete_card=self.display_delete_card.clone()
                         on_toggle_createapp = self.link.callback(|_| Msg::ToggleCreateApp)
+                        on_toggle_deleteapp = self.link.callback(|_| Msg::ToggleDeleteApp)
                         on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
                         on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord)
