@@ -48,6 +48,8 @@ pub struct DeleteApp {
 
     app_data: Option<Vec<AppData>>,
 
+    app_id: String,
+
     app_name: String,
     request_success: bool,
 }
@@ -65,6 +67,7 @@ impl Component for DeleteApp {
 
             app_data: Some(vec![]),
 
+            app_id: String::from(""),
             app_name: String::from(""),
             request_success: false,
         }
@@ -111,14 +114,14 @@ impl Component for DeleteApp {
             Msg::InputDeleteApp(data) => {
                 // ConsoleService::info(&format!("Input Data for deletion: {:?}", data));
                 // let test = data.to_owned();
-                self.app_name = data;
+                self.app_id = data;
                 true
             }
 
             Msg::RequestDeleteApp => {
                 //POST FETCHING...
 
-                let url = format!("https://search-discovery-api.dev-domain.site/api/index/{}", &self.app_name);
+                let url = format!("https://test-dps-api.dev-domain.site/api/app/{}", &self.app_id);
 
                 let request = Request::delete(url)
                     // .header("Content-Type", "application/json")
@@ -199,7 +202,7 @@ impl Component for DeleteApp {
                     </div>
 
                     <div style="margin-bottom: 20px">
-                        { "Please type the app name you want to delete for confirmation." }
+                        { "Please type the App ID you want to delete for confirmation." }
                         <form class="deleteapp-text-input" id="submit-deleteapp">
 
                         <input 
@@ -207,7 +210,7 @@ impl Component for DeleteApp {
                             class="form-control" 
                             id="create-app-text" 
                             aria-describedby="emailHelp"
-                            placeholder="App name to DELETE here..."
+                            placeholder="App ID to DELETE here..."
                             style="margin-top: 5px"
                             oninput = self.link.callback(|data: InputData| Msg::InputDeleteApp(data.value))
                             />
@@ -261,13 +264,18 @@ impl DeleteApp {
     fn view_app_data(&self) -> Vec<Html> {
         self.app_data.iter().map(|card|{
                 card.iter().map(|card_parse|{
-                    let app_name = card_parse._id.clone();
-                    html!{
-                        <li>
-                            // { serde_json::to_string_pretty(&card_parse.index).unwrap().trim_start().replace("\"", "")}
-                            { card_parse._id.clone() }
-                        </li>
-                    }
+                    let app_id = card_parse._id.clone();
+                    let app_name = card_parse._source.clone();
+                    html!(
+                        <div>
+                            <li>
+                                { app_name.get("name").unwrap().as_str().unwrap() }
+                            </li>
+                            <ul>
+                                { app_id }
+                            </ul>
+                        </div>
+                    )
                 }).collect()
                 
             }).collect()
