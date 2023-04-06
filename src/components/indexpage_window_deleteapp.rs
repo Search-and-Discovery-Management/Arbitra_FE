@@ -22,9 +22,11 @@ pub enum Msg {
     ResponseError(String),
 }
 
+
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct AppData{
-    pub app: String
+    pub _id: String,
+    pub _source: Value
 }
 
 #[derive(Properties, Clone, Debug, PartialEq)]
@@ -76,20 +78,18 @@ impl Component for DeleteApp {
             }
 
             Msg::RequestAppData => {
-                //FETCHING...
-                let request = Request::get("https://search-discovery-api.dev-domain.site/api/index")
+                let request = Request::get("https://test-dps-api.dev-domain.site/api/apps")
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
                     .expect("Could not build request.");
                 let callback = 
                     self.link.callback(|response: Response<Json<Result<Vec<AppData>, anyhow::Error>>>| {
                         let (meta, Json(data)) = response.into_parts();
-                        // let status_number = meta.status.as_u16();
         
                         match data { 
                             Ok(dataok) => {
-                                // ConsoleService::info(&format!("data response {:?}", &dataok));
-                                Msg::GetAppData(Some(dataok))
+                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                Msg:: GetAppData(Some(dataok))
                             }
                             Err(error) => {
                                 Msg::ResponseError(error.to_string())
@@ -104,7 +104,6 @@ impl Component for DeleteApp {
             }
 
             Msg::GetAppData(data) => {
-                // ConsoleService::info(&format!("data is {:?}", data));
                 self.app_data = data;
                 true
             }
@@ -262,11 +261,11 @@ impl DeleteApp {
     fn view_app_data(&self) -> Vec<Html> {
         self.app_data.iter().map(|card|{
                 card.iter().map(|card_parse|{
-                    let app_name = card_parse.app.clone();
+                    let app_name = card_parse._id.clone();
                     html!{
                         <li>
                             // { serde_json::to_string_pretty(&card_parse.index).unwrap().trim_start().replace("\"", "")}
-                            { card_parse.app.clone() }
+                            { card_parse._id.clone() }
                         </li>
                     }
                 }).collect()
