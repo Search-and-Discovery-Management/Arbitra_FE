@@ -51,6 +51,7 @@ pub struct DeleteRecord {
 
     index_name: String,
     request_success: bool,
+    app_id: String,
 }
 
 impl Component for DeleteRecord {
@@ -61,6 +62,7 @@ impl Component for DeleteRecord {
         Self {
             link,
             callback_toggle_deleterecord: props.on_toggle_deleterecord.clone(),
+            app_id: props.app_id.clone(),
             props,
             fetch_task: None,
 
@@ -80,7 +82,7 @@ impl Component for DeleteRecord {
 
             Msg::RequestIndexData => {
                 //FETCHING...
-                let request = Request::get("https://search-discovery-api.dev-domain.site/api/index")
+                let request = Request::get(format!("https://test-dps-api.dev-domain.site/api/index/{}", &self.app_id))
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
                     .expect("Could not build request.");
@@ -120,9 +122,8 @@ impl Component for DeleteRecord {
             }
 
             Msg::RequestDeleteIndex => {
-                //POST FETCHING...
 
-                let url = format!("https://search-discovery-api.dev-domain.site/api/index/{}", &self.index_name);
+                let url = format!("https://test-dps-api.dev-domain.site/api/index/{}/{}", &self.app_id, &self.index_name);
 
                 let request = Request::delete(url)
                     // .header("Content-Type", "application/json")
@@ -262,17 +263,17 @@ impl Component for DeleteRecord {
 impl DeleteRecord {
     fn view_index_data(&self) -> Vec<Html> {
         self.index_data.iter().map(|card|{
-                card.iter().map(|card_parse|{
-                    let index_name = card_parse.index.clone();
-                    html!{
-                        <li>
-                            // { serde_json::to_string_pretty(&card_parse.index).unwrap().trim_start().replace("\"", "")}
-                            { card_parse.index.clone() }
-                        </li>
-                    }
-                }).collect()
-                
+            card.iter().map(|card_parse|{
+                let index_name = card_parse.index.clone().split('.').next_back().unwrap().to_string();
+                html!{
+                    <li>
+                        // { serde_json::to_string_pretty(&card_parse.index).unwrap().trim_start().replace("\"", "")}
+                        { card_parse.index.clone().split('.').next_back().unwrap() }
+                    </li>
+                }
             }).collect()
+            
+        }).collect()
     }
     fn modal_success(&self) -> Html {
         html! {

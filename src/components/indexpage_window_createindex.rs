@@ -46,6 +46,7 @@ pub struct IndexCreate {
     index: String,
     fetch_task: Option<FetchTask>,
     request_success: bool,
+    app_id: String,
 }
 
 impl Component for IndexCreate {
@@ -56,10 +57,11 @@ impl Component for IndexCreate {
         Self {
             link: link.clone(),
             callback_toggle_createindex: props.on_toggle_createindex.clone(),
+            app_id: props.app_id.clone(),
             props,
             index: String::from(""),
             fetch_task: None,
-            request_success: false,
+            request_success: false
         }
     }
 
@@ -84,7 +86,9 @@ impl Component for IndexCreate {
                     index: self.index.clone(),
                 };
 
-                let request = Request::post("https://search-discovery-api.dev-domain.site/api/index")
+                let url = format!("https://test-dps-api.dev-domain.site/api/index/{}", &self.app_id);
+
+                let request = Request::post(url)
                     .header("Content-Type", "application/json")
                     .body(Json(&create))
                     .expect("Could not build request.");

@@ -346,7 +346,7 @@ impl Component for IndexPageComp {
         
                         match data { 
                             Ok(dataok) => {
-                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
                                 Msg:: GetAppData(Some(dataok))
                             }
                             Err(error) => {
