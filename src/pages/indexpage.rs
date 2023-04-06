@@ -25,6 +25,7 @@ pub enum Msg {
     RecvEditData(EditModalData),
     RecvDeleteData(String),
     RecvIndexName(String),
+    RecvAppId(String),
 }
 
 pub struct IndexPage {
@@ -44,6 +45,8 @@ pub struct IndexPage {
     delete_index : String,
 
     card_index : String,
+
+    app_id : String, 
 
     //HANYA UNTUK FUNCTION CHANGE DI INDEXPAGE_COMPONENT UNTUK REFRESH DATA
     modal_open_index: bool,
@@ -75,6 +78,7 @@ impl Component for IndexPage {
 
             card_index: String::from("Index Name here"),
 
+            app_id : String::from("App ID Here..."),
             //HANYA UNTUK FUNCTION CHANGE
             modal_open_index: false,
             modal_open_record: false,
@@ -157,6 +161,11 @@ impl Component for IndexPage {
                 // ConsoleService::info(&format!("data in parent STATE is (INDEX NAME) {:?}", self.card_index));
                 true
             }
+            Msg::RecvAppId(data_recv) => {
+                self.app_id = data_recv;
+                ConsoleService::info(&format!("data in parent STATE is (INDEX NAME) {:?}", self.app_id));
+                true
+            }
             
         }
     }
@@ -210,6 +219,8 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
 
+                        callback_app_id = self.link.callback(Msg::RecvAppId)
+
                         modal_open_index = self.modal_open_index.clone()
                         modal_open_record = self.modal_open_record.clone()
                         modal_open_app = self.modal_open_app.clone()
@@ -252,6 +263,8 @@ impl Component for IndexPage {
 
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
+
+                        callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()
                         modal_open_record = self.modal_open_record.clone()
@@ -297,6 +310,8 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
 
+                        callback_app_id = self.link.callback(Msg::RecvAppId)
+
                         modal_open_index = self.modal_open_index.clone()
                         modal_open_record = self.modal_open_record.clone()
                         modal_open_app = self.modal_open_app.clone()
@@ -339,6 +354,8 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
 
+                        callback_app_id = self.link.callback(Msg::RecvAppId)
+
                         modal_open_index = self.modal_open_index.clone()
                         modal_open_record = self.modal_open_record.clone()
                         modal_open_app = self.modal_open_app.clone()
@@ -379,6 +396,8 @@ impl Component for IndexPage {
 
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
+
+                        callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()
                         modal_open_record = self.modal_open_record.clone()
@@ -427,6 +446,8 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)    
                         card_index = self.card_index.clone()
 
+                        callback_app_id = self.link.callback(Msg::RecvAppId)
+
                         modal_open_index = self.modal_open_index.clone()
                         modal_open_record = self.modal_open_record.clone()
                         modal_open_app = self.modal_open_app.clone()         
@@ -467,6 +488,8 @@ impl Component for IndexPage {
 
                         callback_card_index = self.link.callback(Msg::RecvIndexName)  
                         card_index = self.card_index.clone()
+
+                        callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()
                         modal_open_record = self.modal_open_record.clone()
@@ -511,6 +534,8 @@ impl Component for IndexPage {
 
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
+
+                        callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()
                         modal_open_record = self.modal_open_record.clone()

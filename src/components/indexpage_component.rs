@@ -58,6 +58,7 @@ pub enum Msg {
     SendEditToParent(EditModalData),
     SendDeleteToParent(String),
     SendIndexNameToParent(String),
+    SendAppIdToParent(String),
 
     InputSearch(String),
     RequestSearch(String),
@@ -72,6 +73,10 @@ pub struct IndexPageCompProps {
 
     #[prop_or(false)]
     pub display_delete_app: bool,
+
+    #[prop_or_default]
+    pub app_id: String,
+    pub callback_app_id: Callback<String>,
 
     #[prop_or(false)]
     pub display_create_index: bool,
@@ -139,6 +144,7 @@ pub struct IndexPageComp {
     callback_edit_data: Callback<EditModalData>,
     callback_delete_window: Callback<String>,
     callback_card_index: Callback<String>,
+    callback_app_id: Callback<String>,
 
     fetch_task: Option<FetchTask>,
     record_data: Value,
@@ -181,6 +187,7 @@ impl Component for IndexPageComp {
             callback_edit_data: props.callback_edit_data.clone(),
             callback_delete_window: props.callback_delete_window.clone(),
             callback_card_index: props.callback_card_index.clone(),
+            callback_app_id: props.callback_app_id.clone(),
             props,
         }
     }
@@ -435,6 +442,12 @@ impl Component for IndexPageComp {
                 true
             }
             
+            //UNTUK NGIRIM DATA APP ID KE PARENT
+            Msg::SendAppIdToParent(data) => {
+                self.callback_app_id.emit(data);
+                true
+            }
+ 
             Msg::ResponseError(text) => {
                 ConsoleService::info(&format!("error is {:?}", text));
                 true
