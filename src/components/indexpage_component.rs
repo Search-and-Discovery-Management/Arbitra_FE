@@ -385,8 +385,8 @@ impl Component for IndexPageComp {
             }
             
             Msg::RequestRecordData => {
-                //FETCHING...
-                let request = Request::get(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
+                //Request::get(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
+                let request = Request::get(format!("https://test-dps-api.dev-domain.site/api/search/phTbRYcButk1Vf318d6o/testindex"))
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
                     .expect("Could not build request.");
