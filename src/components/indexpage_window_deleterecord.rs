@@ -33,6 +33,9 @@ pub struct WindowDeleteRecordProps {
     #[prop_or(false)]
     pub display_delete_record: bool,
     pub on_toggle_deleterecord:Callback<Msg>,
+
+    #[prop_or_default]
+    pub app_id: String,
 }
 
 
@@ -167,7 +170,8 @@ impl Component for DeleteRecord {
 
     fn rendered(&mut self, first_render: bool) {
         if first_render {
-			self.link.send_message(Msg::RequestIndexData)
+			self.link.send_message(Msg::RequestIndexData);
+            // ConsoleService::info(&format!("data MODAL app_id {:?}", self.props.app_id));
         }
     }
 

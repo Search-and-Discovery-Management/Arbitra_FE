@@ -33,6 +33,9 @@ pub struct WindowCreateIndexProps {
     #[prop_or(false)]
     pub display_create_index: bool,
     pub on_toggle_createindex:Callback<Msg>,
+
+    #[prop_or_default]
+    pub app_id: String,
 }
 pub struct IndexCreate {
     // `ComponentLink` is like a reference to a component.
@@ -127,7 +130,7 @@ impl Component for IndexCreate {
 
     // fn rendered(&mut self, first_render: bool) {
     //     if first_render {
-	// 		self.link.send_message(Msg::RequestIndexData);
+    //         ConsoleService::info(&format!("data MODAL app_id {:?}", self.props.app_id));
     //     }
     // }
 

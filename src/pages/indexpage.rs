@@ -94,29 +94,29 @@ impl Component for IndexPage {
             Msg::ToggleCreateIndex => {
                 self.display_create_index = !self.display_create_index;
                 self.modal_open_index = !self.modal_open_index;
-                // // ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.display_create_index));
-                ConsoleService::info(&format!("DEBUG : modal_open_index:{:?}", self.modal_open_index));
+                // ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.display_create_index));
+                // ConsoleService::info(&format!("DEBUG : modal_open_index:{:?}", self.modal_open_index));
                 true
             }
             Msg::ToggleCreateApp => {
                 self.display_create_app = !self.display_create_app;
                 self.modal_open_app = !self.modal_open_app;
-                // // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.display_create_app));
-                ConsoleService::info(&format!("DEBUG : modal_open_app:{:?}", self.modal_open_app));
+                // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.display_create_app));
+                // ConsoleService::info(&format!("DEBUG : modal_open_app:{:?}", self.modal_open_app));
                 true
             }
             Msg::ToggleDeleteApp => {
                 self.display_delete_app = !self.display_delete_app;
                 self.modal_open_app = !self.modal_open_app;
-                // // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.display_create_app));
-                ConsoleService::info(&format!("DEBUG : modal_open_app:{:?}", self.modal_open_app));
+                // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.display_create_app));
+                // ConsoleService::info(&format!("DEBUG : modal_open_app:{:?}", self.modal_open_app));
                 true
             }
             Msg::ToggleInsertRecord => {
                 self.display_insert_record = !self.display_insert_record;
                 self.modal_open_record = !self.modal_open_record;
-                // // ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.display_insert_record));
-                ConsoleService::info(&format!("DEBUG : modal_open_record:{:?}", self.modal_open_record));
+                // ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.display_insert_record));
+                // ConsoleService::info(&format!("DEBUG : modal_open_record:{:?}", self.modal_open_record));
                 true
             }
             Msg::ToggleEditRecord => {
@@ -126,21 +126,21 @@ impl Component for IndexPage {
 
                 self.display_edit_record = !self.display_edit_record;
                 self.modal_open_record = !self.modal_open_record;
-                ConsoleService::info(&format!("DEBUG : modal_open_record:{:?}", self.modal_open_record));
+                // ConsoleService::info(&format!("DEBUG : modal_open_record:{:?}", self.modal_open_record));
                 true
             }
             Msg::ToggleDeleteRecord => { //NOTE INI BUAT DELETE INDEX, BUKAN DELETE RECORD
                 self.display_delete_record = !self.display_delete_record;
                 self.modal_open_index = !self.modal_open_index;
                 // ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.display_delete_record));
-                ConsoleService::info(&format!("DEBUG : modal_open_index:{:?}", self.modal_open_index));
+                // ConsoleService::info(&format!("DEBUG : modal_open_index:{:?}", self.modal_open_index));
                 true
             }
             Msg::ToggleDeleteCard => {  //NOTE INI BUAT DELETE RECORD DI CARD
                 self.display_delete_card = !self.display_delete_card;
                 self.modal_open_record = !self.modal_open_record;
                 // ConsoleService::info(&format!("DEBUG : display_delete_card:{:?}", self.display_delete_card));
-                ConsoleService::info(&format!("DEBUG : modal_open_record:{:?}", self.modal_open_record));
+                // ConsoleService::info(&format!("DEBUG : modal_open_record:{:?}", self.modal_open_record));
                 true
             }
             Msg::RecvEditData(data_recv) => {
@@ -163,7 +163,7 @@ impl Component for IndexPage {
             }
             Msg::RecvAppId(data_recv) => {
                 self.app_id = data_recv;
-                ConsoleService::info(&format!("data in parent STATE is (INDEX NAME) {:?}", self.app_id));
+                // ConsoleService::info(&format!("data in parent STATE is (INDEX NAME) {:?}", self.app_id));
                 true
             }
             
@@ -219,6 +219,7 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
 
+                        app_id = self.app_id.clone()
                         callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()
@@ -264,6 +265,7 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
 
+                        app_id = self.app_id.clone()
                         callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()
@@ -310,6 +312,7 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
 
+                        app_id = self.app_id.clone()
                         callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()
@@ -319,7 +322,9 @@ impl Component for IndexPage {
                     //DISPLAY WINDOW DISINI      
                     <IndexCreate 
                         display_create_index=self.display_create_index.clone()
-                        on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex) />
+                        on_toggle_createindex = self.link.callback(|_| Msg::ToggleCreateIndex)
+                        app_id = self.app_id.clone()
+                    />
 
                 </div>
                 
@@ -354,6 +359,7 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
 
+                        app_id = self.app_id.clone()
                         callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()
@@ -363,7 +369,8 @@ impl Component for IndexPage {
                     //DISPLAY WINDOW DISINI         
                     <InsertRecord
                         display_insert_record=self.display_insert_record.clone()
-                        on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord) />
+                        on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
+                    />
 
                 </div>
             }
@@ -397,6 +404,7 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
 
+                        app_id = self.app_id.clone()
                         callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()
@@ -411,7 +419,7 @@ impl Component for IndexPage {
                         edit_index = self.edit_index.clone()
                         on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord) 
                         card_index = self.card_index.clone()
-                        />
+                    />
 
                 </div>
 
@@ -446,6 +454,7 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)    
                         card_index = self.card_index.clone()
 
+                        app_id = self.app_id.clone()
                         callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()
@@ -455,7 +464,9 @@ impl Component for IndexPage {
                     //DISPLAY WINDOW DISINI         
                     <DeleteRecord
                         display_delete_record=self.display_delete_record.clone()
-                        on_toggle_deleterecord = self.link.callback(|_| Msg::ToggleDeleteRecord) />
+                        on_toggle_deleterecord = self.link.callback(|_| Msg::ToggleDeleteRecord) 
+                        app_id = self.app_id.clone()
+                    />
 
                 </div>
             }
@@ -489,6 +500,7 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)  
                         card_index = self.card_index.clone()
 
+                        app_id = self.app_id.clone()
                         callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()
@@ -535,6 +547,7 @@ impl Component for IndexPage {
                         callback_card_index = self.link.callback(Msg::RecvIndexName)
                         card_index = self.card_index.clone()
 
+                        app_id = self.app_id.clone()
                         callback_app_id = self.link.callback(Msg::RecvAppId)
 
                         modal_open_index = self.modal_open_index.clone()

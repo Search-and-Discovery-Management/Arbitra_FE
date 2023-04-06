@@ -33,10 +33,10 @@ pub enum Msg {
     //EVENT TOGGLE (MERGE CLOSE DAN OPEN)
     ToggleCreateApp,
     ToggleDeleteApp,
-    ToggleCreateIndex,
+    ToggleCreateIndex(String),
     ToggleInsertRecord,
     ToggleEditRecord(String, String, String),
-    ToggleDeleteRecord,
+    ToggleDeleteRecord(String),
     ToggleDeleteCard(String, String),
 
     RequestRecordData,
@@ -195,31 +195,31 @@ impl Component for IndexPageComp {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             //EVENT BUAT OPEN MODAL
-            Msg::ToggleCreateIndex => {
-                self.callback_toggle_createindex.emit(Msg::ToggleCreateIndex);
+            Msg::ToggleCreateIndex(app_id) => {
+                self.callback_toggle_createindex.emit(Msg::ToggleCreateIndex(app_id));
                 // ConsoleService::info(&format!("DEBUG : display_create_index:{:?}", self.props.display_create_index));
-                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_index));
+                // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_index));
                 true
             }
 
             Msg::ToggleCreateApp => {
                 self.callback_toggle_createapp.emit(Msg::ToggleCreateApp);
                 // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.props.display_create_app));
-                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_app));
+                // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_app));
                 true
             }
 
             Msg::ToggleDeleteApp => {
                 self.callback_toggle_deleteapp.emit(Msg::ToggleDeleteApp);
                 // ConsoleService::info(&format!("DEBUG : display_create_app:{:?}", self.props.display_delete_app));
-                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_app));
+                // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_app));
                 true
             }
 
             Msg::ToggleInsertRecord => {
                 self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord);
                 // ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.props.display_insert_record));
-                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
+                // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
                 true
             }
 
@@ -231,14 +231,14 @@ impl Component for IndexPageComp {
                 // ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
                 
                 self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord(data, index, card_index));
-                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
+                // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
                 true
             }
 
-            Msg::ToggleDeleteRecord => {
-                self.callback_toggle_deleterecord.emit(Msg::ToggleDeleteRecord);
+            Msg::ToggleDeleteRecord(app_id) => {
+                self.callback_toggle_deleterecord.emit(Msg::ToggleDeleteRecord(app_id));
                 // ConsoleService::info(&format!("DEBUG : display_delete_record:{:?}", self.props.display_delete_record));
-                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_index));
+                // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_index));
                 true
             }
 
@@ -247,7 +247,7 @@ impl Component for IndexPageComp {
                 // ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
                 // ConsoleService::info(&format!("DEBUG : display_delete_card:{:?}", self.props.display_delete_card));
                 self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard(index, card_index));
-                ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
+                // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
                 true
             }
 
@@ -489,6 +489,8 @@ impl Component for IndexPageComp {
 
     fn view(&self) -> Html {
         //CONDITIONAL DEFAULT CASE (NO MODAL)
+        let app_id_view = self.app_id.clone();
+        let app_id_view2 = self.app_id.clone();
             html! {
                 <div> 
                         <div>
@@ -508,14 +510,16 @@ impl Component for IndexPageComp {
                                         <a 
                                             href="#" 
                                             onclick=self.link.callback(|_| Msg::ToggleCreateApp)
-                                            style="background-color: #e3e8ed">
+                                            style="background-color: #e3e8ed"
+                                            >
                                             { "Create New Application" }
                                         </a>
 
                                         <a 
                                             href="#" 
                                             onclick=self.link.callback(|_| Msg::ToggleDeleteApp)
-                                            style="color: white; background-color: #a73034">
+                                            style="color: white; background-color: #a73034"
+                                            >
                                             { "Remove Application" }
                                         </a>
                                     </div>
@@ -539,15 +543,25 @@ impl Component for IndexPageComp {
                                         
                                         <a 
                                             href="#"
-                                            onclick=self.link.callback(|_| Msg::ToggleCreateIndex)
-                                            style="background-color: #e3e8ed">
+                                            // onclick=self.link.callback(|_| Msg::ToggleCreateIndex)
+                                            style="background-color: #e3e8ed"
+                                            onclick=self.link.batch_callback(move |_| vec![
+                                                Msg::SendAppIdToParent(app_id_view.clone()),
+                                                Msg::ToggleCreateIndex(app_id_view.clone()),
+                                            ]) 
+                                            >
                                             { "Create New Index" }
                                         </a>
                                         <a 
                                             href="#"
                                             //Untuk sementara pakai yang delete record dlu
-                                            onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)
-                                            style="color: white; background-color: #a73034">
+                                            // onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)
+                                            style="color: white; background-color: #a73034"
+                                            onclick=self.link.batch_callback(move |_| vec![
+                                                Msg::SendAppIdToParent(app_id_view2.clone()),
+                                                Msg::ToggleDeleteRecord(app_id_view2.clone()),
+                                            ])
+                                            >
                                             { "Remove Index" }
                                         </a>
                                     </div>
