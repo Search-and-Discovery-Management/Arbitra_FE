@@ -370,6 +370,8 @@ impl Component for IndexPage {
                     <InsertRecord
                         display_insert_record=self.display_insert_record.clone()
                         on_toggle_insertrecord = self.link.callback(|_| Msg::ToggleInsertRecord)
+                        app_id = self.app_id.clone()
+                        card_index = self.card_index.clone()
                     />
 
                 </div>
@@ -419,6 +421,7 @@ impl Component for IndexPage {
                         edit_index = self.edit_index.clone()
                         on_toggle_editrecord = self.link.callback(|_| Msg::ToggleEditRecord) 
                         card_index = self.card_index.clone()
+                        app_id = self.app_id.clone()
                     />
 
                 </div>
@@ -513,6 +516,7 @@ impl Component for IndexPage {
                         on_toggle_deletecard = self.link.callback(|_| Msg::ToggleDeleteCard)
                         delete_index = self.delete_index.clone()
                         card_index = self.card_index.clone()
+                        app_id = self.app_id.clone()
                         />
 
                 </div>

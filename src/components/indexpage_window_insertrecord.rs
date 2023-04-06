@@ -17,6 +17,12 @@ pub struct WindowInsertRecordProps {
     #[prop_or(false)]
     pub display_insert_record: bool,
     pub on_toggle_insertrecord:Callback<Msg>,
+
+    #[prop_or_default]
+    pub app_id: String,
+    #[prop_or_default]
+    pub card_index: String, //index_name
+
 }
 
 pub struct InsertRecord {
@@ -104,6 +110,13 @@ impl Component for InsertRecord {
             Msg::Ignore => {
                 false
             }
+        }
+    }
+
+    fn rendered(&mut self, first_render: bool) {
+        if first_render {
+            ConsoleService::info(&format!("data MODAL card_index / Index name {:?}", self.props.card_index));
+            ConsoleService::info(&format!("data MODAL app_id {:?}", self.props.app_id));
         }
     }
 

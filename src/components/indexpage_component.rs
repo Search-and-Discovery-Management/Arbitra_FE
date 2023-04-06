@@ -34,10 +34,10 @@ pub enum Msg {
     ToggleCreateApp,
     ToggleDeleteApp,
     ToggleCreateIndex(String),
-    ToggleInsertRecord,
-    ToggleEditRecord(String, String, String),
+    ToggleInsertRecord(String, String),
+    ToggleEditRecord(String, String, String, String),
     ToggleDeleteRecord(String),
-    ToggleDeleteCard(String, String),
+    ToggleDeleteCard(String, String, String),
 
     RequestRecordData,
     GetRecordData(Value),
@@ -216,21 +216,21 @@ impl Component for IndexPageComp {
                 true
             }
 
-            Msg::ToggleInsertRecord => {
-                self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord);
+            Msg::ToggleInsertRecord(app_id, card_index) => {
+                self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord(app_id, card_index));
                 // ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.props.display_insert_record));
                 // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
                 true
             }
 
-            Msg::ToggleEditRecord (data, index, card_index)=> {
+            Msg::ToggleEditRecord (data, index, app_id, card_index)=> {
 
                 // ConsoleService::info(&format!("DEBUG : display_edit_record:{:?}", self.props.display_edit_record));
                 // ConsoleService::info(&format!("DEBUG : data INDEX PAGE CHILD:{:?}", data.clone()));
                 // ConsoleService::info(&format!("DEBUG : index INDEX PAGE CHILD:{:?}", index.clone()));
                 // ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
                 
-                self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord(data, index, card_index));
+                self.callback_toggle_editrecord.emit(Msg::ToggleEditRecord(data, index, app_id, card_index));
                 // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
                 true
             }
@@ -242,11 +242,11 @@ impl Component for IndexPageComp {
                 true
             }
 
-            Msg::ToggleDeleteCard (index, card_index) => {
+            Msg::ToggleDeleteCard (index, app_id, card_index) => {
                 // ConsoleService::info(&format!("DEBUG : delete_index EVENT :{:?}", index));
                 // ConsoleService::info(&format!("DEBUG : card_index EVENT :{:?}", card_index));
                 // ConsoleService::info(&format!("DEBUG : display_delete_card:{:?}", self.props.display_delete_card));
-                self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard(index, card_index));
+                self.callback_toggle_deletecard.emit(Msg::ToggleDeleteCard(index, app_id, card_index));
                 // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
                 true
             }
@@ -392,7 +392,7 @@ impl Component for IndexPageComp {
             }
             
             Msg::RequestRecordData => {
-                // Request::get(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
+                //Request::get(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
                 let request = Request::get(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
@@ -491,6 +491,10 @@ impl Component for IndexPageComp {
         //CONDITIONAL DEFAULT CASE (NO MODAL)
         let app_id_view = self.app_id.clone();
         let app_id_view2 = self.app_id.clone();
+        let app_id_view3 = self.app_id.clone();
+
+        let index_name_view = self.index_name.clone();
+
             html! {
                 <div> 
                         <div>
@@ -578,7 +582,17 @@ impl Component for IndexPageComp {
                                 <div class="dropdownRecord">
                                     <button class="mainmenubtnRecord">{ "New Record \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
                                     <div class="dropdown-childRecord">
-                                        <a href="#" onclick=self.link.callback(|_| Msg::ToggleInsertRecord)>{ "Insert New Record" }</a>
+                                        <a 
+                                            href="#" 
+                                            // onclick=self.link.callback(move |_| Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()))
+                                            onclick=self.link.batch_callback(move |_| vec![
+                                                Msg::SendAppIdToParent(app_id_view3.clone()),
+                                                Msg::SendIndexNameToParent(index_name_view.clone()),
+                                                Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()),
+                                            ])
+                                        >
+                                            { "Insert New Record" }
+                                        </a>
                                         // <a href="#" onclick=self.link.callback(|_| Msg::ToggleEditRecord)>{ "Edit Record" }</a>
                                         // <a href="#" onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)>{ "Delete Record" }</a>
                                     </div>
@@ -722,7 +736,7 @@ impl IndexPageComp {
                     Some(data_as_array) => {
                         data_as_array.iter().enumerate().map(|(i, card)|{
 
-                            let edit_text_data = serde_json::to_string(card.get("fields").unwrap()).unwrap();
+                            let edit_text_data = serde_json::to_string(card.get("_source").unwrap()).unwrap();
 
                             let edit_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap();
                             let delete_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap().replace("\"", "");
@@ -732,8 +746,15 @@ impl IndexPageComp {
                                 index: edit_index.clone(),
                                 };
 
-                            let card_index = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
-                            let card_index_2 = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
+                            // let card_index = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
+                            // let card_index_2 = serde_json::to_string(card.get("_index").unwrap()).unwrap().replace("\"", "");
+
+                            let card_index = self.index_name.clone();
+                            let card_index_2 = self.index_name.clone();
+
+                            let app_id_impl = self.app_id.clone();
+                            let app_id_impl_2 = self.app_id.clone();
+                            
                             
                             html!{
                                 <div class="index-card">
@@ -755,7 +776,7 @@ impl IndexPageComp {
                                             </div>
                                         </div>
                                                 {
-                                                    match card.get("fields"){ 
+                                                    match card.get("_source"){ 
                                                        Some(card_fields) => {
                                                             match card_fields.get("image"){
                                                                 Some(card_image) => {
@@ -794,8 +815,9 @@ impl IndexPageComp {
                                             class="card-button"
                                             onclick=self.link.batch_callback(move |_| vec![
                                                 Msg::SendDeleteToParent(delete_index.clone()),
+                                                Msg::SendAppIdToParent(app_id_impl.clone()),
                                                 Msg::SendIndexNameToParent(card_index.clone()),
-                                                Msg::ToggleDeleteCard(delete_index.clone(), card_index.clone())
+                                                Msg::ToggleDeleteCard(delete_index.clone(), app_id_impl.clone(), card_index.clone())
                                             ]
                                             )
                                         >
@@ -810,8 +832,9 @@ impl IndexPageComp {
         
                                             onclick= self.link.batch_callback(move |_| vec![
                                                 Msg::SendEditToParent(edit_modal_data.clone()),
+                                                Msg::SendAppIdToParent(app_id_impl_2.clone()),
                                                 Msg::SendIndexNameToParent(card_index_2.clone()),
-                                                Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone(), card_index_2.clone()),
+                                                Msg::ToggleEditRecord(edit_text_data.clone(), edit_index.clone(), app_id_impl_2.clone(),  card_index_2.clone()),
                                             ]
                                             )
                                         >
@@ -846,7 +869,7 @@ impl IndexPageComp {
                     <div class="card-json-line"> 
                     
                         {
-                            if key.eq("fields") {
+                            if key.eq("_source") {
                                 match value.as_object() {
                                         Some (data) => data.iter().map(|(key, value)|{
                                             html!{

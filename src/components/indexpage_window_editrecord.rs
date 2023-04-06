@@ -31,10 +31,12 @@ pub struct WindowEditRecordProps {
     #[prop_or_default]
     pub edit_data: String,
     #[prop_or_default]
-    pub edit_index: String,
+    pub edit_index: String, //card_id
 
     pub on_toggle_editrecord:Callback<Msg>,
 
+    #[prop_or_default]
+    pub app_id: String,
     #[prop_or_default]
     pub card_index: String,
 
@@ -145,6 +147,13 @@ impl Component for EditRecord {
             Msg::Ignore => {
                 false
             }
+        }
+    }
+
+    fn rendered(&mut self, first_render: bool) {
+        if first_render {
+            ConsoleService::info(&format!("data MODAL card_index / Index name {:?}", self.props.card_index));
+            ConsoleService::info(&format!("data MODAL app_id {:?}", self.props.app_id));
         }
     }
 

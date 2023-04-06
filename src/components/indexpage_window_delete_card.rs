@@ -23,9 +23,11 @@ pub struct WindowDeleteCardProps {
     #[prop_or(false)]
     pub display_delete_card: bool,
     #[prop_or_default]
-    pub delete_index: String,
+    pub delete_index: String, //card_id
     pub on_toggle_deletecard:Callback<Msg>,
 
+    #[prop_or_default]
+    pub app_id: String,
     #[prop_or_default]
     pub card_index: String,
     // #[prop_or_default]
@@ -89,6 +91,13 @@ impl Component for DeleteCard {
             Msg::Ignore => {
                 false
             }
+        }
+    }
+    
+    fn rendered(&mut self, first_render: bool) {
+        if first_render {
+            ConsoleService::info(&format!("data MODAL card_index / Index name {:?}", self.props.card_index));
+            ConsoleService::info(&format!("data MODAL app_id {:?}", self.props.app_id));
         }
     }
 
