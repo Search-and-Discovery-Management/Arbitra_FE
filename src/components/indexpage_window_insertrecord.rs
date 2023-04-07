@@ -35,6 +35,9 @@ pub struct InsertRecord {
     json_is_valid: bool,
     fetch_task: Option<FetchTask>,
     request_success: bool,
+
+    app_id: String,
+    app_name: String
 }
 
 impl Component for InsertRecord {
@@ -45,6 +48,8 @@ impl Component for InsertRecord {
         Self {
             link,
             callback_toggle_insertrecord: props.on_toggle_insertrecord.clone(),
+            app_id: props.app_id.clone(),
+            app_name: props.card_index.clone(),
             props,
             value: "".to_string(),
             json_is_valid: false,
@@ -79,8 +84,8 @@ impl Component for InsertRecord {
                 };
                 // ConsoleService::info(&format!("Data Input = {}", &records));
 
-
-                let request = Request::post("https://search-discovery-api.dev-domain.site/api/document")
+                let url = format!("https://test-dps-api.dev-domain.site/api/document/{}/{}", &self.app_id, &self.app_name);
+                let request = Request::post(url)
                     .header("Content-Type", "application/json")
                     .body(Json(&records))
                     .expect("Could not build request.");

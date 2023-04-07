@@ -51,7 +51,7 @@ pub enum Msg {
     
     RequestDeleteApp,
 
-    SelectApp(String),
+    SelectApp(String, String),
 
     SelectIndex(String),
 
@@ -153,7 +153,8 @@ pub struct IndexPageComp {
     error: Option<String>,
     search_input: String,
     app_data: Option<Vec<AppData>>,
-    app_id: String
+    app_id: String,
+    app_name: String
 }
 
 impl Component for IndexPageComp {
@@ -180,6 +181,7 @@ impl Component for IndexPageComp {
             index_data: Some(vec![]),
 
             app_id: String::from(""),
+            app_name: String::from(""),
             app_data: Some(vec![]),
 
             search_input: String::from(""),
@@ -366,8 +368,9 @@ impl Component for IndexPageComp {
                 true
             }
 
-            Msg::SelectApp(app) => {
+            Msg::SelectApp(app, name) => {
                 // ConsoleService::info(&format!("Selected index: {:?}", index));
+                self.app_name = name;
                 self.app_id = app;
                 self.link.send_message(Msg::RequestIndexData);
                 true
@@ -507,7 +510,7 @@ impl Component for IndexPageComp {
                                 <p style="margin-top: -8px">{ "Application" }</p>
 
                                 <div class="dropdown">
-                                    <button class="mainmenubtn"><img class="applicationIcon" src="images/APP.png"/>{ format!("{} \u{00a0} \u{23F7}", &self.app_id)}</button>
+                                    <button class="mainmenubtn"><img class="applicationIcon" src="images/APP.png"/>{ format!("{} \u{00a0} \u{23F7}", &self.app_name)}</button>
                                     <div class="dropdown-child">
 
                                         { self.view_app_data() }
@@ -680,8 +683,9 @@ impl IndexPageComp {
                 card.iter().map(|card_parse|{
                     let app_id = card_parse._id.clone();
                     let app_name = card_parse._source.clone();
+                    let app_name_2 = card_parse._source.get("name").unwrap().to_string().replace("\"", "");
                     html!(
-                        <a onclick=self.link.callback(move |_| Msg::SelectApp(app_id.clone()))>
+                        <a onclick=self.link.callback(move |_| Msg::SelectApp(app_id.clone(), app_name_2.clone()))>
                             { app_name.get("name").unwrap().as_str().unwrap() }
                         </a>
                     )

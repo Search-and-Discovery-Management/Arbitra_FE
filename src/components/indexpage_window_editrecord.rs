@@ -58,6 +58,9 @@ pub struct EditRecord {
 
     fetch_task: Option<FetchTask>,
     request_success: bool,
+
+    app_id: String,
+    app_name: String
 }
 
 impl Component for EditRecord {
@@ -73,6 +76,10 @@ impl Component for EditRecord {
         Self {
             link,
             callback_toggle_editecord: props.on_toggle_editrecord.clone(),
+
+            app_id: props.app_id.clone(),
+            app_name: props.card_index.clone(),
+
             props,
             value: "".to_string(),
             json_is_valid: false,
@@ -117,6 +124,7 @@ impl Component for EditRecord {
                     data: records
                 };
 
+                let url = format!("https://test-dps-api.dev-domain.site/api/document/{}/{}", &self.app_id, &self.app_name);
                 let request = Request::put(format!("https://search-discovery-api.dev-domain.site/api/document"))
                     .header("Content-Type", "application/json")
                     .body(Json(&update))
