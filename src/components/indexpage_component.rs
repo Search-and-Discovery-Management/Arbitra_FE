@@ -23,10 +23,11 @@ pub struct IndexData{
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct SearchRecord {
-    index: String,
-    search_term: String,
-    from: u32,
-    count: u32
+    pub index: String,
+    pub search_term: String,
+    pub from: u32,
+    pub count: u32,
+    pub wildcards: bool
 }
 
 pub enum Msg {
@@ -258,14 +259,15 @@ impl Component for IndexPageComp {
                     index: self.index_name.clone(),
                     search_term: String::from(""),
                     from: 0,
-                    count: 50
+                    count: 50,
+                    wildcards: true
                 };
                 if data.is_empty() {
                     search_term.search_term = String::from("*");
                 }else {
                     search_term.search_term = data;
                 }
-                let request = Request::post("https://search-discovery-api.dev-domain.site/api/search")
+                let request = Request::post(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
                     .header("Content-Type", "application/json")
                     .body(Json(&search_term))
                     .expect("Could not build request.");
