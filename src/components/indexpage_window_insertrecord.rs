@@ -161,16 +161,14 @@ impl Component for InsertRecord {
                                 class="insert-record" 
                                 style="font-size:12px;font-weight: bold; line-height: 1.4;"
                                 
-                                >{"{
-            \"index\": \"indexName\",
-            \"dynamic_mode\": \"true\",
-            \"data\": {
-                \"product\": \"Ipon\",
-                \"price\": \"9999\",
-                \"Quantity\": \"9999\",
-                \"Product Etalase\": \"Electronic\"
-            }            
-}"}                     </textarea>
+                                >{"
+{
+    \"product\": \"Ipon\",
+    \"price\": \"9999\",
+    \"Quantity\": \"9999\",
+    \"Product Etalase\": \"Electronic\"
+}            
+"}                     </textarea>
                         </form>   
                     </div> 
 // FORM INPUT EXAMPLE END

@@ -8,12 +8,12 @@ use yew::{
     },
 };
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UpdateRecord {
-    pub index: String,
-    pub document_id: String,
-    pub data: Value
-}
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct UpdateRecord {
+//     // pub index: String,
+//     // pub document_id: String,
+//     pub data: Value
+// }
 
 pub enum Msg {
     ToggleEditRecord,
@@ -60,7 +60,7 @@ pub struct EditRecord {
     request_success: bool,
 
     app_id: String,
-    app_name: String
+    app_name: String,
 }
 
 impl Component for EditRecord {
@@ -118,16 +118,10 @@ impl Component for EditRecord {
                     Err(Error) => ConsoleService::info(&format!("Data Input = {}", &Error)),
                 };
 
-                let update = UpdateRecord{
-                    index: self.props.card_index.clone(),
-                    document_id: self.props.edit_index.clone().replace("\"", ""),
-                    data: records
-                };
-
-                let url = format!("https://test-dps-api.dev-domain.site/api/document/{}/{}", &self.app_id, &self.app_name);
-                let request = Request::put(format!("https://search-discovery-api.dev-domain.site/api/document"))
+                let url = format!("https://test-dps-api.dev-domain.site/api/document/{}/{}/{}", &self.app_id, &self.props.card_index, &self.props.edit_index.replace("\"", ""));
+                let request = Request::put(url)
                     .header("Content-Type", "application/json")
-                    .body(Json(&update))
+                    .body(Json(&records))
                     .expect("Could not build request.");
                 
                 let callback = 
@@ -181,7 +175,7 @@ impl Component for EditRecord {
                 <div class="window-index" id="create-index"> 
 
                     <div class="top-row-index-window-insert">
-                        <h1>{"EDIT RECORD "}{self.props.edit_index.clone()}</h1>
+                        <h1>{"EDIT RECORD "}{self.props.edit_index.clone().replace("\"", "")}</h1>
                         
                         <button 
                             type="button" 

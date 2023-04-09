@@ -70,7 +70,7 @@ impl Component for DeleteCard {
             }
 
             Msg::RequestDeleteCard => {
-                let url = format!("https://search-discovery-api.dev-domain.site/api/document/{}/{}", &self.props.card_index, &self.props.delete_index);
+                let url = format!("https://test-dps-api.dev-domain.site/api/document/{}/{}/{}", &self.props.app_id, &self.props.card_index, &self.props.delete_index.replace("\"", ""));
                 // ConsoleService::info(&format!("RecordID: {:?}", self.props.delete_index));
                 let request = Request::delete(url)
                     // .header("Content-Type", "application/json")
@@ -122,7 +122,7 @@ impl Component for DeleteCard {
                 <div class="window-index" id="create-index"> 
 
                     <div class="top-row-index-window-insert">
-                        <h1>{"DELETE RECORD "}{self.props.delete_index.clone()}</h1>
+                        <h1>{"DELETE RECORD "}{self.props.delete_index.clone().replace("\"", "")}</h1>
                         
                         <button 
                             type="button" 
