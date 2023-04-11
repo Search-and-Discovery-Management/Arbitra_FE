@@ -259,7 +259,7 @@ impl Component for IndexPageComp {
                     index: self.index_name.clone(),
                     search_term: String::from(""),
                     from: 0,
-                    count: 50,
+                    count: 20,
                     wildcards: true
                 };
                 if data.is_empty() {
@@ -397,7 +397,6 @@ impl Component for IndexPageComp {
             }
             
             Msg::RequestRecordData => {
-                //Request::get(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
                 let request = Request::get(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
@@ -648,6 +647,36 @@ impl Component for IndexPageComp {
                                     placeholder="Search..."
                                     oninput = self.link.callback(|data: InputData| Msg::InputSearch(data.value))
                                     />
+                                
+                                {
+                                    if self.record_data.get("total_took").is_some(){
+                                        html!{
+                                            <div style="margin-left: 10px">
+                                                { self.record_data.get("total_took").unwrap()  }{ "ms" }
+                                            </div>
+                                        }
+                                    }else {
+                                        html!{
+
+                                        }
+                                    }
+                                }
+
+                                {
+                                    if self.record_data.get("total_data").is_some(){
+                                        html!{
+                                            <div style="margin-left: 10px">
+                                                { self.record_data.get("total_data").unwrap()  }{ " data" }
+                                            </div>
+                                        }
+                                    }else {
+                                        html!{
+
+                                        }
+                                    }
+                                } 
+                                
+                                                
                                 </div>
 
                                 <div>
@@ -734,6 +763,7 @@ impl IndexPageComp {
             }).collect()
     }
 
+
     fn view_data(&self) -> Vec<Html> {
 
         match self.record_data.get("data") {
@@ -746,7 +776,7 @@ impl IndexPageComp {
 
                             let edit_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap();
                             let delete_index = serde_json::to_string_pretty(card.get("_id").unwrap()).unwrap().replace("\"", "");
-                            
+
                             let edit_modal_data = EditModalData{    
                                 data: edit_text_data.clone(),
                                 index: edit_index.clone(),
