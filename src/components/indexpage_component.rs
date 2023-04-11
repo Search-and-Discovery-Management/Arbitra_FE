@@ -576,9 +576,9 @@ impl Component for IndexPageComp {
                                 </div>
 
                                 <div class="recordData">
-                                    <p class="recordNum">{ "No. of Records \u{00a0} \u{00a0} \u{00a0} \u{00a0} 1.000.000.000" }</p>
+                                    <p class="recordNum">{ "No. of Records \u{00a0} \u{00a0} \u{00a0} \u{00a0} TEMP" }</p>
                                     <p style="float: left;">{ "\u{00a0} \u{00a0} \u{00a0}" }</p>
-                                    <p class="recordSize">{ "Average Record Size\u{00a0} \u{00a0} \u{00a0} \u{00a0} 1.000.000.000B" }</p>
+                                    <p class="recordSize">{ "Average Record Size\u{00a0} \u{00a0} \u{00a0} \u{00a0} TEMP B" }</p>
                                 </div>
 
                                 <br/><br/><br/>
@@ -638,54 +638,63 @@ impl Component for IndexPageComp {
                                 <button class="subtab-p">{ "Stats" }</button>
                                 <button class="subtab-p">{ "UI Demos" }</button>
                             </div>
-
-                            <div class="card">
+                            
                                 <div class="search-bar">
-                                    <input
-                                    class="search"
-                                    type="text"
-                                    placeholder="Search..."
-                                    oninput = self.link.callback(|data: InputData| Msg::InputSearch(data.value))
-                                    />
-                                
-                                {
-                                    if self.record_data.get("total_took").is_some(){
-                                        html!{
-                                            <div style="margin-left: 10px">
-                                                { self.record_data.get("total_took").unwrap()  }{ "ms" }
-                                            </div>
-                                        }
-                                    }else {
-                                        html!{
+                                    <div class="search">
+                                        <input
+                                            class= "search-input"
+                                            type="text"
+                                            placeholder="Search..."
+                                            oninput = self.link.callback(|data: InputData| Msg::InputSearch(data.value))
+                                        />
+                                        
+                                        // <div >
+                                            {
+                                                if self.record_data.get("total_took").is_some() && self.record_data.get("total_data").is_some(){
+                                                    html!{
+                                                        <div class= "search-statistics">
+                                                            <strong>{ self.record_data.get("total_data").unwrap()  }</strong> { " hits matched in " }
+                                                            { self.record_data.get("total_took").unwrap()  }{ "ms" }       
+                                                        </div>
+                                                    }
+                                                }else {
+                                                    html!{
+                                                        <div class= "search-statistics">
+                                                            
+                                                            // { self.record_data.get("total_took").unwrap()  }{ "ms" }
+                                                        </div>
+                                                    }
+                                                }
+                                            }
 
-                                        }
-                                    }
-                                }
+                                            // {
+                                            //     if self.record_data.get("total_data").is_some(){
+                                            //         html!{
+                                            //             <div class= "search-statistics">
+                                            //                 { self.record_data.get("total_data").unwrap()  }{ " data" }
+                                            //             </div>
+                                            //         }
+                                            //     }else {
+                                            //         html!{
+        
+                                            //         }
+                                            //     }
+                                            // } 
 
-                                {
-                                    if self.record_data.get("total_data").is_some(){
-                                        html!{
-                                            <div style="margin-left: 10px">
-                                                { self.record_data.get("total_data").unwrap()  }{ " data" }
-                                            </div>
-                                        }
-                                    }else {
-                                        html!{
-
-                                        }
-                                    }
-                                } 
-                                
-                                                
+                                        // </div>
+                                    </div>            
                                 </div>
 
+
+
+                            <div class="card">
                                 <div>
                                     
                                     { self.view_data() }
                                     {
                                         if self.view_data().is_empty(){
                                             html!{
-                                                <button disabled=true class="window-delete-warning" style="padding: 8px">
+                                                <button disabled=true class="window-delete-warning-main" >
                                                     {"NO RECORD!"}
                                                 </button> 
                                             }
