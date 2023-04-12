@@ -653,13 +653,16 @@ input[type=password]:focus {
     height: 60.8vh;
     background-color: #e3e8ed;
     overflow: auto;
-    width: 100%
+    width: 100%;
+    border-radius: 0px;
 }
 
 .search-bar {
     padding: 2vh 1vw 2vh 1vw;
-    border-top: solid 1px black;
+    border-top: solid 1px #c2c6ca;
+    border-left: solid 1px #c2c6ca;
     background-color: #e3e8ed;
+    border-radius: 6px 0px 0px 0px;
     
 }
 
@@ -680,19 +683,21 @@ input[type=password]:focus {
     width: 80%;
     border: solid 1px #a73034;
     border-right-style: none;
-    /* border-radius: 6px; */
+    border-radius: 6px 0px 0px 6px;
     padding-top: 0.5%;
     padding-bottom: 0.5%;
     padding-left: 1%;
-    height: 100%
+    height: 100%;
+    outline: none;
 }
 
 .search-statistics{
     width: 20%;
     background-color: white;
     border: solid 1px #a73034;
+    border-radius: 0px 6px 6px 0px;
     border-left-style: none;
-    padding-top: 0.5%;
+    padding-top: 0.7%;
     padding-bottom: 0.5%;
     padding-right: 1.5%;
     height: 100%;

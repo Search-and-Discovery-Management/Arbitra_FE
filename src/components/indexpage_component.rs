@@ -259,7 +259,7 @@ impl Component for IndexPageComp {
                     index: self.index_name.clone(),
                     search_term: String::from(""),
                     from: 0,
-                    count: 20,
+                    count: 100,
                     wildcards: true
                 };
                 if data.is_empty() {
@@ -327,7 +327,7 @@ impl Component for IndexPageComp {
             }
 
             Msg::SelectIndex(index) => {
-                ConsoleService::info(&format!("Selected index: {:?}", index));
+                // ConsoleService::info(&format!("Selected index: {:?}", index));
                 self.index_name = index;
                 self.link.send_message(Msg::RequestRecordData);
                 true

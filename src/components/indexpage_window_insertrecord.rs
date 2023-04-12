@@ -1,4 +1,5 @@
 use serde::Serialize;
+use serde_json::json;
 use yew::{prelude::*, services::ConsoleService};
 use yew::services::fetch::Request;
 use yew::services::fetch::{Response, FetchService, FetchTask};
@@ -35,9 +36,6 @@ pub struct InsertRecord {
     json_is_valid: bool,
     fetch_task: Option<FetchTask>,
     request_success: bool,
-
-    app_id: String,
-    app_name: String
 }
 
 impl Component for InsertRecord {
@@ -48,8 +46,6 @@ impl Component for InsertRecord {
         Self {
             link,
             callback_toggle_insertrecord: props.on_toggle_insertrecord.clone(),
-            app_id: props.app_id.clone(),
-            app_name: props.card_index.clone(),
             props,
             value: "".to_string(),
             json_is_valid: false,
@@ -77,14 +73,13 @@ impl Component for InsertRecord {
             }
 
             Msg::RequestCreateRecordsData => {
-                let mut records = serde_json::json!({});
-                match serde_json::from_str::<serde_json::Value>(&self.value) {
-                    Ok(create) => records = create,
-                    Err(Error) => ConsoleService::info(&format!("Data Input = {}", &Error)),
+                let mut records: serde_json::Value = json!({});
+                match serde_json::from_str::<Vec<serde_json::Value>>(&self.value) {
+                    Ok(_) => records = serde_json::from_str::<serde_json::Value>(&self.value).unwrap(),
+                    Err(error) => ConsoleService::info(&format!("Error: {}", error)),
                 };
-                // ConsoleService::info(&format!("Data Input = {}", &records));
 
-                let url = format!("https://test-dps-api.dev-domain.site/api/document/{}/{}", &self.app_id, &self.app_name);
+                let url = format!("https://test-dps-api.dev-domain.site/api/document/{}/{}", &self.props.app_id, &self.props.card_index);
                 let request = Request::post(url)
                     .header("Content-Type", "application/json")
                     .body(Json(&records))
@@ -107,7 +102,7 @@ impl Component for InsertRecord {
                 
                     
                     self.fetch_task = Some(task);
-                    ConsoleService::info(&format!("REQUEST JALAN"));
+                    ConsoleService::info(&format!("Getting Data.."));
                     self.request_success = true;
                 true
             }
@@ -120,8 +115,8 @@ impl Component for InsertRecord {
 
     fn rendered(&mut self, first_render: bool) {
         if first_render {
-            ConsoleService::info(&format!("data MODAL card_index / Index name {:?}", self.props.card_index));
-            ConsoleService::info(&format!("data MODAL app_id {:?}", self.props.app_id));
+            // ConsoleService::info(&format!("data MODAL card_index / Index name {:?}", self.props.card_index));
+            // ConsoleService::info(&format!("data MODAL app_id {:?}", self.props.app_id));
         }
     }
 
@@ -161,12 +156,13 @@ impl Component for InsertRecord {
                                 class="insert-record" 
                                 style="font-size:12px;font-weight: bold; line-height: 1.4;"
                                 
-                                >{"{
-\"product\": \"Ipon\",
-\"price\": \"9999\",
-\"Quantity\": \"9999\",
-\"Product Etalase\": \"Electronic\"
-}
+                                >{"[{
+    \"key1\": \"value1\",
+    \"key2\": \"value2\",
+    \"key3\": \"value3\",
+    \"key4\": \"value4\",
+    \"key5\": \"value5\"
+}]
 "}                     </textarea>
                         </form>   
                     </div> 
