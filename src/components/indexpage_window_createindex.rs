@@ -47,6 +47,8 @@ pub struct IndexCreate {
     fetch_task: Option<FetchTask>,
     request_success: bool,
     app_id: String,
+
+    loading: bool
 }
 
 impl Component for IndexCreate {
@@ -61,7 +63,8 @@ impl Component for IndexCreate {
             props,
             index: String::from(""),
             fetch_task: None,
-            request_success: false
+            request_success: false,
+            loading: false
         }
     }
 
@@ -80,7 +83,8 @@ impl Component for IndexCreate {
             }
             
             Msg::RequestCreateIndex => {
-                //POST FETCHING...
+                //POST FETCHING... 
+                self.loading = true;
 
                 let create = CreateIndex {
                     index: self.index.clone(),
@@ -111,17 +115,23 @@ impl Component for IndexCreate {
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                 self.fetch_task = Some(task);
-                self.request_success = true;
+                
                 true
             }
 
             Msg::GetCreateIndex(data) => {
                 // ConsoleService::info(&format!("Index name is {:?}", data));
+                self.request_success = true;
+                self.loading = false;
+
                 self.index = data;
+
                 true
             }
 
             Msg::ResponseError(text) => {
+                self.request_success = true;
+                self.loading = false;
                 // ConsoleService::info(&format!("error is {:?}", text));
                 true
             }
@@ -177,20 +187,41 @@ impl Component for IndexCreate {
                         // <div class="window-confirm-button">
                     // </div>
                     </form>  
-                    
-                    <button 
-                        type="submit"
-                        form="submit-createindex"
-                        class="window-confirm-button"
-                        onclick=self.link.callback(|_| Msg::RequestCreateIndex)
 
-                        // onclick=self.link.batch_callback(|_| vec![
-                        //     Msg::RequestCreateIndex,
-                        //     Msg::ToggleCreateIndex,
-                        // ])
-                    >
-                            { "CREATE INDEX" }
-                    </button>
+                    {
+                        if self.loading {
+                            html!{
+                                <button 
+                                type="submit"
+                                form="submit-insertrecord"
+                                class="window-confirm-button"
+                                >
+                                    <span class="loader">
+                                        <span class="loader-inner">
+                                        </span>
+                                    </span>
+                                </button>
+                            }
+                        } else {
+                            html!{
+                                <button 
+                                type="submit"
+                                form="submit-createindex"
+                                class="window-confirm-button"
+                                onclick=self.link.callback(|_| Msg::RequestCreateIndex)
+        
+                                // onclick=self.link.batch_callback(|_| vec![
+                                //     Msg::RequestCreateIndex,
+                                //     Msg::ToggleCreateIndex,
+                                // ])
+                            >
+                                    { "CREATE INDEX" }
+                            </button>
+                            }
+                        }
+                    }
+                    
+                    
 
                 </div>
                 {

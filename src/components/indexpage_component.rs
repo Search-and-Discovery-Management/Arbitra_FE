@@ -155,7 +155,9 @@ pub struct IndexPageComp {
     search_input: String,
     app_data: Option<Vec<AppData>>,
     app_id: String,
-    app_name: String
+    app_name: String,
+
+    loading_record: bool
 }
 
 impl Component for IndexPageComp {
@@ -192,6 +194,8 @@ impl Component for IndexPageComp {
             callback_card_index: props.callback_card_index.clone(),
             callback_app_id: props.callback_app_id.clone(),
             props,
+
+            loading_record : false,
         }
     }
 
@@ -259,7 +263,7 @@ impl Component for IndexPageComp {
                     index: self.index_name.clone(),
                     search_term: String::from(""),
                     from: 0,
-                    count: 100,
+                    count: 20,
                     wildcards: true
                 };
                 if data.is_empty() {
@@ -327,8 +331,9 @@ impl Component for IndexPageComp {
             }
 
             Msg::SelectIndex(index) => {
-                // ConsoleService::info(&format!("Selected index: {:?}", index));
+                ConsoleService::info(&format!("Selected index: {:?}", index));
                 self.index_name = index;
+                self.record_data =  serde_json::json!({"data": []});
                 self.link.send_message(Msg::RequestRecordData);
                 true
             }
@@ -397,6 +402,7 @@ impl Component for IndexPageComp {
             }
             
             Msg::RequestRecordData => {
+                self.loading_record = true;
                 let request = Request::get(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
@@ -424,6 +430,7 @@ impl Component for IndexPageComp {
 
             Msg::GetRecordData(data) => {
                 // ConsoleService::info(&format!("data is {:?}", data.get("data").unwrap().as_array().unwrap()));
+                self.loading_record = false;
                 self.record_data = data;
                 true
             }
@@ -453,6 +460,7 @@ impl Component for IndexPageComp {
             }
  
             Msg::ResponseError(text) => {
+                self.loading_record = false;
                 ConsoleService::info(&format!("error is {:?}", text));
                 true
             }
@@ -485,6 +493,7 @@ impl Component for IndexPageComp {
         } else if self.props.modal_open_app != props.modal_open_app {
             
             self.props.modal_open_app = props.modal_open_app;
+            self.link.send_message(Msg::RequestAppData);
             true
         } else {
             false
@@ -692,11 +701,31 @@ impl Component for IndexPageComp {
                                     
                                     { self.view_data() }
                                     {
-                                        if self.view_data().is_empty(){
+                                        if self.view_data().is_empty() && !self.loading_record {
                                             html!{
                                                 <button disabled=true class="window-delete-warning-main" >
                                                     {"NO RECORD!"}
                                                 </button> 
+                                            }
+                                        } else {
+                                            html!{}
+                                        }
+                                    }
+                                    {
+                                        if self.loading_record {
+                                            html!{
+                                                html!{
+                                                    <button 
+                                                    class="loading-button-main"
+                                                    >
+                                                        <span class="loader">
+                                                            <span class="loader-inner">
+                                                            </span>
+                                                        </span>
+                                                        {"       LOADING RECORDS, PLEASE WAIT..."}
+                                                    </button>
+
+                                                }
                                             }
                                         } else {
                                             html!{}

@@ -52,6 +52,8 @@ pub struct DeleteRecord {
     index_name: String,
     request_success: bool,
     app_id: String,
+
+    loading: bool,
 }
 
 impl Component for DeleteRecord {
@@ -70,6 +72,8 @@ impl Component for DeleteRecord {
 
             index_name: String::from(""),
             request_success: false,
+
+            loading: false,
         }
     }
 
@@ -81,6 +85,7 @@ impl Component for DeleteRecord {
             }
 
             Msg::RequestIndexData => {
+                self.loading = true;
                 //FETCHING...
                 let request = Request::get(format!("https://test-dps-api.dev-domain.site/api/index/{}", &self.app_id))
                     // .header("access_token", get_access_token{}.unwrap_or_default())
@@ -110,6 +115,7 @@ impl Component for DeleteRecord {
 
             Msg::GetIndexData(data) => {
                 // ConsoleService::info(&format!("data is {:?}", data));
+                self.loading = false;
                 self.index_data = data;
                 true
             }
@@ -122,7 +128,7 @@ impl Component for DeleteRecord {
             }
 
             Msg::RequestDeleteIndex => {
-
+                self.loading = true;
                 let url = format!("https://test-dps-api.dev-domain.site/api/index/{}/{}", &self.app_id, &self.index_name);
 
                 let request = Request::delete(url)
@@ -153,16 +159,19 @@ impl Component for DeleteRecord {
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                 self.fetch_task = Some(task);
-                self.request_success = true;
+                
                 true
             }
 
             Msg::GetDeleteIndexName => {
+                self.loading = false;
+                self.request_success = true;
                 self.link.send_message(Msg::RequestIndexData);
                 true
             }
 
             Msg::ResponseError(text) => {
+                self.loading = false;
                 ConsoleService::info(&format!("error is {:?}", text));
                 true
             }
@@ -230,19 +239,39 @@ impl Component for DeleteRecord {
                         {"THIS OPERATION CANNOT BE REVERSED OR UNDONE!"}
                     </button> 
 
-                    <button 
-                        type="submit"
-                        form="submit-deleterecord"
-                        class="window-confirm-button"
-                        onclick=self.link.callback(|_| Msg::RequestDeleteIndex)
-
-                        // onclick=self.link.batch_callback(|_| vec![
-                        //     Msg::RequestDeleteIndex,
-                        //     Msg::ToggleDeleteRecord,
-                        // ])
-                    >
-                        { "DELETE INDEX" }
-                    </button>
+                    {
+                        if self.loading {
+                            html!{
+                                <button 
+                                type="submit"
+                                form="submit-insertrecord"
+                                class="window-confirm-button"
+                                >
+                                    <span class="loader">
+                                        <span class="loader-inner">
+                                        </span>
+                                    </span>
+                                </button>
+                            }
+                        } else {
+                            html!{
+                                <button 
+                                type="submit"
+                                form="submit-deleterecord"
+                                class="window-confirm-button"
+                                onclick=self.link.callback(|_| Msg::RequestDeleteIndex)
+        
+                                // onclick=self.link.batch_callback(|_| vec![
+                                //     Msg::RequestDeleteIndex,
+                                //     Msg::ToggleDeleteRecord,
+                                // ])
+                                >
+                                    { "DELETE INDEX" }
+                                </button>
+                            }
+                        }
+                    }
+                    
                     
                 </div>
                 {

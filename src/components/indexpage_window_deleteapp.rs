@@ -52,6 +52,8 @@ pub struct DeleteApp {
 
     app_name: String,
     request_success: bool,
+
+    loading: bool,
 }
 
 impl Component for DeleteApp {
@@ -70,6 +72,8 @@ impl Component for DeleteApp {
             app_id: String::from(""),
             app_name: String::from(""),
             request_success: false,
+
+            loading: false,
         }
     }
 
@@ -81,6 +85,7 @@ impl Component for DeleteApp {
             }
 
             Msg::RequestAppData => {
+                self.loading = true;
                 let request = Request::get("https://test-dps-api.dev-domain.site/api/apps")
                     // .header("access_token", get_access_token{}.unwrap_or_default())
                     .body(Nothing)
@@ -107,6 +112,7 @@ impl Component for DeleteApp {
             }
 
             Msg::GetAppData(data) => {
+                self.loading = false;
                 self.app_data = data;
                 true
             }
@@ -120,6 +126,7 @@ impl Component for DeleteApp {
 
             Msg::RequestDeleteApp => {
                 //POST FETCHING...
+                self.loading = true;
 
                 let url = format!("https://test-dps-api.dev-domain.site/api/app/{}", &self.app_id);
 
@@ -151,11 +158,14 @@ impl Component for DeleteApp {
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                 self.fetch_task = Some(task);
-                self.request_success = true;
+                
                 true
             }
 
             Msg::GetDeleteAppName => {
+                self.loading = false;
+                self.request_success = true;
+                
                 self.link.send_message(Msg::RequestAppData);
                 true
             }
@@ -230,21 +240,41 @@ impl Component for DeleteApp {
                         {"ALL INDICES AND RECORD DATA INSIDE THE APPLICATION WILL BE DELETED!"}
                     </button> 
 
-                    <button 
-                        type="submit"
-                        form="submit-deleteapp"
-                        class="window-confirm-button"
-                        onclick=self.link.callback(|_| Msg::RequestDeleteApp)
-
-                        // onclick=self.link.batch_callback(|_| vec![
-                        //     Msg::RequestDeleteIndex,
-                        //     Msg::ToggleDeleteRecord,
-                        // ])
-                    >
-                        { "DELETE APPLICATION" }
-                    </button>
-                    
+                    {
+                        if self.loading {
+                            html!{
+                                <button 
+                                type="submit"
+                                form="submit-insertrecord"
+                                class="window-confirm-button"
+                                >
+                                    <span class="loader">
+                                        <span class="loader-inner">
+                                        </span>
+                                    </span>
+                                </button>
+                            }
+                        } else {
+                            html!{
+                                <button 
+                                type="submit"
+                                form="submit-deleteapp"
+                                class="window-confirm-button"
+                                onclick=self.link.callback(|_| Msg::RequestDeleteApp)
+        
+                                // onclick=self.link.batch_callback(|_| vec![
+                                //     Msg::RequestDeleteIndex,
+                                //     Msg::ToggleDeleteRecord,
+                                // ])
+                                >
+                                    { "DELETE APPLICATION" }
+                                </button>
+                            }
+                        }
+                    }
+                        
                 </div>
+
                 {
                     if self.request_success {
                         html!{

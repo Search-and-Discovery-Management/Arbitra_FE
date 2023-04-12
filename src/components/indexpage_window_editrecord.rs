@@ -61,6 +61,8 @@ pub struct EditRecord {
 
     app_id: String,
     app_name: String,
+
+    loading: bool,
 }
 
 impl Component for EditRecord {
@@ -88,6 +90,8 @@ impl Component for EditRecord {
 
             fetch_task: None,
             request_success: false,
+
+            loading: false,
         }
     }
 
@@ -112,6 +116,7 @@ impl Component for EditRecord {
             }
 
             Msg::RequestUpdateRecord => {
+                self.loading = true;
                 let mut records = serde_json::json!({});
                 match serde_json::from_str::<serde_json::Value>(&self.value) {
                     Ok(create) => records = create,
@@ -142,12 +147,14 @@ impl Component for EditRecord {
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                 self.fetch_task = Some(task);
-                self.request_success = true;
+                
                 true
             }
 
             Msg::Ignore => {
-                false
+                self.loading = false;
+                self.request_success = true;
+                true
             }
         }
     }
@@ -204,22 +211,37 @@ impl Component for EditRecord {
 
                     {
                         if self.json_is_valid {
-                            html!{
-                                <button 
-                                type="submit"
-                                form="submit-editrecord"
-                                class="window-confirm-button"
-                                onclick = self.link.callback(|_| Msg::RequestUpdateRecord)
+                            if self.loading{
+                                html!{
+                                    <button 
+                                    type="submit"
+                                    form="submit-insertrecord"
+                                    class="window-confirm-button"
+                                    // onclick = self.link.callback(|_| Msg::RequestUpdateRecord)
+                                    >
+                                        <span class="loader">
+                                            <span class="loader-inner">
+                                            </span>
+                                        </span>
+                                    </button>
+                                }
+                            } else {
+                                html!{
+                                    <button 
+                                    type="submit"
+                                    form="submit-editrecord"
+                                    class="window-confirm-button"
+                                    onclick = self.link.callback(|_| Msg::RequestUpdateRecord)
 
-                                // onclick=self.link.batch_callback(|_| vec![
-                                //     Msg::RequestUpdateRecord,
-                                //     Msg::ToggleEditRecord,
-                                // ])
-                                >
-                                { "EDIT RECORD" }
-                                </button>
+                                    // onclick=self.link.batch_callback(|_| vec![
+                                    //     Msg::RequestUpdateRecord,
+                                    //     Msg::ToggleEditRecord,
+                                    // ])
+                                    >
+                                    { "EDIT RECORD" }
+                                    </button>
+                                }
                             }
-                            
                         } else {
                             html! {
                                 <button disabled=true class="window-confirm-button">

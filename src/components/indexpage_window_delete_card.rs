@@ -43,6 +43,7 @@ pub struct DeleteCard {
     callback_toggle_deletecard: Callback<Msg>,
     fetch_task: Option<FetchTask>,
     request_success: bool,
+    loading: bool,
 }
 
 impl Component for DeleteCard {
@@ -56,6 +57,7 @@ impl Component for DeleteCard {
             props,
             fetch_task: None,
             request_success: false,
+            loading: false,
         }
     }
 
@@ -70,6 +72,7 @@ impl Component for DeleteCard {
             }
 
             Msg::RequestDeleteCard => {
+                self.loading = true;
                 let url = format!("https://test-dps-api.dev-domain.site/api/document/{}/{}/{}", &self.props.app_id, &self.props.card_index, &self.props.delete_index.replace("\"", ""));
                 // ConsoleService::info(&format!("RecordID: {:?}", self.props.delete_index));
                 let request = Request::delete(url)
@@ -84,12 +87,15 @@ impl Component for DeleteCard {
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                 self.fetch_task = Some(task);
-                self.request_success = true;
+                
                 true
             }
 
             Msg::Ignore => {
-                false
+                ConsoleService::info(&format!("msg ignore here"));
+                self.request_success = true;
+                self.loading = false;
+                true
             }
         }
     }
@@ -139,22 +145,41 @@ impl Component for DeleteCard {
                         {"THIS OPERATION CANNOT BE REVERSED OR UNDONE!"}
                     </button> 
 
-                    <button 
-                        type="submit"
-                        form="submit-deletecard"
-                        class="window-confirm-button"
-                        onclick=self.link.callback(|_| Msg::RequestDeleteCard)
-                        // onchange= self.link.callback(|_| Msg::ToggleDeleteCard)
-
-                        // onclick=self.link.batch_callback(|_| vec![
-                        //     Msg::RequestDeleteCard, 
-                        //     Msg::ToggleDeleteCard, 
-                        // ])
-                    >
-                        { "DELETE RECORD" }
-                    </button>
-                    
+                    {
+                        if self.loading {
+                            html!{
+                                <button 
+                                type="submit"
+                                form="submit-insertrecord"
+                                class="window-confirm-button"
+                                >
+                                    <span class="loader">
+                                        <span class="loader-inner">
+                                        </span>
+                                    </span>
+                                </button>
+                            }
+                        } else {
+                            html!{
+                                <button 
+                                type="submit"
+                                form="submit-deletecard"
+                                class="window-confirm-button"
+                                onclick=self.link.callback(|_| Msg::RequestDeleteCard)
+                                // onchange= self.link.callback(|_| Msg::ToggleDeleteCard)
+        
+                                // onclick=self.link.batch_callback(|_| vec![
+                                //     Msg::RequestDeleteCard, 
+                                //     Msg::ToggleDeleteCard, 
+                                // ])
+                            >
+                                { "DELETE RECORD" }
+                            </button>
+                            }
+                        }
+                    }
                 </div>
+
                 {
                     if self.request_success {
                         html!{

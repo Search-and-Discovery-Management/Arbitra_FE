@@ -10,6 +10,7 @@ pub enum Msg {
     ValidateInputJson(String),
     RequestCreateRecordsData,
     Ignore,
+    ErrorIgnore,
 }
 
 #[derive(Properties, Clone, Debug, PartialEq)]
@@ -35,7 +36,13 @@ pub struct InsertRecord {
     value: String,
     json_is_valid: bool,
     fetch_task: Option<FetchTask>,
+
+    //UNTUK MUNCULIN MODAL CONFIRMATION
     request_success: bool,
+    request_fail: bool,
+
+    //UNTUK DETECT DIA MASIH LOADING ATAU NGK DI MODAL
+    loading: bool,
 }
 
 impl Component for InsertRecord {
@@ -50,7 +57,11 @@ impl Component for InsertRecord {
             value: "".to_string(),
             json_is_valid: false,
             fetch_task: None,
+
             request_success: false,
+            request_fail: false,
+
+            loading: false,
         }
     }
 
@@ -73,6 +84,10 @@ impl Component for InsertRecord {
             }
 
             Msg::RequestCreateRecordsData => {
+                //LOADING STATUS KE STATE
+                self.loading = true;
+                ConsoleService::info(&format!("DEBUG loading status : {:?}", &self.loading));
+
                 let mut records: serde_json::Value = json!({});
                 match serde_json::from_str::<Vec<serde_json::Value>>(&self.value) {
                     Ok(_) => records = serde_json::from_str::<serde_json::Value>(&self.value).unwrap(),
@@ -91,9 +106,10 @@ impl Component for InsertRecord {
                             Ok(dataok) => {
                                 // ConsoleService::info(&format!("data response {:?}", &dataok));
                                 Msg::Ignore
+                                
                             }
                             Err(error) => {
-                                Msg::Ignore
+                                Msg::ErrorIgnore
                             }
                         }
                     });
@@ -103,12 +119,24 @@ impl Component for InsertRecord {
                     
                     self.fetch_task = Some(task);
                     ConsoleService::info(&format!("Getting Data.."));
-                    self.request_success = true;
+                    
                 true
             }
 
             Msg::Ignore => {
-                false
+                self.loading = false;
+                self.request_success = true;
+                ConsoleService::info(&format!("DEBUG loading status : {:?}", &self.loading));
+                // ConsoleService::info(&format!("DEBUG request success : {:?}", &self.request_success));
+                true
+            }
+
+            Msg::ErrorIgnore => {
+                self.loading = false;
+                self.request_success = true;
+                ConsoleService::info(&format!("DEBUG loading status : {:?}", &self.loading));
+                // ConsoleService::info(&format!("DEBUG request fail : {:?}", &self.request_fail));
+                true
             }
         }
     }
@@ -190,21 +218,38 @@ impl Component for InsertRecord {
 // FORM INPUT EXAMPLE END
                 {
                     if self.json_is_valid {
-                        html!{
-                            <button 
+                        if self.loading {
+                            html!{
+                                <button 
                                 type="submit"
                                 form="submit-insertrecord"
                                 class="window-confirm-button"
-                                onclick = self.link.callback(|_| Msg::RequestCreateRecordsData)
-
-                                // onclick=self.link.batch_callback(|_| vec![
-                                //     Msg::ToggleInsertRecord,
-                                //     Msg::RequestCreateRecordsData,
-                                // ])
-                            >
-                                { "INSERT NEW RECORD" }
-                            </button>
+                                // onclick = self.link.callback(|_| Msg::RequestCreateRecordsData)
+                                >
+                                    <span class="loader">
+                                        <span class="loader-inner">
+                                        </span>
+                                    </span>
+                                </button>
+                            }
+                        } else {
+                            html!{
+                                <button 
+                                    type="submit"
+                                    form="submit-insertrecord"
+                                    class="window-confirm-button"
+                                    onclick = self.link.callback(|_| Msg::RequestCreateRecordsData)
+    
+                                    // onclick=self.link.batch_callback(|_| vec![
+                                    //     Msg::ToggleInsertRecord,
+                                    //     Msg::RequestCreateRecordsData,
+                                    // ])
+                                >
+                                    { "INSERT NEW RECORD" }
+                                </button>
+                            }
                         }
+                        
                     } else {
                         html! {
                             <button disabled=true class="window-confirm-button">
@@ -215,6 +260,7 @@ impl Component for InsertRecord {
 
                 }
                 </div>
+                
                 {
                     if self.request_success {
                         html!{
@@ -225,6 +271,17 @@ impl Component for InsertRecord {
                         html!{}
                     }
                 }
+
+                {
+                    if self.request_fail {
+                        html!{
+                            {self.modal_fail()}
+                        }
+                    } else {
+                        html!{}
+                    }
+                }
+
             </div>
         }
     }
@@ -251,4 +308,28 @@ impl InsertRecord {
             </div>
         }
     }
+
+    fn modal_fail(&self) -> Html {
+        html! {
+            <div class="window-overlay">
+                <div class="window-index" id="create-index"> 
+
+                    <button disabled=true class="window-delete-warning-main" >
+                        {"INSERT RECORD FAILED!"}
+                    </button> 
+
+                    <button 
+                        type="submit"
+                        form="submit-deletecard"
+                        class="window-confirm-button"
+                        onclick=self.link.callback(|_| Msg::ToggleInsertRecord)
+                    >
+                        { "OKAY" }
+                    </button>  
+                </div>
+            </div>
+        }
+    }
+
+
 }

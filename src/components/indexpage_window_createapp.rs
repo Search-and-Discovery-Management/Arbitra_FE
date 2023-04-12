@@ -41,6 +41,7 @@ pub struct AppCreate {
     fetch_task: Option<FetchTask>,
     app_name: String,
     request_success: bool,
+    loading: bool,
 
 }
 
@@ -56,6 +57,7 @@ impl Component for AppCreate {
             fetch_task: None,
             app_name: String::from(""),
             request_success: false,
+            loading: false,
             
             // {
             //     display_create_app: props.display_create_app,
@@ -79,6 +81,7 @@ impl Component for AppCreate {
             }
 
             Msg::RequestCreateApplication => {
+                self.loading = true;
 
                 let create = CreateApp {
                     app_name: self.app_name.clone(),
@@ -107,16 +110,22 @@ impl Component for AppCreate {
                 let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                 self.fetch_task = Some(task);
-                self.request_success = true;
+                
                 true
             }
 
             Msg::GetCreateApp(data) => {
+                self.request_success = true;
+                self.loading = false;
                 self.app_name = data;
                 true
             }
 
             Msg::ResponseError(text) => {
+                //TEMP DEBUG
+                self.request_success = true;
+                self.loading = false;
+                // self.app_name = data;
                 true
             }
 
@@ -163,14 +172,36 @@ impl Component for AppCreate {
                     // <div class="window-confirm-button">
                     // </div>
 
-                    <button 
-                        type="submit"
-                        class="window-confirm-button"
-                        form="submit-createapp"
-                        onclick = self.link.callback(|_| Msg::RequestCreateApplication)
-                    >
-                    { "CREATE APPLICATION" }
-                    </button>
+                    {
+                        if self.loading {
+                            html!{
+                                html!{
+                                    <button 
+                                    type="submit"
+                                    form="submit-insertrecord"
+                                    class="window-confirm-button"
+                                    >
+                                        <span class="loader">
+                                            <span class="loader-inner">
+                                            </span>
+                                        </span>
+                                    </button>
+                                }
+                            }
+                        } else {
+                            html! {
+                                <button 
+                                type="submit"
+                                class="window-confirm-button"
+                                form="submit-createapp"
+                                onclick = self.link.callback(|_| Msg::RequestCreateApplication)
+                                >
+                                    { "CREATE APPLICATION" }
+                                </button>                                
+                            }
+                        }
+                    }
+                    
                     </form>
 
                     
