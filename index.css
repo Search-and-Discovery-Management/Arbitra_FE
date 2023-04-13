@@ -659,7 +659,7 @@ input[type=password]:focus {
 /* Bottom Index Dashboard */
 .bottom-index-dashboard {
     font-family: Alexandria;
-    margin-top: 3%;
+    margin-top: 2.5%;
     display: flex;
     flex-direction: column;
 }
@@ -681,7 +681,7 @@ input[type=password]:focus {
   }
 
 .card {
-    height: 60.8vh;
+    height: 65.5vh;
     background-color: #e3e8ed;
     overflow: auto;
     width: 100%;

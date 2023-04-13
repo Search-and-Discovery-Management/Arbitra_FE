@@ -185,7 +185,7 @@ impl Component for IndexPageComp {
             index_data: Some(vec![]),
 
             app_id: String::from(""),
-            app_name: String::from(""),
+            app_name: String::from("UNSELECTED"),
             app_data: Some(vec![]),
 
             search_input: String::from(""),
@@ -564,7 +564,7 @@ impl Component for IndexPageComp {
 
                                 
                                     {
-                                        if self.app_name.is_empty() {
+                                        if self.app_name == "UNSELECTED" {
                                             html!{
                                                 <div class="dropdownIndex">
                                                     <button class="mainmenubtnIndex-warn">{"PLEASE SELECT APPLICATION FIRST!"}</button>
@@ -622,55 +622,54 @@ impl Component for IndexPageComp {
 
                                 <br/><br/><br/>
 
-                                <div class="dropdownRecord">
-                                    <button class="mainmenubtnRecord">{ "New Record \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
-                                    <div class="dropdown-childRecord">
-                                        
-                                        {if &self.index_name == "SELECT INDEX ..." {
-                                            html!{<a id="no-index">{"Need to select Index!"}</a>}
-                                        } else {
-                                            html!{<a 
-                                                href="#" 
-                                                // onclick=self.link.callback(move |_| Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()))
-                                                onclick=self.link.batch_callback(move |_| vec![
-                                                    Msg::SendAppIdToParent(app_id_view3.clone()),
-                                                    Msg::SendIndexNameToParent(index_name_view.clone()),
-                                                    Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()),
-                                                ])
-                                            >
-                                                { "Insert New Record" }
-                                            </a>}
-                                        }}
-
-                                        // <a href="#" onclick=self.link.callback(|_| Msg::ToggleEditRecord)>{ "Edit Record" }</a>
-                                        // <a href="#" onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)>{ "Delete Record" }</a>
-                                    </div>
-                                </div>
-
-                                //Add Record Dropdown
-                                // <div class="dropdownRecord">
-                                //     <button class="mainmenubtnRecord">{ "Add Records \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
-                                //     <div class="dropdown-childRecord">
-                                //         <a href="#">{ "Upload File" }</a>
-                                //         <a href="#">{ "Use the API" }</a>
-                                //         <a href="#">{ "Add Manually" }</a>
-                                //     </div>
-                                // </div>
-
-                                <div class="dropdownRecord">
-                                    <button class="mainmenubtnRecord">{ "Manage Index \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
-                                    <div class="dropdown-childRecord">
-                                        <a href="#">{ "Rename" }</a>
-                                        <a href="#">{ "Duplicate" }</a>
-                                        <a href="#">{ "Copy Settings" }</a>
-                                        <a href="#">{ "Clear" }</a>
-                                        <a href="#">{ "Delete" }</a>
-                                    </div>
-                                </div>
-
-                                <img class="copyIcon" src="images/Copy Icon.png"/>
-                                <a onclick=self.link.callback(|_| Msg::RequestRecordData)><img class="copyIcon" src="images/Refresh.png"/></a>
-
+                                {if &self.index_name == "SELECT INDEX ..." {
+                                    html!{<p style="margin-bottom: -50px">{ "" }</p>}
+                                } else {
+                                    html!{
+                                        <div style="margin-bottom: -25px">
+                                            <div class="dropdownRecord">
+                                            <button class="mainmenubtnRecord">{ "New Record \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
+                                            <div class="dropdown-childRecord">
+                                                <a 
+                                                    href="#" 
+                                                    // onclick=self.link.callback(move |_| Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()))
+                                                    onclick=self.link.batch_callback(move |_| vec![
+                                                        Msg::SendAppIdToParent(app_id_view3.clone()),
+                                                        Msg::SendIndexNameToParent(index_name_view.clone()),
+                                                        Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()),
+                                                    ])
+                                                >
+                                                    { "Insert New Record" }
+                                                </a>
+                                            </div>
+                                        </div>
+        
+                                        //Add Record Dropdown
+                                        // <div class="dropdownRecord">
+                                        //     <button class="mainmenubtnRecord">{ "Add Records \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
+                                        //     <div class="dropdown-childRecord">
+                                        //         <a href="#">{ "Upload File" }</a>
+                                        //         <a href="#">{ "Use the API" }</a>
+                                        //         <a href="#">{ "Add Manually" }</a>
+                                        //     </div>
+                                        // </div>
+        
+                                        <div class="dropdownRecord">
+                                            <button class="mainmenubtnRecord">{ "Manage Index \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
+                                            <div class="dropdown-childRecord">
+                                                <a href="#">{ "Rename" }</a>
+                                                <a href="#">{ "Duplicate" }</a>
+                                                <a href="#">{ "Copy Settings" }</a>
+                                                <a href="#">{ "Clear" }</a>
+                                                <a href="#">{ "Delete" }</a>
+                                            </div>
+                                        </div>
+        
+                                        <img class="copyIcon" src="images/Copy Icon.png"/>
+                                        <a onclick=self.link.callback(|_| Msg::RequestRecordData)><img class="copyIcon" src="images/Refresh.png"/></a>
+                                        </div>
+                                    }
+                                }}
                             </div>
                         </div>
 
