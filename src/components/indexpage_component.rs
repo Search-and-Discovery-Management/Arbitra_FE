@@ -522,7 +522,7 @@ impl Component for IndexPageComp {
                 <div> 
                         <div>
                             <div class="leftbox index-sidebar-small">
-                                <img class="index-logo" src="images/Arbitra_LogoOnly.png"/> 
+                                <img class="index-logo" src="images/Arbitra_LogoOnly2.png"/> 
                             </div>
 
                             <div class="rightSideBar">
@@ -530,7 +530,15 @@ impl Component for IndexPageComp {
                                 <p style="margin-top: -8px">{ "Application" }</p>
 
                                 <div class="dropdown">
-                                    <button class="mainmenubtn"><img class="applicationIcon" src="images/APP.png"/>{ format!("{} \u{00a0} \u{23F7}", &self.app_name)}</button>
+                                    {if self.app_name == "UNSELECTED"{
+                                        html!{
+                                            <button class="mainmenubtn-warn"><img class="applicationIcon" src="images/APP_WARN.png"/>{ format!("{} \u{00a0} \u{23F7}", &self.app_name)}</button>
+                                        }
+                                    } else{
+                                        html!{
+                                            <button class="mainmenubtn"><img class="applicationIcon" src="images/APP.png"/>{ format!("{} \u{00a0} \u{23F7}", &self.app_name)}</button>
+                                    }
+                                    }}
                                     <div class="dropdown-child">
 
                                         { self.view_app_data() }
@@ -567,7 +575,7 @@ impl Component for IndexPageComp {
                                         if self.app_name == "UNSELECTED" {
                                             html!{
                                                 <div class="dropdownIndex">
-                                                    <button class="mainmenubtnIndex-warn">{"PLEASE SELECT APPLICATION FIRST!"}</button>
+                                                    <button class="mainmenubtnIndex-warn">{"NO APPLICATION SELECTED"}</button>
                                                 </div>
                                             }
 

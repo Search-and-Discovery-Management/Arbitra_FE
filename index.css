@@ -407,8 +407,8 @@ input[type=password]:focus {
 
 /*INDEX PAGE */ 
 .index-sidebar-small {
-    background-color : #E5C8C9;
-    width: 72px;
+    background-color : #a73034;
+    width: 79px;
     position: sticky;
     height:100vh;
     overflow: auto;
@@ -420,7 +420,7 @@ input[type=password]:focus {
 }
 
 .index-sidebar-small img {
-    height: 5%;
+    height: 6%;
 }
 
 .rightSideBar{
@@ -443,9 +443,18 @@ input[type=password]:focus {
     margin-top: -10px;
 }
 
+.mainmenubtn-warn {
+    background-color: white;
+    color: #a73034;
+    border: none;
+    font-family: Alexandria;
+    padding-top: 10px;
+    padding-bottom: 30px;
+ }
+
 .mainmenubtn {
     background-color: white;
-    color: black;
+    color: #606465;
     border: none;
     font-family: Alexandria;
     padding-top: 10px;
@@ -509,8 +518,8 @@ input[type=password]:focus {
 /*DROPDOWN INDEX NAME */
 .mainmenubtnIndex {
     background-color: white;
-    color: #4B5C6B;
-    border: solid 2px #4B5C6B;
+    color: #606465;
+    border: solid 2px #606465;
     border-radius: 5px;
     font-family: Alexandria;
     font-size: 2rem;
@@ -527,9 +536,9 @@ input[type=password]:focus {
 }
 
 .mainmenubtnIndex-warn {
-    background-color: #FDA400;
-    color: black;
-    border: solid 2px #4B5C6B;
+    background-color: white;
+    color: #a73034;
+    border: solid 2px #a73034;
     border-radius: 5px;
     font-family: Alexandria;
     font-size: 2rem;
@@ -861,9 +870,9 @@ input[type=password]:focus {
 
 /* WARNING MESSAGE UNTUK YANG NGK DI MODAL */
 .window-delete-warning-main { 
-    background-color : #FDA400;
+    background-color : #a73034;
     position: relative;
-    color:black;
+    color: white;
     margin: 3vh 1vw 3vh 1vw;
     height: 40px;
     border: none;
@@ -951,7 +960,8 @@ input[type=password]:focus {
 }
 
 .card-number {
-    background-color: #e5c8c9;
+    background-color: #a73034;
+    color: white;
     border-radius: 8px;
     padding:8px;
     border: none;
