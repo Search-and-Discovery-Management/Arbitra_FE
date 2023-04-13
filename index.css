@@ -1026,6 +1026,7 @@ input[type=password]:focus {
     animation: loader-inner 2s infinite ease-in;
 }
 
+
 @keyframes loader {
     0% {
         transform: rotate(0deg);
@@ -1066,5 +1067,116 @@ input[type=password]:focus {
     
     100% {
       height: 0%;
+    }
+  }
+
+  /* PRE-LOADER */
+.pre-loader-wrapper-finish {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    background-color: #a73034;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    animation: pre-loader-finish 0.5s 1 ease-in;
+    animation-fill-mode : forwards;
+
+}
+
+.pre-loader-wrapper-loop {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    background-color: #a73034;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+
+@keyframes pre-loader-finish {
+    0% {
+      opacity: 100%;
+    }
+    
+    100% {
+        opacity: 0%;
+        display: none;
+    }
+  }
+
+  
+.loader-finish {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    position: relative;
+    border: 4px solid white;
+    animation: loader-finish 2s 1 ease;
+}
+
+.loader-inner-finish {
+    vertical-align: top;
+    display: inline-block;
+    width: 100%;
+    background-color: white;
+    animation: loader-inner-finish 2s 1 ease-in;
+}
+
+@keyframes loader-finish {
+    0% {
+        transform: rotate(0deg);
+        opacity: 100%;
+    }
+    25% {
+        transform: rotate(180deg);
+    }
+    
+    50% {
+        transform: rotate(180deg);
+    }
+    
+    75% {
+        transform: rotate(360deg);
+    }
+    
+    100% {
+        transform: rotate(360deg);
+        opacity: 0%;
+        display: none;
+    }
+}
+
+@keyframes loader-inner-finish {
+    0% {
+        height: 0%;
+        opacity: 100%;
+    }
+    
+    25% {
+        height: 0%;
+    }
+    
+    50% {
+        height: 100%;
+    }
+    
+    75% {
+        height: 100%;
+    }
+    
+    100% {
+        height: 0%;
+        opacity: 0%;
+        display: none;
     }
   }

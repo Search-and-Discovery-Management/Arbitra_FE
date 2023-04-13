@@ -157,7 +157,8 @@ pub struct IndexPageComp {
     app_id: String,
     app_name: String,
 
-    loading_record: bool
+    loading_record: bool,
+    loading_first: bool
 }
 
 impl Component for IndexPageComp {
@@ -196,6 +197,7 @@ impl Component for IndexPageComp {
             props,
 
             loading_record : false,
+            loading_first : true,
         }
     }
 
@@ -371,7 +373,9 @@ impl Component for IndexPageComp {
             }
 
             Msg::GetAppData(data) => {
+                self.loading_first = false;
                 self.app_data = data;
+                ConsoleService::info(&format!("DEBUG : self.loading_first : {:?}", self.loading_first ));
                 true
             }
 
@@ -462,8 +466,10 @@ impl Component for IndexPageComp {
             }
  
             Msg::ResponseError(text) => {
+                self.loading_first = false;
                 self.loading_record = false;
                 ConsoleService::info(&format!("error is {:?}", text));
+                ConsoleService::info(&format!("DEBUG : self.loading_first : {:?}", self.loading_first ));
                 true
             }
 
@@ -476,6 +482,8 @@ impl Component for IndexPageComp {
 
     fn rendered(&mut self, first_render: bool) {
         if first_render {
+            self.loading_first = true;
+            ConsoleService::info(&format!("DEBUG : self.loading_first : {:?}", self.loading_first ));
 			self.link.send_message(Msg::RequestAppData)
         }
     }
@@ -733,31 +741,53 @@ impl Component for IndexPageComp {
                                     }
                                     {
                                         if self.loading_record {
-                                            html!{
-                                                html!{
-                                                    <button 
-                                                    class="loading-button-main"
-                                                    >
-                                                        <span class="loader">
-                                                            <span class="loader-inner">
-                                                            </span>
+                                            html!{ 
+                                                <button 
+                                                class="loading-button-main"
+                                                >
+                                                    <span class="loader">
+                                                        <span class="loader-inner">
                                                         </span>
-                                                        {"       LOADING RECORDS, PLEASE WAIT..."}
-                                                    </button>
+                                                    </span>
+                                                    {"       LOADING RECORDS, PLEASE WAIT..."}
+                                                </button>
 
-                                                }
                                             }
                                         } else {
                                             html!{}
                                         }
                                     }
                                     
-                                    
                                 </div>
 
                             </div>      
 
                         </div>
+
+                        {
+                            if self.loading_first {
+                                html!{
+                                    <div class = "pre-loader-wrapper-loop"> 
+                                    
+                                        <span class="loader">
+                                            <span class="loader-inner">
+                                            </span>
+                                        </span>
+                                    </div>
+                                }
+                            } else {
+                                html!{
+                                    <div class = "pre-loader-wrapper-finish"> 
+                                        <span class="loader-finish">
+                                            <span class="loader-inner-finish">
+                                            </span>
+                                        </span>
+                                    </div>
+                                }
+                            }
+                        }
+
+
 
                     </div>
                
@@ -998,6 +1028,7 @@ impl IndexPageComp {
             None => vec![html! {}],
             }
     }
+
 
 }
 
