@@ -562,37 +562,57 @@ impl Component for IndexPageComp {
                         <div>
                             <div class="top-index-dashboard">
 
-                                <div class="dropdownIndex">
-                                    <button class="mainmenubtnIndex">{ format!("{} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}", &self.index_name)}</button>
-                                    <div class="dropdown-childIndex">
-                                    
-                                        { self.view_index_data() }
-                                        
-                                        <a 
-                                            href="#"
-                                            // onclick=self.link.callback(|_| Msg::ToggleCreateIndex)
-                                            style="background-color: #e3e8ed"
-                                            onclick=self.link.batch_callback(move |_| vec![
-                                                Msg::SendAppIdToParent(app_id_view.clone()),
-                                                Msg::ToggleCreateIndex(app_id_view.clone()),
-                                            ]) 
-                                            >
-                                            { "Create New Index" }
-                                        </a>
-                                        <a 
-                                            href="#"
-                                            //Untuk sementara pakai yang delete record dlu
-                                            // onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)
-                                            style="color: white; background-color: #a73034"
-                                            onclick=self.link.batch_callback(move |_| vec![
-                                                Msg::SendAppIdToParent(app_id_view2.clone()),
-                                                Msg::ToggleDeleteRecord(app_id_view2.clone()),
-                                            ])
-                                            >
-                                            { "Remove Index" }
-                                        </a>
-                                    </div>
-                                </div>
+                                
+                                    {
+                                        if self.app_name.is_empty() {
+                                            html!{
+                                                <div class="dropdownIndex">
+                                                    <button class="mainmenubtnIndex-warn">{"PLEASE SELECT APPLICATION FIRST!"}</button>
+                                                </div>
+                                            }
+
+                                        } else {
+                                            html!{
+                                                <div class="dropdownIndex">
+                                                    <button class="mainmenubtnIndex">
+                                                        <span>{&self.index_name}</span>
+                                                        <span>{format!("\u{00a0} \u{23F7}")}</span>
+                                                    </button>
+
+                                                    // { format!("{} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}", &self.index_name)}
+                                                    <div class="dropdown-childIndex">
+                                                    
+                                                        { self.view_index_data() }
+                                                        
+                                                        <a 
+                                                            href="#"
+                                                            // onclick=self.link.callback(|_| Msg::ToggleCreateIndex)
+                                                            style="background-color: #e3e8ed"
+                                                            onclick=self.link.batch_callback(move |_| vec![
+                                                                Msg::SendAppIdToParent(app_id_view.clone()),
+                                                                Msg::ToggleCreateIndex(app_id_view.clone()),
+                                                            ]) 
+                                                            >
+                                                            { "Create New Index" }
+                                                        </a>
+                                                        <a 
+                                                            href="#"
+                                                            //Untuk sementara pakai yang delete record dlu
+                                                            // onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)
+                                                            style="color: white; background-color: #a73034"
+                                                            onclick=self.link.batch_callback(move |_| vec![
+                                                                Msg::SendAppIdToParent(app_id_view2.clone()),
+                                                                Msg::ToggleDeleteRecord(app_id_view2.clone()),
+                                                            ])
+                                                            >
+                                                            { "Remove Index" }
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            }                       
+                                        }
+                                    }      
+                                
 
                                 <div class="recordData">
                                     <p class="recordNum">{ "No. of Records \u{00a0} \u{00a0} \u{00a0} \u{00a0} TEMP" }</p>
