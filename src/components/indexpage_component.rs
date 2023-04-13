@@ -377,6 +377,8 @@ impl Component for IndexPageComp {
 
             Msg::SelectApp(app, name) => {
                 // ConsoleService::info(&format!("Selected index: {:?}", index));
+                self.index_name = String::from("SELECT INDEX ...");
+                self.record_data = serde_json::json!({"data": []});
                 self.app_name = name;
                 self.app_id = app;
                 self.link.send_message(Msg::RequestIndexData);
@@ -595,17 +597,23 @@ impl Component for IndexPageComp {
                                 <div class="dropdownRecord">
                                     <button class="mainmenubtnRecord">{ "New Record \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
                                     <div class="dropdown-childRecord">
-                                        <a 
-                                            href="#" 
-                                            // onclick=self.link.callback(move |_| Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()))
-                                            onclick=self.link.batch_callback(move |_| vec![
-                                                Msg::SendAppIdToParent(app_id_view3.clone()),
-                                                Msg::SendIndexNameToParent(index_name_view.clone()),
-                                                Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()),
-                                            ])
-                                        >
-                                            { "Insert New Record" }
-                                        </a>
+                                        
+                                        {if &self.index_name == "SELECT INDEX ..." {
+                                            html!{<a id="no-index">{"Need to select Index!"}</a>}
+                                        } else {
+                                            html!{<a 
+                                                href="#" 
+                                                // onclick=self.link.callback(move |_| Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()))
+                                                onclick=self.link.batch_callback(move |_| vec![
+                                                    Msg::SendAppIdToParent(app_id_view3.clone()),
+                                                    Msg::SendIndexNameToParent(index_name_view.clone()),
+                                                    Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()),
+                                                ])
+                                            >
+                                                { "Insert New Record" }
+                                            </a>}
+                                        }}
+
                                         // <a href="#" onclick=self.link.callback(|_| Msg::ToggleEditRecord)>{ "Edit Record" }</a>
                                         // <a href="#" onclick=self.link.callback(|_| Msg::ToggleDeleteRecord)>{ "Delete Record" }</a>
                                     </div>
@@ -701,10 +709,22 @@ impl Component for IndexPageComp {
                                     
                                     { self.view_data() }
                                     {
-                                        if self.view_data().is_empty() && !self.loading_record {
+                                        if self.view_data().is_empty() && !self.app_name.is_empty() && self.index_name != "SELECT INDEX ..." &&!self.loading_record {
                                             html!{
                                                 <button disabled=true class="window-delete-warning-main" >
                                                     {"NO RECORD!"}
+                                                </button> 
+                                            }
+                                        } else if self.index_name == "SELECT INDEX ..." && !self.app_name.is_empty() && !self.loading_record {
+                                            html!{
+                                                <button disabled=true class="window-delete-warning-main" >
+                                                    {"SELECT INDEX!"}
+                                                </button> 
+                                            }
+                                        } else if self.app_name.is_empty() && !self.loading_record {
+                                            html!{
+                                                <button disabled=true class="window-delete-warning-main" >
+                                                    {"SELECT APP!"}
                                                 </button> 
                                             }
                                         } else {

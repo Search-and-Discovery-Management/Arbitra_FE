@@ -609,6 +609,14 @@ input[type=password]:focus {
     font-family: Alexandria;
 }
 
+#no-index {
+    color: #a73034;
+    padding: 20px;
+    text-decoration: none;
+    display: block;
+    font-family: Alexandria;
+}
+
 .dropdown-childRecord a:hover {
     color: #a73034;
 }
