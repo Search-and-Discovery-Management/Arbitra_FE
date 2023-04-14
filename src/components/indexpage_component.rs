@@ -724,7 +724,7 @@ impl Component for IndexPageComp {
                                                 if self.record_data.get("total_took").is_some() && self.record_data.get("total_data").is_some(){
                                                     html!{
                                                         <div class= "search-statistics">
-                                                            <strong>{ self.record_data.get("total_data").unwrap()  }</strong> { " hits matched in " }
+                                                            <strong>{ self.record_data.get("total_data").unwrap()  }</strong> { " hits in " }
                                                             { self.record_data.get("total_took").unwrap()  }{ "ms" }       
                                                         </div>
                                                     }
