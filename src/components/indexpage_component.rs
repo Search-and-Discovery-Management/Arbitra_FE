@@ -693,12 +693,31 @@ impl Component for IndexPageComp {
                             
                                 <div class="search-bar">
                                     <div class="search">
-                                        <input
-                                            class= "search-input"
-                                            type="text"
-                                            placeholder="Search..."
-                                            oninput = self.link.callback(|data: InputData| Msg::InputSearch(data.value))
-                                        />
+
+                                        {
+                                            if self.index_name == "SELECT INDEX ..." {
+                                                html!{
+                                                    <input
+                                                        class= "search-input"
+                                                        disabled = true
+                                                        type="text"
+                                                        placeholder="Please Select An Application & Index first!"
+                                                        oninput = self.link.callback(|data: InputData| Msg::InputSearch(data.value))
+                                                    />
+                                                }
+
+                                            } else {
+                                                html!{
+                                                    <input
+                                                        class= "search-input"
+                                                        type="text"
+                                                        placeholder="Search..."
+                                                        oninput = self.link.callback(|data: InputData| Msg::InputSearch(data.value))
+                                                    />
+                                                }   
+                                            }
+                                        }
+                                        
                                         
                                         // <div >
                                             {
@@ -734,7 +753,11 @@ impl Component for IndexPageComp {
                                             // } 
 
                                         // </div>
-                                    </div>            
+                                    </div>  
+
+                                    <div class = "pagination">
+                                    {""}
+                                    </div>           
                                 </div>
 
 
@@ -744,24 +767,33 @@ impl Component for IndexPageComp {
                                     
                                     { self.view_data() }
                                     {
-                                        if self.view_data().is_empty() && !self.app_name.is_empty() && self.index_name != "SELECT INDEX ..." &&!self.loading_record {
-                                            html!{
-                                                <button disabled=true class="window-delete-warning-main" >
-                                                    {"NO RECORD!"}
-                                                </button> 
-                                            }
-                                        } else if self.index_name == "SELECT INDEX ..." && !self.app_name.is_empty() && !self.loading_record {
-                                            html!{
-                                                <button disabled=true class="window-delete-warning-main" >
-                                                    {"SELECT INDEX!"}
-                                                </button> 
-                                            }
-                                        } else if self.app_name.is_empty() && !self.loading_record {
-                                            html!{
-                                                <button disabled=true class="window-delete-warning-main" >
-                                                    {"SELECT APP!"}
-                                                </button> 
-                                            }
+                                        if  self.view_data().is_empty() && 
+                                            self.app_name != "UNSELECTED" && 
+                                            self.index_name != "SELECT INDEX ..." &&
+                                            !self.loading_record 
+                                                {
+                                                    html!{
+                                                        <button disabled=true class="window-delete-warning-main" >
+                                                            {"NO RECORD!"}
+                                                        </button> 
+                                                    }
+                                        } else if   self.index_name == "SELECT INDEX ..." && 
+                                                    self.app_name != "UNSELECTED" && 
+                                                    !self.loading_record 
+                                                        {
+                                                            html!{
+                                                                <button disabled=true class="window-delete-warning-main" >
+                                                                    {"SELECT INDEX!"}
+                                                                </button> 
+                                                            }
+                                        } else if   self.app_name == "UNSELECTED" && 
+                                                    !self.loading_record 
+                                                        {
+                                                            html!{
+                                                                <button disabled=true class="window-delete-warning-main" >
+                                                                    {"SELECT APP!"}
+                                                                </button> 
+                                                            }
                                         } else {
                                             html!{}
                                         }

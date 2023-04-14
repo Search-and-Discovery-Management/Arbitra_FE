@@ -704,13 +704,23 @@ input[type=password]:focus {
     background-color: #e3e8ed;
     border-radius: 6px 0px 0px 0px;
     
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+
 }
 
+.pagination {
+    border: solid 2px #a73034;
+    border-radius: 6px;
+    width: 20%;
+    height: 3rem;
+}
 
 .search {
     border: solid 1px #a73034;
     border-radius: 6px;
-    width: 100%;
+    width: 80%;
     height: 3rem;
 
     display: flex;
