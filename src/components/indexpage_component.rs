@@ -41,7 +41,8 @@ pub enum Msg {
     ToggleDeleteCard(String, String, String),
 
     RequestRecordData,
-    GetRecordData(Value),
+    GetRecordDataFirst(Value), //UNTUK MENGETAHUI JUUMLAH RECORD DAN SIZE NYA UNTUK DISPLAY
+    GetRecordData(Value), // UNTUK SEARCH
     ResponseError(String),
 
     RequestIndexData,
@@ -157,6 +158,9 @@ pub struct IndexPageComp {
     app_id: String,
     app_name: String,
 
+    record_count: i32,
+    index_size: i32,
+
     loading_record: bool,
     loading_first: bool
 }
@@ -195,6 +199,9 @@ impl Component for IndexPageComp {
             callback_card_index: props.callback_card_index.clone(),
             callback_app_id: props.callback_app_id.clone(),
             props,
+            
+            record_count: 0,
+            index_size: 0,
 
             loading_record : false,
             loading_first : true,
@@ -333,7 +340,7 @@ impl Component for IndexPageComp {
             }
 
             Msg::SelectIndex(index) => {
-                ConsoleService::info(&format!("Selected index: {:?}", index));
+                // ConsoleService::info(&format!("Selected index: {:?}", index));
                 self.index_name = index;
                 self.record_data =  serde_json::json!({"data": []});
                 self.link.send_message(Msg::RequestRecordData);
@@ -375,7 +382,7 @@ impl Component for IndexPageComp {
             Msg::GetAppData(data) => {
                 self.loading_first = false;
                 self.app_data = data;
-                ConsoleService::info(&format!("DEBUG : self.loading_first : {:?}", self.loading_first ));
+                // ConsoleService::info(&format!("DEBUG : self.loading_first : {:?}", self.loading_first ));
                 true
             }
 
@@ -420,7 +427,7 @@ impl Component for IndexPageComp {
                         match data { 
                             Ok(dataok) => {
                                 // ConsoleService::info(&format!("data response {:?}", &dataok));
-                                Msg:: GetRecordData(dataok)
+                                Msg:: GetRecordDataFirst(dataok)
                             }
                             Err(error) => {
                                 Msg::ResponseError(error.to_string())
@@ -438,6 +445,15 @@ impl Component for IndexPageComp {
                 // ConsoleService::info(&format!("data is {:?}", data.get("data").unwrap().as_array().unwrap()));
                 self.loading_record = false;
                 self.record_data = data;
+                true
+            }
+
+            Msg::GetRecordDataFirst(data) => {
+                // ConsoleService::info(&format!("data is {:?}", data.get("data").unwrap().as_array().unwrap()));
+                self.loading_record = false;
+                self.record_data = data;
+
+                self.record_count = self.record_data.get("total_data").unwrap().to_string().parse().unwrap();
                 true
             }
 
@@ -469,7 +485,7 @@ impl Component for IndexPageComp {
                 self.loading_first = false;
                 self.loading_record = false;
                 ConsoleService::info(&format!("error is {:?}", text));
-                ConsoleService::info(&format!("DEBUG : self.loading_first : {:?}", self.loading_first ));
+                // ConsoleService::info(&format!("DEBUG : self.loading_first : {:?}", self.loading_first ));
                 true
             }
 
@@ -483,7 +499,7 @@ impl Component for IndexPageComp {
     fn rendered(&mut self, first_render: bool) {
         if first_render {
             self.loading_first = true;
-            ConsoleService::info(&format!("DEBUG : self.loading_first : {:?}", self.loading_first ));
+            // ConsoleService::info(&format!("DEBUG : self.loading_first : {:?}", self.loading_first ));
 			self.link.send_message(Msg::RequestAppData)
         }
     }
@@ -621,63 +637,73 @@ impl Component for IndexPageComp {
                                         }
                                     }      
                                 
-
-                                <div class="recordData">
-                                    <p class="recordNum">{ "No. of Records \u{00a0} \u{00a0} \u{00a0} \u{00a0} TEMP" }</p>
-                                    <p style="float: left;">{ "\u{00a0} \u{00a0} \u{00a0}" }</p>
-                                    <p class="recordSize">{ "Average Record Size\u{00a0} \u{00a0} \u{00a0} \u{00a0} TEMP B" }</p>
-                                </div>
+                                    {
+                                        if self.index_name == "SELECT INDEX ..." {
+                                            html!{}
+                                        } else {
+                                            html!{
+                                                <div class="recordData">
+                                                    <p class="recordNum">{ "No. of Records \u{00a0} \u{00a0} \u{00a0} \u{00a0}" }{self.record_count}</p>
+                                                    <p style="float: left;">{ "\u{00a0} \u{00a0} \u{00a0}" }</p>
+                                                    <p class="recordSize">{ "Average Record Size\u{00a0} \u{00a0} \u{00a0} \u{00a0} TEMP B" }</p>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                               
 
                                 <br/><br/><br/>
 
-                                {if &self.index_name == "SELECT INDEX ..." {
-                                    html!{<p style="margin-bottom: -50px">{ "" }</p>}
-                                } else {
-                                    html!{
-                                        <div style="margin-bottom: -25px">
+                                {
+                                        if &self.index_name == "SELECT INDEX ..." {
+                                        html!{<p style="margin-bottom: -50px">{ "" }</p>}
+                                    } else {
+                                        html!{
+                                            <div style="margin-bottom: -25px">
+                                                <div class="dropdownRecord">
+                                                <button class="mainmenubtnRecord">{ "New Record \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
+                                                <div class="dropdown-childRecord">
+                                                    <a 
+                                                        href="#" 
+                                                        // onclick=self.link.callback(move |_| Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()))
+                                                        onclick=self.link.batch_callback(move |_| vec![
+                                                            Msg::SendAppIdToParent(app_id_view3.clone()),
+                                                            Msg::SendIndexNameToParent(index_name_view.clone()),
+                                                            Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()),
+                                                        ])
+                                                    >
+                                                        { "Insert New Record" }
+                                                    </a>
+                                                </div>
+                                            </div>
+            
+                                            //Add Record Dropdown
+                                            // <div class="dropdownRecord">
+                                            //     <button class="mainmenubtnRecord">{ "Add Records \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
+                                            //     <div class="dropdown-childRecord">
+                                            //         <a href="#">{ "Upload File" }</a>
+                                            //         <a href="#">{ "Use the API" }</a>
+                                            //         <a href="#">{ "Add Manually" }</a>
+                                            //     </div>
+                                            // </div>
+            
                                             <div class="dropdownRecord">
-                                            <button class="mainmenubtnRecord">{ "New Record \u{00a0} \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
-                                            <div class="dropdown-childRecord">
-                                                <a 
-                                                    href="#" 
-                                                    // onclick=self.link.callback(move |_| Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()))
-                                                    onclick=self.link.batch_callback(move |_| vec![
-                                                        Msg::SendAppIdToParent(app_id_view3.clone()),
-                                                        Msg::SendIndexNameToParent(index_name_view.clone()),
-                                                        Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()),
-                                                    ])
-                                                >
-                                                    { "Insert New Record" }
-                                                </a>
+                                                <button class="mainmenubtnRecord">{ "Manage Index \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
+                                                <div class="dropdown-childRecord">
+                                                    <a href="#">{ "Rename" }</a>
+                                                    <a href="#">{ "Duplicate" }</a>
+                                                    <a href="#">{ "Copy Settings" }</a>
+                                                    <a href="#">{ "Clear" }</a>
+                                                    <a href="#">{ "Delete" }</a>
+                                                </div>
                                             </div>
-                                        </div>
-        
-                                        //Add Record Dropdown
-                                        // <div class="dropdownRecord">
-                                        //     <button class="mainmenubtnRecord">{ "Add Records \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
-                                        //     <div class="dropdown-childRecord">
-                                        //         <a href="#">{ "Upload File" }</a>
-                                        //         <a href="#">{ "Use the API" }</a>
-                                        //         <a href="#">{ "Add Manually" }</a>
-                                        //     </div>
-                                        // </div>
-        
-                                        <div class="dropdownRecord">
-                                            <button class="mainmenubtnRecord">{ "Manage Index \u{00a0} \u{00a0} \u{00a0} \u{23F7}"}</button>
-                                            <div class="dropdown-childRecord">
-                                                <a href="#">{ "Rename" }</a>
-                                                <a href="#">{ "Duplicate" }</a>
-                                                <a href="#">{ "Copy Settings" }</a>
-                                                <a href="#">{ "Clear" }</a>
-                                                <a href="#">{ "Delete" }</a>
+            
+                                            <img class="copyIcon" src="images/Copy Icon.png"/>
+                                            <a onclick=self.link.callback(|_| Msg::RequestRecordData)><img class="copyIcon" src="images/Refresh.png"/></a>
                                             </div>
-                                        </div>
-        
-                                        <img class="copyIcon" src="images/Copy Icon.png"/>
-                                        <a onclick=self.link.callback(|_| Msg::RequestRecordData)><img class="copyIcon" src="images/Refresh.png"/></a>
-                                        </div>
+                                        }
                                     }
-                                }}
+                                }
                             </div>
                         </div>
 
@@ -1093,47 +1119,3 @@ impl IndexPageComp {
 
 
 
-
-   // fn view_data(&self) -> Vec<Html> {
-    //     self.card_data.get("data").unwrap().as_array()
-    //                 .unwrap().iter().map(|card|{
-                // card.iter().map(|card_parse|{
-                //     html!{
-                //         <div class="index-card">
-                //             { serde_json::to_string(card_parse).unwrap() }
-                //         </div>
-                //     }
-                // }).collect()
-
-                // let x: Vec<String> = card.get("fields").unwrap().as_array().unwrap().iter().map(|f| f[0].to_string()).collect();
-                
-                // let x: Vec<Value> = card.get("fields").unwrap().as_array().unwrap().iter();
-
-
-                                    // {for i in x.iter()}
-                                    // {x.iter().flat_map(|s| s.iter()).for_each(|(key, value)| {
-                                    //     html!{
-                                    //         <h1> {value} </h1>
-                                    //     }
-                                            
-                                        // })}
-
-
-              // {x}
-                                                // { card.get("fields").unwrap().as_array().unwrap().iter().map(|f| f.as_array()).collect() }
-                                                // { for x.iter().map( serde_json::to_string_pretty(i))  }
-                                                // {serde_json::to_vec_pretty(&xfdas)}
-
-
-
-
-                                                // {
-                                                //     for card.get("fields").unwrap().as_array().iter().for_each(|val|
-                                                
-                                                //     html!{
-                                                //         serde_json::to_string_pretty(val).unwrap()
-                                                //     }
-                                                // )
-                                                // }
-                                                // { serde_json::to_string_pretty(json!(x.clone()))}
-                                                // { x.iter().map(|y| serde_json::to_string_pretty(y)) }
