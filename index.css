@@ -536,8 +536,8 @@ input[type=password]:focus {
 }
 
 .mainmenubtnIndex-warn {
-    background-color: white;
-    color: #a73034;
+    background-color: #a73034;
+    color: white;
     border: solid 2px #a73034;
     border-radius: 5px;
     font-family: Alexandria;
