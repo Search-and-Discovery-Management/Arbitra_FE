@@ -754,6 +754,19 @@ input[type=password]:focus {
     text-align: right;
 }
 
+.search-statistics-disabled{
+    width: 20%;
+    background-color : transparent;
+    border: solid 1px #a73034;
+    border-radius: 0px 6px 6px 0px;
+    border-left-style: none;
+    padding-top: 0.7%;
+    padding-bottom: 0.5%;
+    padding-right: 1.5%;
+    height: 100%;
+    text-align: right;
+}
+
 /* WINDOW / MODAL UNTUK INDEX PAGE */
 .window-overlay { 
     position: fixed; 
@@ -1244,7 +1257,7 @@ input[type=password]:focus {
 
 input:disabled {
     cursor: default;
-    background-color: white;
+    /* background-color: white; */
     color: black;
     font-weight: bold;
 }

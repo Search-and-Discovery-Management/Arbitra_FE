@@ -18,7 +18,8 @@ pub struct AppData{
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct IndexData{
-    pub index: String
+    pub index: String,
+    pub primary_size: String
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -55,7 +56,7 @@ pub enum Msg {
 
     SelectApp(String, String),
 
-    SelectIndex(String),
+    SelectIndex(String, String),
 
     SendEditToParent(EditModalData),
     SendDeleteToParent(String),
@@ -159,7 +160,7 @@ pub struct IndexPageComp {
     app_name: String,
 
     record_count: i32,
-    index_size: i32,
+    index_size: String,
 
     loading_record: bool,
     loading_first: bool
@@ -201,7 +202,7 @@ impl Component for IndexPageComp {
             props,
             
             record_count: 0,
-            index_size: 0,
+            index_size: String::from(""),
 
             loading_record : false,
             loading_first : true,
@@ -340,17 +341,43 @@ impl Component for IndexPageComp {
                 true
             }
 
-            Msg::SelectIndex(index) => {
+            Msg::SelectIndex(index, index_size) => {
                 // ConsoleService::info(&format!("Selected index: {:?}", index));
                 self.index_name = index;
+                self.index_size = index_size;
                 self.record_data =  serde_json::json!({"data": []});
+                // ConsoleService::info(&format!("self.index_size: {:?}", self.index_size));
                 self.link.send_message(Msg::RequestRecordData);
                 true
             }
 
             Msg::GetIndexData(data) => {
                 // ConsoleService::info(&format!("data is {:?}", data));
+
+                {
+                    if self.index_name != String::from("SELECT INDEX ...") {
+                        if let Some(data_vec) = &data {
+                            let found_index_name = data_vec.iter().find(
+                                |index_find| index_find.index.clone().split('.').next_back().unwrap().to_string() == self.index_name
+                            );
+
+                            match found_index_name {
+                                Some(app) => {
+                                    // ConsoleService::info(&format!("Matched index name!"));
+                                },
+                                None => {
+                                    // ConsoleService::info(&format!("index Name not found!"));
+                                    self.index_name = String::from("SELECT INDEX ...");
+                                }
+                            }
+                        }
+                    }
+     
+                }
+
+
                 self.index_data = data;
+                // ConsoleService::info(&format!("self.index_data is {:?}", self.index_data));
                 true
             }
 
@@ -381,6 +408,28 @@ impl Component for IndexPageComp {
             }
 
             Msg::GetAppData(data) => {
+                // ConsoleService::info(&format!("data response {:?}", &data));
+                
+                {
+                    if self.app_name != String::from("UNSELECTED") {
+                        if let Some(data_vec) = &data {
+                            let found_app_name = data_vec.iter().find(
+                                |app| app._source.get("name").unwrap().to_string().replace("\"", "") == self.app_name
+                            );
+
+                            match found_app_name {
+                                Some(app) => {
+                                    // ConsoleService::info(&format!("Matched App name!"));
+                                },
+                                None => {
+                                    // ConsoleService::info(&format!("App Name not found!"));
+                                    self.app_name = String::from("UNSELECTED");
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 self.loading_first = false;
                 self.app_data = data;
                 // ConsoleService::info(&format!("DEBUG : self.loading_first : {:?}", self.loading_first ));
@@ -646,7 +695,7 @@ impl Component for IndexPageComp {
                                                 <div class="recordData">
                                                     <p class="recordNum">{ "No. of Records \u{00a0} \u{00a0} \u{00a0} \u{00a0}" }{self.record_count}</p>
                                                     <p style="float: left;">{ "\u{00a0} \u{00a0} \u{00a0}" }</p>
-                                                    <p class="recordSize">{ "Average Record Size\u{00a0} \u{00a0} \u{00a0} \u{00a0} TEMP B" }</p>
+                                                    <p class="recordSize">{ "Index Size\u{00a0} \u{00a0} \u{00a0} \u{00a0}" }{&self.index_size}</p>
                                                 </div>
                                             }
                                         }
@@ -748,19 +797,20 @@ impl Component for IndexPageComp {
                                         
                                         // <div >
                                             {
-                                                if self.record_data.get("total_took").is_some() && self.record_data.get("total_data").is_some() && self.search_input {
+                                                if self.index_name == "SELECT INDEX ..." {
+                                                    html!{
+                                                        <div class= "search-statistics-disabled"></div>
+                                                    }
+                                                } else if self.record_data.get("total_took").is_some() && self.record_data.get("total_data").is_some() {
                                                     html!{
                                                         <div class= "search-statistics">
                                                             <strong>{ self.record_data.get("total_data").unwrap()  }</strong> { " hits in " }
                                                             { self.record_data.get("total_took").unwrap()  }{ "ms" }       
                                                         </div>
                                                     }
-                                                }else {
+                                                } else {
                                                     html!{
-                                                        <div class= "search-statistics">
-                                                            
-                                                            // { self.record_data.get("total_took").unwrap()  }{ "ms" }
-                                                        </div>
+                                                        <div class= "search-statistics"></div>
                                                     }
                                                 }
                                             }
@@ -909,9 +959,14 @@ impl IndexPageComp {
     fn view_index_data(&self) -> Vec<Html> {
         self.index_data.iter().map(|card|{
                 card.iter().map(|card_parse|{
+                    // ConsoleService::info(&format!("vec indexData is {:?}", card));
+                    // ConsoleService::info(&format!("indexData is {:?}", card_parse));
+                    
                     let index_name = card_parse.index.clone().split('.').next_back().unwrap().to_string();
+                    let index_size_impl = card_parse.primary_size.clone();
+                    // ConsoleService::info(&format!("indexSize is {:?}", index_size_impl));
                     html!{
-                        <a class="index-name" onclick=self.link.callback(move |_| Msg::SelectIndex(index_name.clone()))>
+                        <a class="index-name" onclick=self.link.callback(move |_| Msg::SelectIndex(index_name.clone(), index_size_impl.clone()))>
                             // { serde_json::to_string_pretty(&card_parse.index).unwrap().trim_start().replace("\"", "")}
                             { card_parse.index.clone().split('.').next_back().unwrap() }
                         </a>

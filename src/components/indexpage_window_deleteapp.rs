@@ -96,7 +96,7 @@ impl Component for DeleteApp {
         
                         match data { 
                             Ok(dataok) => {
-                                ConsoleService::info(&format!("data response {:?}", &dataok));
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
                                 Msg:: GetAppData(Some(dataok))
                             }
                             Err(error) => {
@@ -171,6 +171,7 @@ impl Component for DeleteApp {
             }
 
             Msg::ResponseError(text) => {
+                self.loading = false;
                 ConsoleService::info(&format!("error is {:?}", text));
                 true
             }
