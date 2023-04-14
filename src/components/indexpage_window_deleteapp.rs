@@ -301,7 +301,7 @@ impl DeleteApp {
                             <li>
                                 { app_name.get("name").unwrap().as_str().unwrap() }
                             </li>
-                            <ul class="appid-delete">
+                            <ul>
                                 <b>{ "App ID: " }</b>{ app_id }
                             </ul>
                         </div>

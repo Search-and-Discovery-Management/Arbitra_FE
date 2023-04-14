@@ -153,7 +153,7 @@ pub struct IndexPageComp {
     index_data: Option<Vec<IndexData>>,
     index_name: String,
     error: Option<String>,
-    search_input: String,
+    search_input: bool,
     app_data: Option<Vec<AppData>>,
     app_id: String,
     app_name: String,
@@ -192,7 +192,7 @@ impl Component for IndexPageComp {
             app_name: String::from("UNSELECTED"),
             app_data: Some(vec![]),
 
-            search_input: String::from(""),
+            search_input: false,
 
             callback_edit_data: props.callback_edit_data.clone(),
             callback_delete_window: props.callback_delete_window.clone(),
@@ -307,6 +307,7 @@ impl Component for IndexPageComp {
 
             Msg::InputSearch(data) => {
                 // ConsoleService::info(&format!("Input Data for Search: {:?}", data));
+                self.search_input = !data.is_empty();
                 self.link.send_message(Msg::RequestSearch(data));
                 true
             }
@@ -747,7 +748,7 @@ impl Component for IndexPageComp {
                                         
                                         // <div >
                                             {
-                                                if self.record_data.get("total_took").is_some() && self.record_data.get("total_data").is_some(){
+                                                if self.record_data.get("total_took").is_some() && self.record_data.get("total_data").is_some() && self.search_input {
                                                     html!{
                                                         <div class= "search-statistics">
                                                             <strong>{ self.record_data.get("total_data").unwrap()  }</strong> { " hits in " }
@@ -763,22 +764,6 @@ impl Component for IndexPageComp {
                                                     }
                                                 }
                                             }
-
-                                            // {
-                                            //     if self.record_data.get("total_data").is_some(){
-                                            //         html!{
-                                            //             <div class= "search-statistics">
-                                            //                 { self.record_data.get("total_data").unwrap()  }{ " data" }
-                                            //             </div>
-                                            //         }
-                                            //     }else {
-                                            //         html!{
-        
-                                            //         }
-                                            //     }
-                                            // } 
-
-                                        // </div>
                                     </div>  
 
                                     <div class = "pagination">

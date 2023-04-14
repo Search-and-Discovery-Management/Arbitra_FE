@@ -1241,3 +1241,10 @@ input[type=password]:focus {
 .appid-delete {
     user-select: none;
 }
+
+input:disabled {
+    cursor: default;
+    background-color: white;
+    color: black;
+    font-weight: bold;
+}
