@@ -162,6 +162,9 @@ pub struct IndexPageComp {
     record_count: i32,
     index_size: String,
 
+    total_page: i64,
+    current_page: i64,
+
     loading_record: bool,
     loading_first: bool
 }
@@ -203,6 +206,9 @@ impl Component for IndexPageComp {
             
             record_count: 0,
             index_size: String::from(""),
+
+            total_page: 0,
+            current_page: 0,
 
             loading_record : false,
             loading_first : true,
@@ -500,6 +506,15 @@ impl Component for IndexPageComp {
 
             Msg::GetRecordDataFirst(data) => {
                 // ConsoleService::info(&format!("data is {:?}", data.get("data").unwrap().as_array().unwrap()));
+                let from = data.get("from").unwrap().as_i64().unwrap_or(0);
+                let count = data.get("count").unwrap().as_i64().unwrap_or(0);
+                let total_data = data.get("total_data").unwrap().as_i64().unwrap_or(0);
+
+                self.total_page = (total_data as f64 / count as f64).ceil() as i64;
+                ConsoleService::info(&format!("Total page:  {:?}", self.total_page));
+                self.current_page = (from / count) + 1;
+                ConsoleService::info(&format!("Current page:  {:?}", self.current_page));
+                
                 self.loading_record = false;
                 self.record_data = data;
 
@@ -817,8 +832,55 @@ impl Component for IndexPageComp {
                                     </div>  
 
                                     <div class = "pagination">
-                                    {""}
-                                    </div>           
+                                        // { for records.iter().skip(start_record as usize - 1).take(self.records_per_page as usize).map(|record| {
+                                        //     html! {
+                                        //         <button></button>
+                                        //     }
+                                        // })}
+                                        <button> { "1" } </button>
+                                        {
+                                            if self.current_page == self.total_page {
+                                                html!{
+                                                    <div>
+                                                        <button>{self.current_page - 3}</button>
+                                                        <button>{self.current_page - 2}</button>
+                                                        <button>{self.current_page - 1}</button>
+                                                        <button>{self.current_page}</button>
+                                                    </div>
+                                                }
+                                            } else if self.current_page > 5 && self.current_page != self.total_page {
+                                                html!{
+                                                    <div>
+                                                        <button>{self.current_page - 2}</button>
+                                                        <button>{self.current_page - 1}</button>
+                                                        <button>{self.current_page}</button>
+                                                        <button>{self.current_page + 1}</button>
+                                                        { "..." }
+                                                        <button>{self.total_page}</button>
+                                                    </div>
+                                                }
+                                            } else {
+                                                let mut pages: Vec<_> = (2..=5).into_iter().map(|i| if self.current_page == i {
+                                                    html!{
+                                                        <button>{i}</button>
+                                                    }
+                                                } else {
+                                                    html!{
+                                                        <button>{i}</button>
+                                                    }
+                                                }).collect();
+
+                                                pages.push(html!{"\u{00a0} ... \u{00a0}"});
+                                                pages.push(html!{<button>{self.total_page}</button>});
+
+                                                html!{
+                                                    <div>
+                                                        {pages}
+                                                    </div>
+                                                } 
+                                            }
+                                        }
+                                    </div>
                                 </div>
 
 
