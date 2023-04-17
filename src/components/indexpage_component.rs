@@ -66,6 +66,7 @@ pub enum Msg {
     InputSearch(String),
     RequestSearch(String),
 
+    ToggleSidebar,
     Ignore,
 }
 
@@ -166,7 +167,8 @@ pub struct IndexPageComp {
     current_page: i64,
 
     loading_record: bool,
-    loading_first: bool
+    loading_first: bool,
+    toggle_sidebar: bool,
 }
 
 impl Component for IndexPageComp {
@@ -212,6 +214,7 @@ impl Component for IndexPageComp {
 
             loading_record : false,
             loading_first : true,
+            toggle_sidebar: true,
         }
     }
 
@@ -554,6 +557,12 @@ impl Component for IndexPageComp {
                 true
             }
 
+            Msg::ToggleSidebar => {
+                self.toggle_sidebar = !self.toggle_sidebar;
+                ConsoleService::info(&format!("DEBUG : self.toggle_sidebar {:?}", self.toggle_sidebar));
+                true
+            }
+
             Msg::Ignore => {
                 ConsoleService::info(&format!("DEBUG : Event Ignore", ));
                 true
@@ -604,48 +613,68 @@ impl Component for IndexPageComp {
                         <div>
                             <div class="leftbox index-sidebar-small">
                                 <img class="index-logo" src="images/Arbitra_LogoOnly2.png"/> 
+                            
+                                <label for="sidebar-check" class="sidebar-toggle-label">
+                                    <img class="index-logo" id="sidebar-toggle-img" src="images/menu-burger.png"/>
+                                </label>
                             </div>
 
-                            <div class="rightSideBar">
-                                <p style="color: #bd3143; font-size: 2rem">{"S E A R C H"}</p>
-                                <p style="margin-top: -8px">{ "Application" }</p>
+                            <input type="checkbox" id="sidebar-check"
+                                onchange=self.link.callback(|_| Msg::ToggleSidebar)
+                            />
 
-                                <div class="dropdown">
-                                    {if self.app_name == "UNSELECTED"{
-                                        html!{
-                                            <button class="mainmenubtn-warn"><img class="applicationIcon" src="images/APP_WARN.png"/>{ format!("{} \u{00a0} \u{23F7}", &self.app_name)}</button>
-                                        }
-                                    } else{
-                                        html!{
-                                            <button class="mainmenubtn"><img class="applicationIcon" src="images/APP.png"/>{ format!("{} \u{00a0} \u{23F7}", &self.app_name)}</button>
+                            {
+                                if self.toggle_sidebar {
+                                    html!{
+                                        <div class="rightSideBar">
+                                            <p style="color: #bd3143; font-size: 2rem">{"S E A R C H"}</p>
+                                            <p style="margin-top: -8px">{ "Application" }</p>
+            
+                                            <div class="dropdown">
+                                                {
+                                                    if self.app_name == "UNSELECTED"{
+                                                        html!{
+                                                            <button class="mainmenubtn-warn"><img class="applicationIcon" src="images/APP_WARN.png"/>{ format!("{} \u{00a0} \u{23F7}", &self.app_name)}</button>
+                                                        }
+                                                    } else{
+                                                        html!{
+                                                            <button class="mainmenubtn"><img class="applicationIcon" src="images/APP.png"/>{ format!("{} \u{00a0} \u{23F7}", &self.app_name)}</button>
+                                                    }
+                                                    }
+                                                }
+                                                <div class="dropdown-child">
+            
+                                                    { self.view_app_data() }
+                                                    <a 
+                                                        href="#" 
+                                                        onclick=self.link.callback(|_| Msg::ToggleCreateApp)
+                                                        style="background-color: #e3e8ed"
+                                                        >
+                                                        { "Create New Application" }
+                                                    </a>
+            
+                                                    <a 
+                                                        href="#" 
+                                                        onclick=self.link.callback(|_| Msg::ToggleDeleteApp)
+                                                        style="color: white; background-color: #a73034"
+                                                        >
+                                                        { "Remove Application" }
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            
+                                            <br/><br/>
+            
+                                            <p class="index-directry">{ "\u{007C}\u{00a0} Index" }</p>
+                                            <p class="index-directry">{ "\u{007C}\u{00a0} Dictionary" }</p>
+                                        </div>
                                     }
-                                    }}
-                                    <div class="dropdown-child">
-
-                                        { self.view_app_data() }
-                                        <a 
-                                            href="#" 
-                                            onclick=self.link.callback(|_| Msg::ToggleCreateApp)
-                                            style="background-color: #e3e8ed"
-                                            >
-                                            { "Create New Application" }
-                                        </a>
-
-                                        <a 
-                                            href="#" 
-                                            onclick=self.link.callback(|_| Msg::ToggleDeleteApp)
-                                            style="color: white; background-color: #a73034"
-                                            >
-                                            { "Remove Application" }
-                                        </a>
-                                    </div>
-                                </div>
-                                
-                                <br/><br/>
-
-                                <p class="index-directry">{ "\u{007C}\u{00a0} Index" }</p>
-                                <p class="index-directry">{ "\u{007C}\u{00a0} Dictionary" }</p>
-                            </div>
+                                        
+                                } else {
+                                    html!{}
+                                }
+                            }
+                            
                         </div>
 
                         <div>

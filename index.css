@@ -414,8 +414,13 @@ input[type=password]:focus {
     overflow: auto;
 
     display: flex; 
-    justify-content: center;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
 
+    gap: 24px;
+
+    margin-right: 0.6vw;
     padding : 12px;
 }
 
@@ -423,13 +428,27 @@ input[type=password]:focus {
     height: 6%;
 }
 
+#sidebar-toggle-img {
+    width: 28px;
+    height: 28px;
+}
+
+#sidebar-check{
+    display: none;
+}
+
+#sidebar-check:checked + div {
+    display: none;
+}
+
 .rightSideBar{
     position: sticky;
     float:left;
-    padding-left: 1%;
+    padding-left: 0.6%;
     width: 15%;
     padding-top: 1%;
     height: 100vh;
+
 }
 
 .rightSideBar p{
@@ -715,6 +734,25 @@ input[type=password]:focus {
     border-radius: 6px;
     width: 20%;
     height: 3rem;
+
+    display: flex;
+    flex-direction: row;
+    
+    justify-content: center;
+    align-items: center;
+}
+
+
+.pagination button {
+    border: solid 1px #a73034;
+    border-radius: 4px;
+    padding:8px;
+    background-color: white;
+    
+    /* display : flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center; */
 }
 
 .search {
