@@ -31,6 +31,12 @@ pub struct SearchRecord {
     pub wildcards: bool
 }
 
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct Pagination {
+    pub from: i64,
+    pub count: i64,
+}
+
 pub enum Msg {
     //EVENT TOGGLE (MERGE CLOSE DAN OPEN)
     ToggleCreateApp,
@@ -42,6 +48,7 @@ pub enum Msg {
     ToggleDeleteCard(String, String, String),
 
     RequestRecordData,
+    RequestRecordDataPage(i64),
     GetRecordDataFirst(Value), //UNTUK MENGETAHUI JUUMLAH RECORD DAN SIZE NYA UNTUK DISPLAY
     GetRecordData(Value), // UNTUK SEARCH
     ResponseError(String),
@@ -472,6 +479,37 @@ impl Component for IndexPageComp {
                 self.fetch_task = Some(task);
                 true
             }
+
+            Msg::RequestRecordDataPage (data) => {
+                let mut pages = Pagination{
+                    from: data * 20,
+                    count: 20
+                };
+
+                let request = Request::post(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
+                    .header("Content-Type", "application/json")
+                    .body(Json(&pages))
+                    .expect("Could not build request.");
+                let callback = 
+                    self.link.callback(|response: Response<Json<Result<Value, anyhow::Error>>>| {
+                        let (meta, Json(data)) = response.into_parts();
+        
+                        match data { 
+                            Ok(dataok) => {
+                                // ConsoleService::info(&format!("data response {:?}", &dataok));
+                                Msg::GetRecordData(dataok)
+                            }
+                            Err(error) => {
+                                Msg::Ignore
+                            }
+                        }
+                    });
+        
+                let task = FetchService::fetch(request, callback).expect("failed to start request");
+                
+                self.fetch_task = Some(task);
+                true
+            }
             
             Msg::RequestRecordData => {
                 self.loading_record = true;
@@ -485,7 +523,7 @@ impl Component for IndexPageComp {
         
                         match data { 
                             Ok(dataok) => {
-                                // ConsoleService::info(&format!("data response {:?}", &dataok));
+                                ConsoleService::info(&format!("data response {:?}", &dataok));
                                 Msg:: GetRecordDataFirst(dataok)
                             }
                             Err(error) => {
@@ -885,17 +923,17 @@ impl Component for IndexPageComp {
                                                         <button>{self.current_page}</button>
                                                         <button>{self.current_page + 1}</button>
                                                         { "..." }
-                                                        <button>{self.total_page}</button>
+                                                        <button >{self.total_page}</button>
                                                     </div>
                                                 }
                                             } else {
                                                 let mut pages: Vec<_> = (2..=5).into_iter().map(|i| if self.current_page == i {
                                                     html!{
-                                                        <button>{i}</button>
+                                                        <button onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i}</button>
                                                     }
                                                 } else {
                                                     html!{
-                                                        <button>{i}</button>
+                                                        <button onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i}</button>
                                                     }
                                                 }).collect();
 
