@@ -43,6 +43,7 @@ pub enum Msg {
     ToggleDeleteApp,
     ToggleCreateIndex(String),
     ToggleInsertRecord(String, String),
+    ToggleUploadRecord(String, String),
     ToggleEditRecord(String, String, String, String),
     ToggleDeleteRecord(String),
     ToggleDeleteCard(String, String, String),
@@ -96,6 +97,9 @@ pub struct IndexPageCompProps {
     pub display_insert_record: bool,
 
     #[prop_or(false)]
+    pub display_upload_record: bool,
+
+    #[prop_or(false)]
     pub display_edit_record: bool,
     #[prop_or_default]
     pub edit_data: String,
@@ -124,6 +128,7 @@ pub struct IndexPageCompProps {
     pub on_toggle_deleteapp:Callback<Msg>,
     pub on_toggle_createindex:Callback<Msg>,
     pub on_toggle_insertrecord:Callback<Msg>,
+    pub on_toggle_uploadrecord:Callback<Msg>,
     pub on_toggle_editrecord:Callback<Msg>,
     pub on_toggle_deleterecord:Callback<Msg>,
     pub on_toggle_deletecard:Callback<Msg>,
@@ -148,6 +153,7 @@ pub struct IndexPageComp {
     callback_toggle_deleteapp: Callback<Msg>,
     callback_toggle_createindex: Callback<Msg>,
     callback_toggle_insertrecord: Callback<Msg>,
+    callback_toggle_uploadrecord: Callback<Msg>,
     callback_toggle_editrecord: Callback<Msg>,
     callback_toggle_deleterecord: Callback<Msg>,
     callback_toggle_deletecard: Callback<Msg>,
@@ -172,6 +178,7 @@ pub struct IndexPageComp {
 
     total_page: i64,
     current_page: i64,
+    count: i64,
 
     loading_record: bool,
     loading_first: bool,
@@ -189,6 +196,7 @@ impl Component for IndexPageComp {
             callback_toggle_deleteapp: props.on_toggle_deleteapp.clone(),
             callback_toggle_createindex: props.on_toggle_createindex.clone(),
             callback_toggle_insertrecord: props.on_toggle_insertrecord.clone(),
+            callback_toggle_uploadrecord: props.on_toggle_uploadrecord.clone(),
             callback_toggle_editrecord: props.on_toggle_editrecord.clone(),
             callback_toggle_deleterecord: props.on_toggle_deleterecord.clone(),
             callback_toggle_deletecard: props.on_toggle_deletecard.clone(),
@@ -218,6 +226,7 @@ impl Component for IndexPageComp {
 
             total_page: 0,
             current_page: 0,
+            count: 0,
 
             loading_record : false,
             loading_first : true,
@@ -251,6 +260,13 @@ impl Component for IndexPageComp {
 
             Msg::ToggleInsertRecord(app_id, card_index) => {
                 self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord(app_id, card_index));
+                // ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.props.display_insert_record));
+                // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
+                true
+            }
+
+            Msg::ToggleUploadRecord(app_id, card_index) => {
+                self.callback_toggle_uploadrecord.emit(Msg::ToggleUploadRecord(app_id, card_index));
                 // ConsoleService::info(&format!("DEBUG : display_insert_record:{:?}", self.props.display_insert_record));
                 // ConsoleService::info(&format!("DEBUG : modal_open COMPONENT:{:?}", self.props.modal_open_record));
                 true
@@ -308,7 +324,7 @@ impl Component for IndexPageComp {
                         match data { 
                             Ok(dataok) => {
                                 // ConsoleService::info(&format!("data response {:?}", &dataok));
-                                Msg::GetRecordData(dataok)
+                                Msg::GetRecordDataFirst(dataok)
                             }
                             Err(error) => {
                                 Msg::Ignore
@@ -361,6 +377,7 @@ impl Component for IndexPageComp {
                 // ConsoleService::info(&format!("Selected index: {:?}", index));
                 self.index_name = index;
                 self.index_size = index_size;
+                self.total_page = 0;
                 self.record_data =  serde_json::json!({"data": []});
                 // ConsoleService::info(&format!("self.index_size: {:?}", self.index_size));
                 self.link.send_message(Msg::RequestRecordData);
@@ -455,6 +472,7 @@ impl Component for IndexPageComp {
             Msg::SelectApp(app, name) => {
                 // ConsoleService::info(&format!("Selected index: {:?}", index));
                 self.index_name = String::from("SELECT INDEX ...");
+                self.total_page = 0;
                 self.record_data = serde_json::json!({"data": []});
                 self.app_name = name;
                 self.app_id = app;
@@ -481,6 +499,10 @@ impl Component for IndexPageComp {
             }
 
             Msg::RequestRecordDataPage (data) => {
+
+                self.current_page = data+1;
+                self.loading_record = true;
+                self.record_data = serde_json::json!({"data": []});
                 let mut pages = Pagination{
                     from: data * 20,
                     count: 20
@@ -555,6 +577,8 @@ impl Component for IndexPageComp {
                 ConsoleService::info(&format!("Total page:  {:?}", self.total_page));
                 self.current_page = (from / count) + 1;
                 ConsoleService::info(&format!("Current page:  {:?}", self.current_page));
+                self.count = count.clone();
+                ConsoleService::info(&format!("self.Count:  {:?}", self.count));
                 
                 self.loading_record = false;
                 self.record_data = data;
@@ -643,9 +667,10 @@ impl Component for IndexPageComp {
         let app_id_view = self.app_id.clone();
         let app_id_view2 = self.app_id.clone();
         let app_id_view3 = self.app_id.clone();
+        let app_id_view4 = self.app_id.clone();
 
         let index_name_view = self.index_name.clone();
-
+        let index_name_view2 = self.index_name.clone();
             html! {
                 <div> 
                         <div>
@@ -804,7 +829,17 @@ impl Component for IndexPageComp {
                                                             Msg::ToggleInsertRecord(app_id_view3.clone(), index_name_view.clone()),
                                                         ])
                                                     >
-                                                        { "Insert New Record" }
+                                                        { "Insert by JSON" }
+                                                    </a>
+                                                    <a 
+                                                        href="#" 
+                                                        onclick=self.link.batch_callback(move |_| vec![
+                                                            Msg::SendAppIdToParent(app_id_view4.clone()),
+                                                            Msg::SendIndexNameToParent(index_name_view2.clone()),
+                                                            Msg::ToggleUploadRecord(app_id_view4.clone(), index_name_view2.clone()),
+                                                        ])
+                                                    >
+                                                        { "Upload File" }
                                                     </a>
                                                 </div>
                                             </div>
@@ -898,56 +933,111 @@ impl Component for IndexPageComp {
                                             }
                                     </div>  
 
-                                    <div class = "pagination">
-                                        // { for records.iter().skip(start_record as usize - 1).take(self.records_per_page as usize).map(|record| {
-                                        //     html! {
-                                        //         <button></button>
-                                        //     }
-                                        // })}
-                                        <button> { "1" } </button>
-                                        {
-                                            if self.current_page == self.total_page {
-                                                html!{
-                                                    <div>
-                                                        <button>{self.current_page - 3}</button>
-                                                        <button>{self.current_page - 2}</button>
-                                                        <button>{self.current_page - 1}</button>
-                                                        <button>{self.current_page}</button>
-                                                    </div>
-                                                }
-                                            } else if self.current_page > 5 && self.current_page != self.total_page {
-                                                html!{
-                                                    <div>
-                                                        <button>{self.current_page - 2}</button>
-                                                        <button>{self.current_page - 1}</button>
-                                                        <button>{self.current_page}</button>
-                                                        <button>{self.current_page + 1}</button>
-                                                        { "..." }
-                                                        <button >{self.total_page}</button>
-                                                    </div>
-                                                }
-                                            } else {
-                                                let mut pages: Vec<_> = (2..=5).into_iter().map(|i| if self.current_page == i {
-                                                    html!{
-                                                        <button onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i}</button>
-                                                    }
-                                                } else {
-                                                    html!{
-                                                        <button onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i}</button>
-                                                    }
-                                                }).collect();
+                                    {
+                                        if self.total_page != 0 {
+                                            html!{
+                                                <div class="pagination">
+                                                    {
+                                                        if self.total_page <= 7 { //OK!
+                                                            let mut pages: Vec<_> = (0..self.total_page).into_iter().map(|i| if self.current_page == i+1 {
+                                                                html!{
+                                                                    <button class="pagination-active" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
+                                                                }
+                                                            } else {
+                                                                html!{
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
+                                                                }
+                                                            }).collect();
 
-                                                pages.push(html!{"\u{00a0} ... \u{00a0}"});
-                                                pages.push(html!{<button>{self.total_page}</button>});
 
-                                                html!{
-                                                    <div>
-                                                        {pages}
-                                                    </div>
-                                                } 
+                                                            html!{
+                                                                <div class="pagination-flex-container">
+                                                                    {pages}
+                                                                </div>
+                                                            } 
+
+                                                        } else if self.current_page <= 4 && self.total_page > 7 { //OK!!
+                                                            let total_page_temp = self.total_page.clone();
+                                                            let mut pages_beginning: Vec<_> = (0..4).into_iter().map(|i| if self.current_page == i+1 {
+                                                                html!{
+                                                                    <button class="pagination-active" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
+                                                                }
+                                                            } else {
+                                                                html!{
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
+                                                                }
+                                                            }).collect();
+                                                            
+                                                            html!{
+                                                                <div class="pagination-flex-container">
+                                                                    {pages_beginning}
+                                        
+                                                                    <button class="pagination-inactive pagination-arrow" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(4))>{"\u{1f782}"}</button>
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(total_page_temp-1))>{&self.total_page-1}</button>
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(total_page_temp))>{&self.total_page}</button>
+                                                                </div>
+                                                            } 
+
+                                                        } else if self.current_page > (self.total_page - 4) && self.total_page > 7 { //OK!!
+                                                            let total_page_temp = self.total_page.clone();
+                                                            let mut pages_end: Vec<_> = (total_page_temp-4..total_page_temp).into_iter().map(|i| if self.current_page == i+1 {
+                                                                html!{
+                                                                    <button class="pagination-active" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
+                                                                }
+                                                            } else {
+                                                                html!{
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
+                                                                }
+                                                            }).collect();
+
+                                                            html!{
+                                                                <div class="pagination-flex-container">
+                                                                    
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(0))>{1}</button>
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(1))>{2}</button>
+                                                                    <button class="pagination-inactive pagination-arrow" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(total_page_temp-5))>{"\u{1f780}"}</button>
+                                                                    {pages_end}                     
+                                                                </div>
+                                                            }
+
+                                                        } else { //OK!! (ish)
+                                                            let total_page_temp = self.total_page.clone();
+                                                            let current_page_temp = self.current_page.clone();
+
+                                                            let mut pages_mid: Vec<_> = (current_page_temp-1..=current_page_temp+1).into_iter().map(|i| if self.current_page == i+1 {
+                                                                html!{
+                                                                    <button class="pagination-active" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
+                                                                }
+                                                            } else {
+                                                                html!{
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
+                                                                }
+                                                            }).collect();
+
+                                                            html!{
+                                                                <div class="pagination-flex-container">
+                                                                    
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(0))>{1}</button>
+                                                                    <button class="pagination-inactive pagination-arrow" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(current_page_temp-2))>{"\u{1f780}"}</button>
+                                                                    {pages_mid}
+                                                                    <button class="pagination-inactive pagination-arrow" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(current_page_temp+2))>{"\u{1f782}"}</button>  
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(total_page_temp))>{&self.total_page}</button>              
+                                                                </div>
+                                                            }
+                                                        }
+
+                                                    }   
+                                                </div> //END OF PAGINATION DIV
+                                            }
+
+                                            
+                                        } else { //if self current page = 0 
+                                            html! {
+                                                // Nothing
                                             }
                                         }
-                                    </div>
+                                    }
+                                    
                                 </div>
 
 
@@ -1140,7 +1230,7 @@ impl IndexPageComp {
                                         <div class="card-sub">
         
                                             <div class="card-number">
-                                                {"#"}{i+1}
+                                                {"#"}{i+1+((self.current_page as usize - 1  )* self.count as usize)}
                                             </div>
                                                 
         
