@@ -1004,6 +1004,17 @@ impl Component for IndexPageComp {
                                                             let total_page_temp = self.total_page.clone();
                                                             let current_page_temp = self.current_page.clone();
 
+                                                            // let mut pages_mid: Vec<_> = (current_page_temp-1..=current_page_temp+1).into_iter().map(|i| {
+                                                            //     html!{
+                                                            //         <div>
+                                                            //             <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
+                                                            //             <button class="pagination-active" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
+                                                            //             <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
+                                                            //         </div>
+                                                            //     }
+                                                            // }).collect();
+
+
                                                             let mut pages_mid: Vec<_> = (current_page_temp-1..=current_page_temp+1).into_iter().map(|i| if self.current_page == i+1 {
                                                                 html!{
                                                                     <button class="pagination-active" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
@@ -1018,9 +1029,14 @@ impl Component for IndexPageComp {
                                                                 <div class="pagination-flex-container">
                                                                     
                                                                     <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(0))>{1}</button>
-                                                                    <button class="pagination-inactive pagination-arrow" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(current_page_temp-2))>{"\u{1f780}"}</button>
-                                                                    {pages_mid}
-                                                                    <button class="pagination-inactive pagination-arrow" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(current_page_temp+2))>{"\u{1f782}"}</button>  
+                                                                    <button class="pagination-inactive pagination-arrow" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(current_page_temp-3))>{"\u{1f780}"}</button>
+
+                                                                    // {pages_mid}
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(current_page_temp-2))>{current_page_temp-1}</button>
+                                                                    <button class="pagination-active" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(current_page_temp-1))>{current_page_temp}</button>
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(current_page_temp))>{current_page_temp+1}</button>
+
+                                                                    <button class="pagination-inactive pagination-arrow" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(current_page_temp+1))>{"\u{1f782}"}</button>  
                                                                     <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(total_page_temp))>{&self.total_page}</button>              
                                                                 </div>
                                                             }
