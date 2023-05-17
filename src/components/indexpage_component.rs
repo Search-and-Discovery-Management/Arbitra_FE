@@ -19,22 +19,24 @@ pub struct AppData{
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct IndexData{
     pub index: String,
-    pub primary_size: String
+    pub docs_count: u64,
+    pub docs_deleted: u64,
+    pub primary_size: u64
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct SearchRecord {
     pub index: String,
     pub search_term: String,
-    pub from: u32,
-    pub count: u32,
+    pub from: u64,
+    pub count: u64,
     pub wildcards: bool
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Pagination {
-    pub from: i64,
-    pub count: i64,
+    pub from: u64,
+    pub count: u64,
 }
 
 pub enum Msg {
@@ -49,7 +51,7 @@ pub enum Msg {
     ToggleDeleteCard(String, String, String),
 
     RequestRecordData,
-    RequestRecordDataPage(i64),
+    RequestRecordDataPage(u64),
     GetRecordDataFirst(Value), //UNTUK MENGETAHUI JUUMLAH RECORD DAN SIZE NYA UNTUK DISPLAY
     GetRecordData(Value), // UNTUK SEARCH
     ResponseError(String),
@@ -173,12 +175,12 @@ pub struct IndexPageComp {
     app_id: String,
     app_name: String,
 
-    record_count: i32,
+    record_count: u64,
     index_size: String,
 
-    total_page: i64,
-    current_page: i64,
-    count: i64,
+    total_page: u64,
+    current_page: u64,
+    count: u64,
 
     loading_record: bool,
     loading_first: bool,
@@ -362,6 +364,7 @@ impl Component for IndexPageComp {
                                 Msg:: GetIndexData(Some(dataok))
                             }
                             Err(error) => {
+                                // ConsoleService::info(&format!("data response {:?}", &error));
                                 Msg::ResponseError(error.to_string())
                             }
                         }
@@ -396,10 +399,10 @@ impl Component for IndexPageComp {
 
                             match found_index_name {
                                 Some(app) => {
-                                    // ConsoleService::info(&format!("Matched index name!"));
+                                    ConsoleService::info(&format!("Matched index name!"));
                                 },
                                 None => {
-                                    // ConsoleService::info(&format!("index Name not found!"));
+                                    ConsoleService::info(&format!("index Name not found!"));
                                     self.index_name = String::from("SELECT INDEX ...");
                                 }
                             }
@@ -569,11 +572,11 @@ impl Component for IndexPageComp {
 
             Msg::GetRecordDataFirst(data) => {
                 // ConsoleService::info(&format!("data is {:?}", data.get("data").unwrap().as_array().unwrap()));
-                let from = data.get("from").unwrap().as_i64().unwrap_or(0);
-                let count = data.get("count").unwrap().as_i64().unwrap_or(0);
-                let total_data = data.get("total_data").unwrap().as_i64().unwrap_or(0);
+                let from = data.get("from").unwrap().as_u64().unwrap_or(0);
+                let count = data.get("count").unwrap().as_u64().unwrap_or(0);
+                let total_data = data.get("total_data").unwrap().as_u64().unwrap_or(0);
 
-                self.total_page = (total_data as f64 / count as f64).ceil() as i64;
+                self.total_page = (total_data as f64 / count as f64).ceil() as u64;
                 ConsoleService::info(&format!("Total page:  {:?}", self.total_page));
                 self.current_page = (from / count) + 1;
                 ConsoleService::info(&format!("Current page:  {:?}", self.current_page));
@@ -1197,11 +1200,11 @@ impl IndexPageComp {
                     // ConsoleService::info(&format!("vec indexData is {:?}", card));
                     // ConsoleService::info(&format!("indexData is {:?}", card_parse));
                     
-                    let index_name = card_parse.index.clone().split('.').next_back().unwrap().to_string();
+                    let index_name = card_parse.index.clone();
                     let index_size_impl = card_parse.primary_size.clone();
                     // ConsoleService::info(&format!("indexSize is {:?}", index_size_impl));
                     html!{
-                        <a class="index-name" onclick=self.link.callback(move |_| Msg::SelectIndex(index_name.clone(), index_size_impl.clone()))>
+                        <a class="index-name" onclick=self.link.callback(move |_| Msg::SelectIndex(index_name.clone(), index_size_impl.clone().to_string()))>
                             // { serde_json::to_string_pretty(&card_parse.index).unwrap().trim_start().replace("\"", "")}
                             { card_parse.index.clone().split('.').next_back().unwrap() }
                         </a>
