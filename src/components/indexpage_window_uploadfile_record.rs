@@ -7,8 +7,6 @@ use yew::format::{Json, self};
 use yew::events::ChangeData;
 use yew::web_sys::File;
 use web_sys::FormData;
-use web_sys::Blob;
-use wasm_bindgen::JsValue;
 
 pub enum Msg {
     ToggleUploadRecord,
@@ -104,27 +102,13 @@ impl Component for UploadRecord {
                 self.loading = true;
                 ConsoleService::info(&format!("DEBUG loading status : {:?}", &self.loading));
 
-                // let mut records: serde_json::Value = json!({});
-                // match serde_json::from_str::<Vec<serde_json::Value>>(&self.value) {
-                //     Ok(_) => records = serde_json::from_str::<serde_json::Value>(&self.value).unwrap(),
-                //     Err(error) => ConsoleService::info(&format!("Error: {}", error)),
-                // };
-
                 let form_data = FormData::new().unwrap();
                 form_data.append_with_blob("file", self.file.as_ref().unwrap()).unwrap();
 
-                let mut body = String::new();
-                for entry in form_data.into_iter() {
-                    let (name, value) = entry.unwrap();
-                    let entry = format!("{}={}&", name, value);
-                    body.push_str(&entry);
-                }
-                body.pop(); // Remove the trailing '&'
-
-                let url = format!("https://test-dps-api.dev-domain.site/api/document/{}/{}", &self.props.app_id, &self.props.card_index);
+                let url = format!("https://test-dps-api.dev-domain.site/api/upload/document/{}/{}", &self.props.app_id, &self.props.card_index);
                 let request = Request::post(url)
                     .header("Content-Type", "multipart/form-data")
-                    .body(Ok(body.into()))
+                    .body(Ok(form_data.to_string().into()))
                     .expect("Could not build request.");
                 let callback = 
                     self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
@@ -207,13 +191,15 @@ impl Component for UploadRecord {
                                 id="upload-dropzone" 
                                 name="upload-input" 
                                 accept=".json"
-                                onchange=self.link.callback(|cd: ChangeData| {
-                                    match cd {
-                                        ChangeData::Files(file_list) => {
-                                            ConsoleService::info(&format!("File list: {:?}", file_list.get(0)));
-                                            Msg::SelectFile(file_list.get(0))
-                                        },
-                                        default => Msg::ClearFile
+                                onchange=self.link.callback(|event: ChangeData| {
+                                    if let ChangeData::Files(files) = event {
+                                        if let Some(file) = files.get(0) {
+                                            Msg::SelectFile(Some(file))
+                                        } else {
+                                            Msg::Ignore
+                                        }
+                                    } else {
+                                        Msg::Ignore
                                     }
                                 })
                                 />
@@ -249,49 +235,63 @@ impl Component for UploadRecord {
                    
 // FORM INPUT EXAMPLE END
 
-                {
-                    if self.file_is_valid {
-                        if self.loading {
-                            html!{
-                                <button 
-                                type="submit"
-                                form="submit-insertrecord"
-                                class="window-confirm-button"
-                                // onclick = self.link.callback(|_| Msg::RequestCreateRecordsData)
-                                >
-                                    <span class="loader">
-                                        <span class="loader-inner">
-                                        </span>
-                                    </span>
-                                </button>
-                            }
-                        } else {
-                            html!{
-                                <button 
-                                    type="submit"
-                                    form="submit-insertrecord"
-                                    class="window-confirm-button"
-                                    onclick = self.link.callback(|_| Msg::RequestCreateRecordsData)
-    
-                                    // onclick=self.link.batch_callback(|_| vec![
-                                    //     Msg::ToggleInsertRecord,
-                                    //     Msg::RequestCreateRecordsData,
-                                    // ])
-                                >
-                                    { "UPLOAD RECORDS FILE" }
-                                </button>
-                            }
-                        }
-                        
-                    } else {
-                        html! {
-                            <button disabled=true class="window-confirm-button">
-                                {"PLEASE UPLOAD A FILE"}
-                            </button> 
-                        }
-                    }
+                    <button 
+                    type="submit"
+                    form="submit-insertrecord"
+                    class="window-confirm-button"
+                    onclick = self.link.callback(|_| Msg::RequestCreateRecordsData)
 
-                }
+                    // onclick=self.link.batch_callback(|_| vec![
+                    //     Msg::ToggleInsertRecord,
+                    //     Msg::RequestCreateRecordsData,
+                    // ])
+                    >
+                    { "UPLOAD RECORDS FILE" }
+                    </button>
+
+                // {
+                //     if self.file_is_valid {
+                //         if self.loading {
+                //             html!{
+                //                 <button 
+                //                 type="submit"
+                //                 form="submit-insertrecord"
+                //                 class="window-confirm-button"
+                //                 // onclick = self.link.callback(|_| Msg::RequestCreateRecordsData)
+                //                 >
+                //                     <span class="loader">
+                //                         <span class="loader-inner">
+                //                         </span>
+                //                     </span>
+                //                 </button>
+                //             }
+                //         } else {
+                //             html!{
+                //                 <button 
+                //                     type="submit"
+                //                     form="submit-insertrecord"
+                //                     class="window-confirm-button"
+                //                     onclick = self.link.callback(|_| Msg::RequestCreateRecordsData)
+    
+                //                     // onclick=self.link.batch_callback(|_| vec![
+                //                     //     Msg::ToggleInsertRecord,
+                //                     //     Msg::RequestCreateRecordsData,
+                //                     // ])
+                //                 >
+                //                     { "UPLOAD RECORDS FILE" }
+                //                 </button>
+                //             }
+                //         }
+                        
+                //     } else {
+                //         html! {
+                //             <button disabled=true class="window-confirm-button">
+                //                 {"PLEASE UPLOAD A FILE"}
+                //             </button> 
+                //         }
+                //     }
+
+                // }
                 </div>
                 
                 {
