@@ -170,7 +170,7 @@ pub struct IndexPageComp {
     index_data: Option<Vec<IndexData>>,
     index_name: String,
     error: Option<String>,
-    search_input: bool,
+    search_input: String,
     app_data: Option<Vec<AppData>>,
     app_id: String,
     app_name: String,
@@ -215,7 +215,7 @@ impl Component for IndexPageComp {
             app_name: String::from("UNSELECTED"),
             app_data: Some(vec![]),
 
-            search_input: false,
+            search_input: String::from(""),
 
             callback_edit_data: props.callback_edit_data.clone(),
             callback_delete_window: props.callback_delete_window.clone(),
@@ -342,7 +342,8 @@ impl Component for IndexPageComp {
 
             Msg::InputSearch(data) => {
                 // ConsoleService::info(&format!("Input Data for Search: {:?}", data));
-                self.search_input = !data.is_empty();
+                self.search_input = data.clone();
+                // ConsoleService::info(&format!("self.search_input : {:?}", self.search_input));
                 self.link.send_message(Msg::RequestSearch(data));
                 true
             }
@@ -502,18 +503,33 @@ impl Component for IndexPageComp {
             }
 
             Msg::RequestRecordDataPage (data) => {
+                ConsoleService::info(&format!("self.search_input : {:?}", self.search_input));
 
                 self.current_page = data+1;
                 self.loading_record = true;
                 self.record_data = serde_json::json!({"data": []});
-                let mut pages = Pagination{
+
+                // let mut pages = Pagination{
+                //     from: data * 20,
+                //     count: 20
+                // };
+
+                let mut search_term = SearchRecord{
+                    index: self.index_name.clone(),
+                    search_term: String::from(""),
                     from: data * 20,
-                    count: 20
+                    count: 20,
+                    wildcards: true
                 };
+                if self.search_input.is_empty() {
+                    search_term.search_term = String::from("*");
+                }else {
+                    search_term.search_term = self.search_input.clone();
+                }
 
                 let request = Request::post(format!("https://test-dps-api.dev-domain.site/api/search/{}/{}", &self.app_id, &self.index_name))
                     .header("Content-Type", "application/json")
-                    .body(Json(&pages))
+                    .body(Json(&search_term))
                     .expect("Could not build request.");
                 let callback = 
                     self.link.callback(|response: Response<Json<Result<Value, anyhow::Error>>>| {
@@ -624,7 +640,7 @@ impl Component for IndexPageComp {
 
             Msg::ToggleSidebar => {
                 self.toggle_sidebar = !self.toggle_sidebar;
-                ConsoleService::info(&format!("DEBUG : self.toggle_sidebar {:?}", self.toggle_sidebar));
+                // ConsoleService::info(&format!("DEBUG : self.toggle_sidebar {:?}", self.toggle_sidebar));
                 true
             }
 
@@ -805,7 +821,7 @@ impl Component for IndexPageComp {
                                                 <div class="recordData">
                                                     <p class="recordNum">{ "No. of Records \u{00a0} \u{00a0} \u{00a0} \u{00a0}" }{self.record_count}</p>
                                                     <p style="float: left;">{ "\u{00a0} \u{00a0} \u{00a0}" }</p>
-                                                    <p class="recordSize">{ "Index Size\u{00a0} \u{00a0} \u{00a0} \u{00a0}" }{&self.index_size}</p>
+                                                    <p class="recordSize">{ "Index Size\u{00a0} \u{00a0} \u{00a0} \u{00a0}" }{&self.index_size}{" bytes"}</p>
                                                 </div>
                                             }
                                         }
@@ -941,12 +957,15 @@ impl Component for IndexPageComp {
                                             html!{
                                                 <div class="pagination">
                                                     {
-                                                        if self.total_page <= 7 { //OK!
+                                                        if self.total_page <= 7 { //Page sedikit
+                                                            
                                                             let mut pages: Vec<_> = (0..self.total_page).into_iter().map(|i| if self.current_page == i+1 {
+                                                                
                                                                 html!{
                                                                     <button class="pagination-active" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
                                                                 }
                                                             } else {
+                                                               
                                                                 html!{
                                                                     <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
                                                                 }
@@ -959,13 +978,15 @@ impl Component for IndexPageComp {
                                                                 </div>
                                                             } 
 
-                                                        } else if self.current_page <= 4 && self.total_page > 7 { //OK!!
+                                                        } else if self.current_page <= 4 && self.total_page > 7 { //Page diawal kalau ada banyak
                                                             let total_page_temp = self.total_page.clone();
                                                             let mut pages_beginning: Vec<_> = (0..4).into_iter().map(|i| if self.current_page == i+1 {
+                                                                let search_input_temp = self.search_input.clone();
                                                                 html!{
                                                                     <button class="pagination-active" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
                                                                 }
                                                             } else {
+                                                                let search_input_temp = self.search_input.clone();
                                                                 html!{
                                                                     <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
                                                                 }
@@ -976,12 +997,12 @@ impl Component for IndexPageComp {
                                                                     {pages_beginning}
                                         
                                                                     <button class="pagination-inactive pagination-arrow" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(4))>{"\u{1f782}"}</button>
-                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(total_page_temp-1))>{&self.total_page-1}</button>
-                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(total_page_temp))>{&self.total_page}</button>
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(total_page_temp-2))>{&self.total_page-1}</button>
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(total_page_temp-1))>{&self.total_page}</button>
                                                                 </div>
                                                             } 
 
-                                                        } else if self.current_page > (self.total_page - 4) && self.total_page > 7 { //OK!!
+                                                        } else if self.current_page > (self.total_page - 4) && self.total_page > 7 { //Page akhir
                                                             let total_page_temp = self.total_page.clone();
                                                             let mut pages_end: Vec<_> = (total_page_temp-4..total_page_temp).into_iter().map(|i| if self.current_page == i+1 {
                                                                 html!{
@@ -1003,30 +1024,10 @@ impl Component for IndexPageComp {
                                                                 </div>
                                                             }
 
-                                                        } else { //OK!! (ish)
+                                                        } else { //Page middle
                                                             let total_page_temp = self.total_page.clone();
                                                             let current_page_temp = self.current_page.clone();
 
-                                                            // let mut pages_mid: Vec<_> = (current_page_temp-1..=current_page_temp+1).into_iter().map(|i| {
-                                                            //     html!{
-                                                            //         <div>
-                                                            //             <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
-                                                            //             <button class="pagination-active" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
-                                                            //             <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
-                                                            //         </div>
-                                                            //     }
-                                                            // }).collect();
-
-
-                                                            let mut pages_mid: Vec<_> = (current_page_temp-1..=current_page_temp+1).into_iter().map(|i| if self.current_page == i+1 {
-                                                                html!{
-                                                                    <button class="pagination-active" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
-                                                                }
-                                                            } else {
-                                                                html!{
-                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(i))>{i+1}</button>
-                                                                }
-                                                            }).collect();
 
                                                             html!{
                                                                 <div class="pagination-flex-container">
@@ -1040,7 +1041,7 @@ impl Component for IndexPageComp {
                                                                     <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(current_page_temp))>{current_page_temp+1}</button>
 
                                                                     <button class="pagination-inactive pagination-arrow" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(current_page_temp+1))>{"\u{1f782}"}</button>  
-                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(total_page_temp))>{&self.total_page}</button>              
+                                                                    <button class="pagination-inactive" onclick=self.link.callback(move |_| Msg::RequestRecordDataPage(total_page_temp-1))>{&self.total_page}</button>              
                                                                 </div>
                                                             }
                                                         }
