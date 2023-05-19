@@ -1,5 +1,6 @@
 use serde::Serialize;
 use serde_json::json;
+use wasm_bindgen::JsValue;
 use yew::{prelude::*, services::ConsoleService};
 use yew::services::fetch::Request;
 use yew::services::fetch::{Response, FetchService, FetchTask};
@@ -105,31 +106,39 @@ impl Component for UploadRecord {
                 let form_data = FormData::new().unwrap();
                 form_data.append_with_blob("file", self.file.as_ref().unwrap()).unwrap();
 
-                let url = format!("https://test-dps-api.dev-domain.site/api/upload/document/{}/{}", &self.props.app_id, &self.props.card_index);
-                let request = Request::post(url)
-                    .header("Content-Type", "multipart/form-data")
-                    .body(Ok(form_data.to_string().into()))
-                    .expect("Could not build request.");
-                let callback = 
-                    self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
-                        let (meta, Json(data)) = response.into_parts();
-                        match data { 
-                            Ok(dataok) => {
-                                // ConsoleService::info(&format!("data response {:?}", &dataok));
-                                Msg::Ignore
+                let mut opts = web_sys::RequestInit::new();
+                opts.method("POST");
+                opts.body(Some(&JsValue::from(form_data)));
+
+                let request = web_sys::Request::new_with_str_and_init(&format!("https://test-dps-api.dev-domain.site/api/upload/document/{}/{}", &self.props.app_id, &self.props.card_index).to_string() , &opts).unwrap();
+                let window = web_sys::window().unwrap();
+                let _ = window.fetch_with_request(&request);
+
+                // let url = format!("https://test-dps-api.dev-domain.site/api/upload/document/{}/{}", &self.props.app_id, &self.props.card_index);
+                // let request = Request::post(url)
+                //     .header("Content-Type", "multipart/form-data")
+                //     .body(Ok(form_data.to_string().into()))
+                //     .expect("Could not build request.");
+                // let callback = 
+                //     self.link.callback(|response: Response<Json<Result<String, anyhow::Error>>>| {
+                //         let (meta, Json(data)) = response.into_parts();
+                //         match data { 
+                //             Ok(dataok) => {
+                //                 // ConsoleService::info(&format!("data response {:?}", &dataok));
+                //                 Msg::Ignore
                                 
-                            }
-                            Err(error) => {
-                                Msg::ErrorIgnore
-                            }
-                        }
-                    });
-                    // self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord);
-                    let task = FetchService::fetch(request, callback).expect("failed to start request");
+                //             }
+                //             Err(error) => {
+                //                 Msg::ErrorIgnore
+                //             }
+                //         }
+                //     });
+                //     // self.callback_toggle_insertrecord.emit(Msg::ToggleInsertRecord);
+                //     let task = FetchService::fetch(request, callback).expect("failed to start request");
                 
                     
-                    self.fetch_task = Some(task);
-                    ConsoleService::info(&format!("Getting Data.."));
+                //     self.fetch_task = Some(task);
+                //     ConsoleService::info(&format!("Getting Data.."));
                     
                 true
             }
