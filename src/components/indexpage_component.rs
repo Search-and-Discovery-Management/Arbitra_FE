@@ -884,8 +884,8 @@ impl Component for IndexPageComp {
                                                 </div>
                                             </div>
             
-                                            <img class="copyIcon" src="images/Copy Icon.png"/>
-                                            <a onclick=self.link.callback(|_| Msg::RequestRecordData)><img class="copyIcon" src="images/Refresh.png"/></a>
+                                            // <img class="copyIcon" src="images/Copy Icon.png"/>
+                                            // <a onclick=self.link.callback(|_| Msg::RequestRecordData)><img class="copyIcon" src="images/Refresh.png"/></a>
                                             </div>
                                         }
                                     }
