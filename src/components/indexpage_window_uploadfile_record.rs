@@ -114,6 +114,9 @@ impl Component for UploadRecord {
                 let window = web_sys::window().unwrap();
                 let _ = window.fetch_with_request(&request);
 
+                self.request_success = true;
+                self.loading = false;
+
                 // let url = format!("https://test-dps-api.dev-domain.site/api/upload/document/{}/{}", &self.props.app_id, &self.props.card_index);
                 // let request = Request::post(url)
                 //     .header("Content-Type", "multipart/form-data")
@@ -192,14 +195,15 @@ impl Component for UploadRecord {
                     </div> 
 
                     <div class="container-middle-width">
-                        <label class="upload-label" for="upload-input">{"Upload your JSON file here:"}</label>
+                        <label class="upload-label" for="upload-input">{"Upload your "}<b>{"JSON, YAML, or CSV"}</b>{" file here:"}</label>
 
                         <div class="upload-file-container"> 
                             <input 
                                 type="file" 
                                 id="upload-dropzone" 
                                 name="upload-input" 
-                                accept=".json"
+                                accept=".json, .csv, .yaml, .yml"
+                                required= true
                                 onchange=self.link.callback(|event: ChangeData| {
                                     if let ChangeData::Files(files) = event {
                                         if let Some(file) = files.get(0) {
